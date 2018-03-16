@@ -1,0 +1,219 @@
+﻿<Page x:Class="ImportProject.ImportMain"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImportProject"
+        mc:Ignorable="d"
+         Title="ImportMainPage" Height="305" Width="720">
+    <Page.Resources>
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+                <Border
+                  x:Name="Border" 
+                  Grid.ColumnSpan="2"
+                  CornerRadius="0"
+                  Background="#FF3F3F3F"
+                  BorderBrush="#FF97A0A5"
+                  BorderThickness="1" />
+                <Border 
+                  Grid.Column="0"
+                  CornerRadius="0" 
+                  Margin="1" 
+                  Background="#FF3F3F3F" 
+                  BorderBrush="#FF97A0A5"
+                  BorderThickness="0,0,1,0" />
+                <Path 
+                  x:Name="Arrow"
+                  Grid.Column="1"     
+                  Fill="White"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+                />
+            </Grid>
+            <!--<ControlTemplate.Triggers>
+            <Trigger Property="ToggleButton.IsMouseOver" Value="true">
+                <Setter TargetName="Border" Property="Background" Value="#808080" />
+            </Trigger>
+            <Trigger Property="ToggleButton.IsChecked" Value="true">
+                <Setter TargetName="Border" Property="Background" Value="#E0E0E0" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Border" Property="Background" Value="#EEEEEE" />
+                <Setter TargetName="Border" Property="BorderBrush" Value="#AAAAAA" />
+                <Setter Property="Foreground" Value="#888888"/>
+                <Setter TargetName="Arrow" Property="Fill" Value="#888888" />
+            </Trigger>
+        </ControlTemplate.Triggers>-->
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ComboBoxTextBox" TargetType="{x:Type TextBox}">
+            <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+        </ControlTemplate>
+
+        <Style x:Key="{x:Type ComboBox}" TargetType="{x:Type ComboBox}">
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinHeight" Value="20"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <ToggleButton 
+                            Name="ToggleButton" 
+                            Template="{StaticResource ComboBoxToggleButton}" 
+                            Grid.Column="2" 
+                            Focusable="false"
+                            IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                            ClickMode="Press">
+                            </ToggleButton>
+                            <ContentPresenter Name="ContentSite" IsHitTestVisible="False"  Content="{TemplateBinding SelectionBoxItem}"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                            Margin="3,3,23,3"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left" />
+                            <TextBox x:Name="PART_EditableTextBox"
+                            Style="{x:Null}" 
+                            Template="{StaticResource ComboBoxTextBox}" 
+                            HorizontalAlignment="Left" 
+                            VerticalAlignment="Center" 
+                            Margin="3,3,23,3"
+                            Focusable="True" 
+                            Background="#FF3F3F3F"
+                            Foreground="Green"
+                            Visibility="Hidden"
+                            IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                            <Popup 
+                            Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsDropDownOpen}"
+                            AllowsTransparency="True" 
+                            Focusable="False"
+                            PopupAnimation="Slide">
+
+                                <Grid Name="DropDown"
+                              SnapsToDevicePixels="True"                
+                              MinWidth="{TemplateBinding ActualWidth}"
+                              MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border 
+                                x:Name="DropDownBorder"
+                                Background="#FF3F3F3F"
+
+                                BorderThickness="1"
+                                BorderBrush="#888888"/>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#888888"/>
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="true">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+                            </Trigger>
+                            <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+                                <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0"/>
+                                <Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsEditable"  Value="true">
+                                <Setter Property="IsTabStop" Value="false"/>
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="{x:Type ComboBoxItem}" TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border Name="Border"
+                              Padding="2"
+                              SnapsToDevicePixels="true">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="true">
+                                <Setter TargetName="Border" Property="Background" Value="#FF4F4F4F"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <LinearGradientBrush x:Key="ButtonBackground" StartPoint="0.5,0" EndPoint="0.5,2">
+            <GradientStop Offset="0" Color="#C8F7C5" />
+            <GradientStop Offset="1" Color="Black"/>
+        </LinearGradientBrush>
+
+        <Style TargetType="Button" x:Key="FileBrowser">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="7" BorderThickness="0"  Background="{StaticResource ButtonBackground}">
+                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Button.IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#A2DED0"/>
+                </Trigger>
+                <Trigger Property="Button.IsMouseOver" Value="False">
+                    <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+    <!--ComboBox style-->
+    <Grid Height="305" VerticalAlignment="Top" Background="#ECECEA">
+        <Label x:Name="FolderAddressLabel" Content="FolderAdress" HorizontalAlignment="Left" Margin="323,194,0,0" Width="356" Height="26"/>
+        <Label Content="Logged in user : " HorizontalAlignment="Left" Margin="237,11,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Medium"/>
+        <Label x:Name="usernameLabel" Content="Username by Code" HorizontalAlignment="Left" Margin="361,13,0,0" VerticalAlignment="Top" FontSize="15" FontFamily="Maiandra GD"/>
+        <Label Content="Date of Last Import : " HorizontalAlignment="Left" Margin="237,71,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Medium"/>
+        <Label x:Name="lastImportDateLabel" Content="Date by Code" HorizontalAlignment="Left" Margin="402,73,0,0" VerticalAlignment="Top" FontSize="15" FontFamily="Maiandra GD"/>
+        <Label Content="Transactions in Database : " HorizontalAlignment="Left" Margin="237,41,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Medium" />
+        <Label x:Name="noTransactionsLabel" Content="Number by Code" HorizontalAlignment="Left" Margin="432,43,0,0" VerticalAlignment="Top" FontSize="15" FontFamily="Maiandra GD" RenderTransformOrigin="0.516,0.143"/>
+        <Label Content="Urgency of Import : " HorizontalAlignment="Left" Margin="237,101,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Medium"/>
+        <Label x:Name="urgencyLabel" Content="Urgerncy generated by Code" HorizontalAlignment="Left" Margin="402,103,0,0" VerticalAlignment="Top" FontSize="15" FontFamily="Maiandra GD"/>
+        <Button x:Name="FileBrowser" Content="Import Transactions" HorizontalAlignment="Left" Margin="323,166,0,0" VerticalAlignment="Top" Width="150" Height="45" 
+                Foreground="Black" Style="{StaticResource FileBrowser}" FontFamily="Maiandra GD" FontSize="15" Command="{Binding Path=OpenFilePushed}">
+        </Button>
+        <ComboBox x:Name="descriptionComboBox" Height="30" Width="126" Margin="65,194,530,81">
+        </ComboBox>
+        <Label Content="On repeating transactions : " HorizontalAlignment="Left" Margin="237,131,0,0" VerticalAlignment="Top" FontSize="15" FontWeight="Medium"/>
+        <RadioButton x:Name="alwaysAskCB" Content="Always ask" HorizontalAlignment="Left" Margin="440,140,0,0" VerticalAlignment="Top" IsChecked="{Binding alwaysAsk, Mode=OneWayToSource}"/>
+        <RadioButton x:Name="neverAskCB"  Content="Never ask" HorizontalAlignment="Left" Margin="529,140,0,0" VerticalAlignment="Top" IsChecked="{Binding neverAsk, Mode=OneWayToSource}"/>
+    </Grid>
+</Page>
+
