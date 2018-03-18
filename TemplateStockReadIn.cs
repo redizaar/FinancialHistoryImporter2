@@ -258,71 +258,115 @@ namespace WpfApp1
                 }
                 dateCellValueFormatted=dateCellValueFormatted.Replace('.', '-');
                 //2018-02-28
-                transactionDate = convertDateToCompare(dateCellValueFormatted);
+
+                //transactionDate = convertDateToCompare(dateCellValueFormatted); <- Google financehoz kellet igy
             }
             else if (dateRegex2.IsMatch(transactionDate))
             {
                 //2018-02-28
                 transactionDate=transactionDate.Replace('.', '-');
-                transactionDate = convertDateToCompare(transactionDate);
+                //transactionDate = convertDateToCompare(transactionDate); <- Google financehoz kellet igy
             }
             else if (dateRegex3.IsMatch(transactionDate))
             {
-                switch (transactionDate.Substring(3, 3))
+                //28-feb.-2018
+                switch (transactionDate.Substring(3, 3).ToLower())
                 {
+                    case "jan":
+                        month = "01";
+                    break;
+                    case "feb":
+                        month = "02";
+                    break;
+                    case "mar":
+                        month = "03";
+                    break;
+                    case "apr":
+                        month = "04";
+                    break;
                     case "maj":
-                        month = "may";
-                        break;
+                        month = "05";
+                    break;
+                    case "jun":
+                        month = "06";
+                    break;
+                    case "jul":
+                        month = "07";
+                    break;
+                    case "aug":
+                        month = "08";
+                    break;
                     case "okt":
-                        month = "oct";
-                        break;
+                        month = "10";
+                    break;
+                    case "nov":
+                        month = "11";
+                    break;
+                    case "dec":
+                        month = "12";
+                    break;
                 }
-                //05-may.-2018
-                transactionDate=transactionDate.Replace(transactionDate.Substring(3, 3), month);
-                transactionDate = transactionDate.Remove(6, 1);
-                //05-may-2018
+                //28-feb.-2018
+                transactionDate=transactionDate.Replace(transactionDate.Substring(3, 4), month);
+                //28-02-2018
                 string temp = "";
                 string[] splitted = transactionDate.Split('-');
-                splitted[2] = splitted[2].Remove(0, 2);
-                for (int i = 0; i < splitted.Length; i++)
+                for (int i = splitted.Length-1; i >= 0; i--)
                 {
-                    if (i != splitted.Length - 1)
+                    if (i != 0)
                         temp += splitted[i] + '-';
                     else
                         temp += splitted[i];
                 }
+                //2018-02-28
                 transactionDate = temp;
             }
             else if (dateRegex4.IsMatch(transactionDate))
             {
                 string temp = "";
-                //05-febr.-2018
-                transactionDate=transactionDate.Remove(6, 2);
-                //05-feb-2018
-                string[] splitted = transactionDate.Split('-');
-                splitted[2] = splitted[2].Remove(0, 2);
-                for (int i = 0; i < splitted.Length; i++)
+                //28-febr.-2018
+                switch (transactionDate.Substring(3, 4).ToLower())
                 {
-                    if (i != splitted.Length - 1)
-                        temp += splitted[i] + '-';
-                    else
-                        temp += splitted[i];
+                    case "febr":
+                        month = "02";
+                        break;
+                    case "marc":
+                        month = "03";
+                        break;
+                    case "aprl":
+                        month = "04";
+                        break;
+                    case "juni":
+                        month = "06";
+                        break;
+                    case "juli":
+                        month = "07";
+                        break;
+                    case "szep":
+                        month = "09";
+                        break;
+                    case "sept":
+                        month = "09";
+                        break;
                 }
-                transactionDate = temp;
+                //28-febr.-2018
+                transactionDate = transactionDate.Replace(transactionDate.Substring(3, 5), month);
+                //28-02-2018
+                string[] splitted = transactionDate.Split('-');
+                transactionDate = splitted[2]+"-"+splitted[1]+"-"+splitted[0];
             }
             string[] words = csvString.Split(',');
-            int j = 0;;
-            Regex regex1 = new Regex(@"[0-9]{2}-[a-zA-Z]{3}-[0-9]{2}", RegexOptions.IgnoreCase);
-            Regex regex2 = new Regex(@"[0-9]-[a-zA-Z]{3}-[0-9]{2}", RegexOptions.IgnoreCase);
-            for (int i = 0; i < words.Length; i++)
+            string regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
+            for (int i = 11; i < words.Length - 1; i ++)
             {
-                if ((regex1.IsMatch(words[i])) || (regex2.IsMatch(words[i])))
+                if ((Regex.IsMatch(words[i], regex)))
                 {
                     string[] date = words[i].Split('\n');
-                    if(string.Equals(date[1],transactionDate, StringComparison.CurrentCultureIgnoreCase))
+                    if (date[1] == transactionDate)
                     {
-                        highPrice = double.Parse(words[i+2].Replace('.', ','));
-                        lowPrice = double.Parse(words[i+3].Replace('.', ','));
+                        highPrice = double.Parse(words[i + 1].Replace('.', ','));
+                        lowPrice = double.Parse(words[i + 4].Replace('.', ','));
+                        break;
                     }
                 }
             }
@@ -379,7 +423,9 @@ namespace WpfApp1
                         string csv;
                         using (var web = new WebClient())
                         {
-                            string url = "https://finance.google.com/finance/historical?q=" + cToTicker.Value + "&startdate=" + cToDate.Value + "&output=csv";
+                            string url = $"https://api.iextrading.com/1.0/stock/"+cToTicker.Value+"/chart/1Y?format=csv";
+                            //string url2 = "https://finance.google.com/finance/historical?q=" + cToTicker.Value + "&startdate=" + cToDate.Value + "&output=csv";
+                            //not working anymore 2018.03.16
                             //$"https://finance.google.com/finance/historical?q=AAPL&startdate=01-Jan-2016&output=csv";
                             csv = web.DownloadString(url);
                             string companyName = cToTicker.Key;

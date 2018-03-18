@@ -18,43 +18,48 @@ namespace WpfApp1
         {
             stocksForSql = new List<Stock>();
         }
-        public void getCSVDataFromGoogle(string ticker,string day,string month,string year)
+        public void getCSVDataFromIEX(string ticker,string date)
         {
+            string[] dateSplitted = date.Split(' ');
+            if (dateSplitted[1] == "month")
+            {
+                date = dateSplitted[0] + "M";
+            }
+            else if (dateSplitted[1] == "year")
+            {
+                date = dateSplitted[0] + "y";
+            }
             dates = new List<string>();
             prices = new List<double>();
             string csv;
             using (var web = new WebClient())
             {
-                var url = $"https://finance.google.com/finance/historical?q="+ticker+"&startdate="+day+"-"+month+"-"+year+"&output=csv";
+                var url = $"https://api.iextrading.com/1.0/stock/"+ticker+"/chart/"+date+"?format=csv";
+                //var url = $"https://finance.google.com/finance/historical?q="+ticker+"&startdate="+day+"-"+month+"-"+year+"&output=csv";
+                //nem müködik 2018.03.17 ......................................
                 //$"https://finance.google.com/finance/historical?q=AAPL&startdate=01-Jan-2016&output=csv";
                 csv = web.DownloadString(url);
             }
             string[] lines = csv.Split(',');
             int j = 0;
-            string regex = "[0-9]{2}-[a-zA-Z]{3}-[0-9]{2}";
-            string regex2 = "[0-9]-[a-zA-Z]{3}-[0-9]{2}";
+            string regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
             string tempDate="";
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 11; i < lines.Length-1; i+=11)
             {
-                if ((Regex.IsMatch(lines[i], regex)) || (Regex.IsMatch(lines[i], regex2)))
+                if ((Regex.IsMatch(lines[i], regex)))
                 {
-                    string[] date = lines[i].Split('\n');
-                    dates.Add(date[1]);
-                    tempDate = date[1];
+                    string[] _date = lines[i].Split('\n');
+                    dates.Add(_date[1]);
+                    tempDate = _date[1];
                 }
-                if (i > 4 && j == 4)
-                {
-                    double openPrice = double.Parse(lines[i-3].Replace('.', ','));
-                    double highPrice = double.Parse(lines[i-2].Replace('.', ','));
-                    double lowPrice = double.Parse(lines[i-1].Replace('.', ','));
-                    double closePrice = double.Parse(lines[i].Replace('.', ','));
-                    Stock stock = new Stock(ticker, tempDate,openPrice,highPrice,lowPrice,closePrice);
-                    stocksForSql.Add(stock);
-                    prices.Add(closePrice);
-                    j = 0;
-                }
-                else if (i > 4)
-                    j++;
+                double openPrice = double.Parse(lines[i+1].Replace('.', ','));
+                double highPrice = double.Parse(lines[i+2].Replace('.', ','));
+                double lowPrice = double.Parse(lines[i+3].Replace('.', ','));
+                double closePrice = double.Parse(lines[i+4].Replace('.', ','));
+                Stock stock = new Stock(ticker, tempDate,openPrice,highPrice,lowPrice,closePrice);
+                stocksForSql.Add(stock);
+                prices.Add(closePrice);
+                j = 0;
             }
             ThreadStart threadStart = delegate
             {
@@ -65,40 +70,6 @@ namespace WpfApp1
             sqlThread.Start();
             sqlThread.Join();
         }
-        /*
-         * getting price right now
-         * not historical
-        public void GetDataFromWeb()
-        {
-            Stock stock;
-            const string tickers = "AAPL,GOOG,GOOGL,YHOO,TSLA,INTC,AMZN,BIDU,ORCL,MSFT,ORCL,ATVI,NVDA,GME,LNKD,NFLX";
-
-            string json;
-
-            using (var web = new WebClient())
-            {
-                var url = $"https://finance.google.com/finance?q=AAPL&output=json";
-                json = web.DownloadString(url);
-            }
-
-            //Google adds a comment before the json for some unknown reason, so we need to remove it
-            json = json.Replace("//", "");
-
-            var v = JArray.Parse(json);
-
-            foreach (var i in v)
-            {
-                var ticker = i.SelectToken("t");
-                var price = (float)i.SelectToken("l");
-                //var lastTradeTime = i.SelectToken("ltt");
-                //var change = i.SelectToken("c");
-                //var changePercentage = i.SelectToken("cp");
-                stock = new Stock(ticker.ToString(), float.Parse(price.ToString()));
-                stocks.Add(stock);
-                //Console.WriteLine($"{ticker} : {price}");
-            }
-        }
-        */
         private void writeStocksToSQL(List<Stock> stocksFromCSV)
         {
             //elől vannak a friss dátumok, árak
@@ -108,8 +79,8 @@ namespace WpfApp1
             string ticker = stocksForSql[0].getSymbolToSql();
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
-            string loginQuery = "Select * From [Stock_WebData] where Name = '"+ticker+"'";
-            SqlDataAdapter sda = new SqlDataAdapter(loginQuery, sqlConn);
+            string query = "Select * From [Stock_WebData] where Name = '"+ticker+"'";
+            SqlDataAdapter sda = new SqlDataAdapter(query, sqlConn);
             DataTable dtb = new DataTable();
             sda.Fill(dtb);
             if (dtb.Rows.Count == 0)
@@ -167,28 +138,6 @@ namespace WpfApp1
                 }
             }
         }
-        /*
-         * saving the single price (non historical to the sql database)
-        public bool writeStocksToSQL()
-        {
-            //https://stackoverflow.com/questions/41161104/error-converting-data-type-varchar-to-float-c-sharp-webservice
-            //string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
-            var src = DateTime.Now;
-            var exactDate = new DateTime(src.Year, src.Month, src.Day, src.Hour, src.Minute, 0);
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            sqlConn.Open();
-            SqlCommand sqlCommand = new SqlCommand("insertStockDataNew4", sqlConn);//SQLQuery 4
-            sqlCommand.CommandType = CommandType.StoredProcedure;
-            for (int i = 0; i < stocks.Count; i++)
-            {
-                sqlCommand.Parameters.AddWithValue("@name", stocks[i].getStockName());
-                sqlCommand.Parameters.AddWithValue("@price", stocks[i].getStockPrice());
-                sqlCommand.Parameters.AddWithValue("@date", exactDate.ToString());
-                sqlCommand.ExecuteNonQuery();
-            }
-            return true;
-        }
-        */
         public List<double> getPrices()
         {
             return prices;

@@ -173,20 +173,22 @@
     <Grid Background="White">
         <StackPanel>
             <DockPanel Background="#8b9dc3">
-                <Label Content="Symbol of Share: " FontSize="15"/>
+                <DockPanel HorizontalAlignment="Left">
+                    <Label Content="Symbol of Share: " FontSize="15"/>
                 <TextBox x:Name="tickerTextBox" Height="30" Width="100" HorizontalAlignment="Left" FontSize="18" BorderBrush="Black"/>
-                <Label Content="From: " FontSize="14" HorizontalAlignment="Left"/>
-                <ComboBox x:Name="yearComboBox" Width="70"  SelectionChanged="yearComboBox_SelectionChanged" />
-                <ComboBox x:Name="monthComboBox" Width="70"   SelectionChanged="monthComboBox_SelectionChanged"/>
-                <ComboBox x:Name="dayComboBox" Width="70" />
-                <Button x:Name="downloadButton" Content="Download Data" Width="100"  Command="{Binding getStockData}" HorizontalAlignment="Center" Margin="50,0,0,0" ToolTip="Downloading data using Google Finance"/>
-                <Button x:Name="switchToTable" Width="30" HorizontalAlignment="Right" Command="{Binding switchPage}"  ToolTip="Show the stored Share datas from database">
-                    <Image Source="databaseIcon4.png" Height="30"/>
-                </Button>
+                <Label Content="From: " FontSize="14" />
+                    <ComboBox x:Name="dateComboBox" Width="100" ItemsSource="{Binding dateChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding dateChoice}"/>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Right">
+                    <Button x:Name="downloadButton" Content="Download Data" Width="100"  Command="{Binding getStockData}" HorizontalAlignment="Center" Margin="50,0,0,0" ToolTip="Downloading data using IEX API"/>
+                    <Button x:Name="switchToTable" Width="30" HorizontalAlignment="Right" Command="{Binding switchPage}"  ToolTip="Show the stored Share datas from database">
+                        <Image Source="databaseIcon4.png" Height="30"/>
+                    </Button>
+                </DockPanel>
             </DockPanel>
             <lvc:CartesianChart Series="{Binding Series,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="265">
                 <lvc:CartesianChart.AxisX>
-                    <lvc:Axis Title="Days" Labels="{Binding Labels}"></lvc:Axis>
+                    <lvc:Axis Title="Days" Labels="{Binding Labels, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></lvc:Axis>
                 </lvc:CartesianChart.AxisX>
             </lvc:CartesianChart>
         </StackPanel>

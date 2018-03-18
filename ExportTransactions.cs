@@ -239,6 +239,14 @@ namespace WpfApp1
         public ExportTransactions(List<Stock> transactions, MainWindow mainWindow,string currentFileName)
         {
             string earningMethod = ImportPageStock.getInstance(mainWindow).getMethod();
+            //we need the original quantity that's we going to get it from the original transactions List 
+            //(after the switch it is zero for every object)
+
+            List<int> quantities = new List<int>();
+            for (int i = 0; i < transactions.Count; i++)
+                quantities.Add(transactions[i].getQuantity());
+            //but we need the profits too , which we going to get from the tempTransactions
+
             switch(earningMethod)
             {
                 case "FIFO":
@@ -260,33 +268,33 @@ namespace WpfApp1
             {
                 row_number++; // get the current last row
             }
-            foreach (var transaction in transactions)
+            for(int i= 0;i<transactions.Count;i++)
             {
 
                 WriteWorksheet.Cells[row_number, 1].Value = todaysDate;
-                WriteWorksheet.Cells[row_number, 2].Value = transaction.getTransactionDate();
-                WriteWorksheet.Cells[row_number, 3].Value = transaction.getStockName();
-                WriteWorksheet.Cells[row_number, 4].Value = transaction.getStockPrice();
+                WriteWorksheet.Cells[row_number, 2].Value = transactions[i].getTransactionDate();
+                WriteWorksheet.Cells[row_number, 3].Value = transactions[i].getStockName();
+                WriteWorksheet.Cells[row_number, 4].Value = transactions[i].getStockPrice();
                 Regex typeRegex1 = new Regex(@"Eladott");
                 Regex typeRegex2 = new Regex(@"Sold");
                 Regex typeRegex3 = new Regex(@"Sell");
                 Regex typeRegex4 = new Regex(@"Vásárolt");
                 Regex typeRegex5 = new Regex(@"Bought");
                 Regex typeRegex6 = new Regex(@"Buy");
-                if (typeRegex1.IsMatch(transaction.getTransactionType()) ||
-                    typeRegex2.IsMatch(transaction.getTransactionType()) ||
-                    typeRegex3.IsMatch(transaction.getTransactionType())) //Eladott
+                if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
                 {
-                    WriteWorksheet.Cells[row_number, 5].Value = transaction.getQuantity();
-                    WriteWorksheet.Cells[row_number, 8].Value = transaction.getProfit();
+                    WriteWorksheet.Cells[row_number, 5].Value = quantities[i];                                    //!!!! quantity
+                    WriteWorksheet.Cells[row_number, 8].Value = transactions[i].getProfit();
                     WriteWorksheet.Cells[row_number, 9].Value = earningMethod;
                 }
-                else if(typeRegex4.IsMatch(transaction.getTransactionType()) ||
-                    typeRegex5.IsMatch(transaction.getTransactionType()) ||
-                    typeRegex6.IsMatch(transaction.getTransactionType()))//Vásárolt
+                else if(typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
                 {
-                    WriteWorksheet.Cells[row_number, 6].Value = transaction.getQuantity();
-                    WriteWorksheet.Cells[row_number, 7].Value = transaction.getQuantity()*transaction.getStockPrice();
+                    WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //!!!! quantity
+                    WriteWorksheet.Cells[row_number, 7].Value =quantities[i]*transactions[i].getStockPrice();     //!!!! quantity
                 }
                 WriteWorksheet.Cells[row_number, 10].Value = mainWindow.getCurrentUser().getUsername();
                 row_number++;

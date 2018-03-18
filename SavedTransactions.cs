@@ -20,6 +20,7 @@ namespace WpfApp1
         private SavedTransactions()
         {
             savedTransactionsBank = new List<Transaction>();
+            savedTransactionsStock = new List<Stock>();
             ReadWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
         }
         public void readOutSavedBankTransactions()
@@ -41,10 +42,17 @@ namespace WpfApp1
                 writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
                 tempTransactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
                 string[] splittedDate = tempTransactionDate.Split(' ');
-                for(int j=0;j<splittedDate.Length-1; j++)
+                if (splittedDate.Length == 1)
                 {
-                    if (j < 3)
-                        transactionDate += splittedDate[j];
+                    transactionDate = tempTransactionDate;
+                }
+                else
+                {
+                    for (int j = 0; j < splittedDate.Length - 1; j++)
+                    {
+                        if (j < 3)
+                            transactionDate += splittedDate[j];
+                    }
                 }
                 balanceString = ReadWorksheet.Cells[i, 3].Value.ToString();
                 balance = int.Parse(balanceString);
@@ -67,8 +75,8 @@ namespace WpfApp1
                 savedTransactionsBank.Add(new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description));
                 i++;
             }
-            //excel.Workbooks.Close(); hiába csinálom ezeket mert úgy is singleton, akkor fog megsemmisülni amikor a program leáll
-            //excel.Quit();            főleg úgy hogy most 2 függvény van
+            excel.Workbooks.Close();
+            excel.Quit();
         }
         public void readOutStockSavedTransactions()
         {

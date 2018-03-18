@@ -22,9 +22,34 @@ namespace WpfApp1
     {
         private ButtonCommands btnCommand;
         public ChartValues<double> ValuesA { get; set; }
-        public List<string> Labels { get; set; }
         private SeriesCollection _Series;
         private MainWindow mainWindow;
+        public List<string> _Labels;
+        public List<string> Labels
+        {
+            get
+            {
+                return _Labels;
+            }
+            set
+            {
+                _Labels = value;
+                OnPropertyChanged("Labels");
+            }
+        }
+        public string _dateChoice;
+        public string dateChoice
+        {
+            get
+            {
+                return _dateChoice;
+            }
+            set
+            {
+                _dateChoice = value;
+                OnPropertyChanged("dateChoice");
+            }
+        }
         public SeriesCollection Series
         {
             get
@@ -37,7 +62,7 @@ namespace WpfApp1
                 OnPropertyChanged("Series");
             }
         }
-        public List<string> months { get; set; }
+        public List<string> dateChoices { get; set; }
         public WebStockData webStockData;
         //public ChartValues<double> ValuesB { get; set; }
         //public ChartValues<double> ValuesC { get; set; }
@@ -46,59 +71,18 @@ namespace WpfApp1
             this.mainWindow = mainWindow;
             InitializeComponent();
             DataContext = this;
-            months = new List<string>();
+            dateChoices = new List<string>();
             webStockData = new WebStockData();
             addValuesToDateVariables();
-        }
-        //not in use
-        public void getNewStockData()
-        {
-            WebStockData refreshStockData = new WebStockData();
-            //refreshStockData.GetDataFromWeb();
-            //refreshStockData.writeStocksToSQL();
-        }
-        //not in use
-        public void refreshChartAttributes()
-        {
-            ValuesA = new ChartValues<double>();
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            string stockName = "Select * From [Stock_WebData] where Name = 'AAPL'";
-            List<double> sharePrices = new List<double>();
-            sqlConn.Open();
-            SqlCommand sqlCommand = new SqlCommand(stockName,sqlConn);
-            {
-                SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-                {
-                    while(sqlDataReader.Read())
-                    {
-                        //sharePrices.Add(sqlDataReader.GetDouble(1));
-                        sharePrices.Add((double)Math.Round((Decimal)sqlDataReader.GetDouble(1), 3, MidpointRounding.AwayFromZero));
-                    }
-                }
-            }
-            //https://stackoverflow.com/questions/33881503/convert-strings-in-datarow-to-double
-            for (int i = 0; i < sharePrices.Count; i++)
-            {
-                ValuesA.Add(sharePrices[i]);
-            }
-            Series = new SeriesCollection
-            {
-                new LineSeries
-                {
-                    Title = "Apple",
-                    Values = ValuesA,
-                }
-            };
-            Labels = new List<string>() { "2017.02.02", "2017.02.02", "2017.03.30" };
         }
         public void refreshCSVChartAttribues()
         {
             ValuesA = new ChartValues<double>();
-            int i = webStockData.getPrices().Count-1;
-            while(i>0)
+            int i = 0;
+            while(i<webStockData.getPrices().Count)
             {
                 ValuesA.Add(webStockData.getPrices()[i]);
-                i--;
+                i++;
             }
             Series = new SeriesCollection
             {
@@ -108,34 +92,22 @@ namespace WpfApp1
                     Values = ValuesA,
                 }
             };
-            Labels = new List<string>();
-            int j = webStockData.getDates().Count - 1;
+            List<string> tempLabels = new List<string>();
+            int j = 0;
 
-            while(j>0)
+            while(j<webStockData.getDates().Count)
             {
-                Labels.Add(webStockData.getDates()[j]);
-                j--;
+                tempLabels.Add(webStockData.getDates()[j]);
+                j++;
             }
+            Labels = tempLabels;
         }
         private void addValuesToDateVariables()
         {
-            int currentYear = DateTime.Now.Year;
-            for(int i=currentYear;i!=currentYear-5;i--)
-            {
-                yearComboBox.Items.Add(i);
-            }
-            months.Add("Jan");
-            months.Add("Feb");
-            months.Add("Mar");
-            months.Add("Apr");
-            months.Add("May");
-            months.Add("Jun");
-            months.Add("Jul");
-            months.Add("Aug");
-            months.Add("Sep");
-            months.Add("Oct");
-            months.Add("Nov");
-            months.Add("Dec");
+            dateChoices.Add("1 month");
+            dateChoices.Add("3 month");
+            dateChoices.Add("6 month");
+            dateChoices.Add("1 year");
         }
         public ButtonCommands getStockData
         {
@@ -163,61 +135,6 @@ namespace WpfApp1
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
-        private void monthComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            dayComboBox.Items.Clear();
-            if (monthComboBox.SelectedIndex >= 0)
-            {
-                if (int.Parse(yearComboBox.SelectedItem.ToString()) == DateTime.Now.Year)
-                {
-                    if (monthComboBox.SelectedIndex == (DateTime.Now.Month) - 1)
-                    {
-                        int passedDaysThisMonth = DateTime.Now.Day;
-                        for (int i = 1; i < passedDaysThisMonth + 1; i++)
-                        {
-                            dayComboBox.Items.Add(i);
-                        }
-                    }
-                    else
-                    {
-                        int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, (monthComboBox.SelectedIndex) + 1);
-                        for (int i = 1; i < daysInMonth + 1; i++)
-                        {
-                            dayComboBox.Items.Add(i);
-                        }
-                    }
-                }
-                else
-                {
-                    int year = int.Parse(yearComboBox.SelectedItem.ToString());
-                    int month = (monthComboBox.SelectedIndex) + 1;
-                    int days = DateTime.DaysInMonth(year, month);
-                    for (int i = 1; i != days + 1; i++)
-                    {
-                        dayComboBox.Items.Add(i);
-                    }
-                }
-            }
-        }
-        private void yearComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            monthComboBox.Items.Clear();
-            if (int.Parse(yearComboBox.SelectedItem.ToString()) == DateTime.Now.Year)
-            {
-                int currentMonth = DateTime.Now.Month;
-                for (int i = 0; i < currentMonth; i++)
-                {
-                    monthComboBox.Items.Add(months[i]);
-                }
-            }
-            else
-            {
-                for (int i = 0; i != months.Count; i++)
-                {
-                    monthComboBox.Items.Add(months[i]);
-                }
-            }
         }
         public class ButtonCommands : ICommand
         {
@@ -257,13 +174,8 @@ namespace WpfApp1
                     if (tik == 20)
                     {
                         string ticker = stockChart.tickerTextBox.Text.ToString();
-                        string year = stockChart.yearComboBox.SelectedItem.ToString();
-                        string month = stockChart.monthComboBox.SelectedItem.ToString();
-                        string day = stockChart.dayComboBox.SelectedItem.ToString();
-                        if (int.Parse(day) < 10)
-                            stockChart.webStockData.getCSVDataFromGoogle(ticker, "0" + day, month, year);
-                        else
-                            stockChart.webStockData.getCSVDataFromGoogle(ticker, day, month, year);
+                        string date = stockChart._dateChoice;
+                            stockChart.webStockData.getCSVDataFromIEX(ticker, date);
                         stockChart.refreshCSVChartAttribues();
                         timer1.Interval = new TimeSpan(0, 0, 0, 1);
                         timer1.Tick += new EventHandler(timer1_Tick);
