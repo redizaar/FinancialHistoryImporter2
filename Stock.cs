@@ -15,6 +15,7 @@ namespace WpfApp1
         public string transactionType { get;  set; }
         public string writeDate { get;  set; }
         public double profit { get; set; }
+        public string importer { get; set; }
         //for StockDataGrid
         public string symbol { get;  set; }
         public string date { get;  set; }
@@ -32,7 +33,7 @@ namespace WpfApp1
             transactionType = _transactionType;
         }
         //writing to file Constructor
-        public Stock(string _writeDate, string _transactionDate,string _stockName,double _stockPrice, int _quantity, string _transactionType)
+        public Stock(string _writeDate, string _transactionDate,string _stockName,double _stockPrice, int _quantity, string _transactionType,string _importer)
         {
             writeDate = _writeDate;
             stockName = _stockName;
@@ -40,6 +41,7 @@ namespace WpfApp1
             quantity = _quantity;
             transactionDate = _transactionDate;
             transactionType = _transactionType;
+            importer = _importer;
         }
         //sql Stock constructor
         public Stock(string _smybol,string _date,double _openPrice,double _highPrice,double _lowPrice,double _closePrice)
@@ -50,6 +52,18 @@ namespace WpfApp1
             highPrice = _highPrice;
             lowPrice = _lowPrice;
             closePrice = _closePrice;
+        }
+        public string getImporter()
+        {
+            return importer;
+        }
+        public string getWriteDate()
+        {
+            return writeDate;
+        }
+        public void setWriteDate(string value)
+        {
+            writeDate = value;
         }
         public string getSymbolToSql()
         {

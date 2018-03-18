@@ -99,7 +99,7 @@ namespace WpfApp1
                 stockPriceString = ReadWorksheet.Cells[i, 4].Value.ToString().Replace(',','.');
                 stockPrice = double.Parse(stockPriceString, CultureInfo.InvariantCulture);
                 string quantityString = "";
-                if (ReadWorksheet.Cells[i,4].Value!=null)//eladott
+                if (ReadWorksheet.Cells[i,5].Value!=null)//eladott
                 {
                     quantityString = ReadWorksheet.Cells[i, 5].Value.ToString();
                     quantity=int.Parse(quantityString);
@@ -115,7 +115,7 @@ namespace WpfApp1
                 {
                     importer=ReadWorksheet.Cells[i, 10].Value.ToString();
                 }
-                Stock stock = new Stock(writeoutDate, transactionDate, stockName, stockPrice, quantity, transactionType);
+                Stock stock = new Stock(writeoutDate, transactionDate, stockName, stockPrice, quantity, transactionType,importer);
                 if(stock.getTransactionType()=="Sell")
                 {
                     string earningString = "";

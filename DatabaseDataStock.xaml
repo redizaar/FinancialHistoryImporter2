@@ -1,13 +1,13 @@
-﻿<Page x:Class="WpfApp1.TransactionMain"
+﻿<Page x:Class="WpfApp1.DatabaseDataStock"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:WpfApp1"
       mc:Ignorable="d" 
-      d:DesignHeight="305" d:DesignWidth="730"
-      Title="TransactionMain">
-      <Page.Resources>
+      d:DesignHeight="300" d:DesignWidth="730"
+      Title="DatabaseDataStock">
+    <Page.Resources>
         <Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="#ffffff"/>
@@ -54,9 +54,9 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <Grid Height="auto" Width="auto" Background="#ECECEA">
+    <Grid Background="#ECECEA">
         <StackPanel>
-            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18"/>
+            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO BANK DATA" FontSize="18"/>
             <DataGrid Name="TransactionTableXAML">
                 <DataGrid.Resources>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
@@ -94,11 +94,13 @@
                     </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header=" Date of Transaction" Width="*" Binding="{Binding transactionDate}"/>
-                    <DataGridTextColumn Header=" Description" Width="*" Binding="{Binding transactionDescription}"/>
-                    <DataGridTextColumn Header=" Amount(HUF)"  Width="*" Binding="{Binding transactionPrice}"/>
-                    <DataGridTextColumn Header=" Date of Import" Width="*" Binding="{Binding writeDate}"/>
-                    <DataGridTextColumn Header=" Account number" Width="*" Binding="{Binding accountNumber}"/>
+                    <DataGridTextColumn Header="Transaction date" Width="*" Binding="{Binding transactionDate}"/>
+                    <DataGridTextColumn Header="Stock name" Width="*" Binding="{Binding stockName}"/>
+                    <DataGridTextColumn Header="Stock Price"  Width="*" Binding="{Binding stockPrice}"/>
+                    <DataGridTextColumn Header="Transaction type" Width="*" Binding="{Binding transactionType}"/>
+                    <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding quantity}"/>
+                    <DataGridTextColumn Header="Profit" Width="*" Binding="{Binding profit}"/>
+                    <DataGridTextColumn Header="Date of Import" Width="*" Binding="{Binding writeDate}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
