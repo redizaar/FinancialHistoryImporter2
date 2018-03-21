@@ -89,7 +89,7 @@ namespace WpfApp1
         {
             //reading in saved transactions
             SavedTransactions.getInstance().readOutSavedBankTransactions();
-            //SavedTransactions.getInstance().readOutStockSavedTransactions();
+            SavedTransactions.getInstance().readOutStockSavedTransactions();
         }
         public void getTransactions(string bankName,List<string> folderAddress)
         {
@@ -139,8 +139,8 @@ namespace WpfApp1
             }
            else if(buttonContent.Equals("Database"))
            {
-                TransactionMain.getInstance(mainWindow).setTableAttributes();
-                mainWindow.MainFrame.Content=TransactionMain.getInstance(mainWindow);
+                DatabaseDataBank.getInstance(mainWindow).setTableAttributes();
+                mainWindow.MainFrame.Content=DatabaseDataBank.getInstance(mainWindow);
                 mainWindow.tableMenuTop.Visibility = System.Windows.Visibility.Visible;
                 mainWindow.tableDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
            }

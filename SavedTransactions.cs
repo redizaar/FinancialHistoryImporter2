@@ -75,8 +75,6 @@ namespace WpfApp1
                 savedTransactionsBank.Add(new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description));
                 i++;
             }
-            excel.Workbooks.Close();
-            excel.Quit();
         }
         public void readOutStockSavedTransactions()
         {
@@ -130,6 +128,8 @@ namespace WpfApp1
                 savedTransactionsStock.Add(stock);
                 i++;
             }
+            excel.Workbooks.Close();
+            excel.Quit();
         }
         public static List<Transaction> getSavedTransactionsBank()
         {

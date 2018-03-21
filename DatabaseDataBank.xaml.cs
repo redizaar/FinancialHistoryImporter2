@@ -15,17 +15,15 @@ using System.Windows.Shapes;
 
 namespace WpfApp1
 {
-    /// <summary>
-    /// Interaction logic for DatabaseDataStock.xaml
-    /// </summary>
-    public partial class DatabaseDataStock : Page
+    public partial class DatabaseDataBank : Page
     {
-        private static DatabaseDataStock instance;
-        private List<Stock> tableAttributes;
+        public List<string> categoryName { get; set; }
+        private static DatabaseDataBank instance;
+        private List<Transaction> tableAttributes;
         private MainWindow mainWindow;
-        private DatabaseDataStock(MainWindow mainWindow)
+        private DatabaseDataBank(MainWindow _mainWindow)
         {
-            this.mainWindow = mainWindow;
+            mainWindow = _mainWindow;
             DataContext = this;
             InitializeComponent();
         }
@@ -35,7 +33,7 @@ namespace WpfApp1
             {
                 TransactionTableXAML.Items.Clear();
             }
-            List<Stock> _tableAttribues = SavedTransactions.getSavedTransactionsStock();
+            List<Transaction> _tableAttribues = SavedTransactions.getSavedTransactionsBank();
             if (_tableAttribues != null)
             {
                 tableAttributes = _tableAttribues;
@@ -60,24 +58,24 @@ namespace WpfApp1
                 string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
                 for (int i = 0; i < splittedAccountNumbers.Length; i++)
                 {
-                    if (attribute.getImporter() == mainWindow.getCurrentUser().getUsername())
+                    if (attribute.getAccountNumber() == splittedAccountNumbers[i])
                         TransactionTableXAML.Items.Add(attribute);
                 }
             }
         }
-        public static DatabaseDataStock getInstance(MainWindow mainWindow)
+        public static DatabaseDataBank getInstance(MainWindow mainWindow)
         {
             if(instance==null)
             {
-                instance = new DatabaseDataStock(mainWindow);
+                instance = new DatabaseDataBank(mainWindow);
             }
             return instance;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DatabaseDataBank.getInstance(mainWindow).setTableAttributes();
-            mainWindow.MainFrame.Content = DatabaseDataBank.getInstance(mainWindow);
+            DatabaseDataStock.getInstance(mainWindow).setTableAttributes();
+            mainWindow.MainFrame.Content = DatabaseDataStock.getInstance(mainWindow);
         }
     }
 }

@@ -77,6 +77,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Animation\PageAnimation.cs" />
+    <Compile Include="DatabaseDataStock.xaml.cs">
+      <DependentUpon>DatabaseDataStock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ExportTransactions.cs" />
     <Compile Include="ImportPageBank.xaml.cs">
       <DependentUpon>ImportPageBank.xaml</DependentUpon>
@@ -108,11 +111,15 @@
     <Compile Include="TemplateBankReadIn.cs" />
     <Compile Include="TemplateStockReadIn.cs" />
     <Compile Include="Transaction.cs" />
-    <Compile Include="TransactionMain.xaml.cs">
-      <DependentUpon>TransactionMain.xaml</DependentUpon>
+    <Compile Include="DatabaseDataBank.xaml.cs">
+      <DependentUpon>DatabaseDataBank.xaml</DependentUpon>
     </Compile>
     <Compile Include="User.cs" />
     <Compile Include="WebStockData.cs" />
+    <Page Include="DatabaseDataStock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ImportPageBank.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -158,7 +165,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TransactionMain.xaml">
+    <Page Include="DatabaseDataBank.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
