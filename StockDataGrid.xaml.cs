@@ -78,14 +78,14 @@ namespace WpfApp1
             foreach (DataRow row in dtb.Rows)
             {
                 string dateFromSql = row["Date"].ToString();
-                DateTime dt;
+                DateTime dt=new DateTime();
                 try
                 {
-                    dt = DateTime.ParseExact(dateFromSql, "dd-MMM-yy", CultureInfo.InvariantCulture);
+                    dt = DateTime.ParseExact(dateFromSql, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 }
                 catch (Exception e)
                 {
-                    dt = DateTime.ParseExact(dateFromSql, "d-MMM-yy", CultureInfo.InvariantCulture);
+
                 }
                 dates.Add(dt);
             }
@@ -102,14 +102,14 @@ namespace WpfApp1
                     {
                         latestDate = dates[0];
                         string dateFromSql = dtb.Rows[i]["Date"].ToString();
-                        DateTime dt;
+                        DateTime dt=new DateTime();
                         try
                         {
-                            dt = DateTime.ParseExact(dateFromSql, "dd-MMM-yy", CultureInfo.InvariantCulture);
+                            dt = DateTime.ParseExact(dateFromSql, "yyyy-MM-dd", CultureInfo.InvariantCulture);
                         }
                         catch (Exception e)
                         {
-                            dt = DateTime.ParseExact(dateFromSql, "d-MMM-yy", CultureInfo.InvariantCulture);
+                           
                         }
                         if (dt == latestDate)
                         {

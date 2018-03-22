@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using WpfApp1.Animation;
 using WPFCustomMessageBox;
@@ -93,6 +94,60 @@ namespace WpfApp1
                     break;
                 case PageAnimation.SlideAndFadeOutToLeft:
                     break;
+            }
+        }
+        public void setUserStatistics(User currentUser)
+        {
+            int numberOfTransactions = 0;
+            int totalIncome = 0;
+            int totalSpendings = 0;
+            string latestImportDate = "";
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            DateTime todayDate = Convert.ToDateTime(todaysDate);
+            usernameLabel.Content = currentUser.getUsername();
+            foreach (var transactions in SavedTransactions.getSavedTransactionsStock())
+            {
+                string username = currentUser.getUsername();
+                if (transactions.getImporter() == username)
+                {
+                    numberOfTransactions++;
+                    latestImportDate = transactions.getWriteDate();
+                }
+            }
+            noTransactionsLabel.Content = numberOfTransactions;
+            if (latestImportDate.Length >= 12)
+            {
+                lastImportDateLabel.Content = latestImportDate.Substring(0, 12);
+            }
+            else
+            {
+                lastImportDateLabel.Content = latestImportDate;
+            }
+            DateTime importDate;
+            if (latestImportDate.Length > 0)
+            {
+                importDate = Convert.ToDateTime(latestImportDate);
+                float diffTicks = (todayDate - importDate).Days;
+                if (diffTicks >= 30)
+                {
+                    urgencyLabel.Content = "Recommended!";
+                    urgencyLabel.Foreground = new SolidColorBrush(Color.FromRgb(217, 30, 24));
+                    mainWindow.exclamImage.Visibility = System.Windows.Visibility.Visible;
+                }
+                else
+                {
+                    urgencyLabel.Content = "Not urgent";
+                    urgencyLabel.Foreground = new SolidColorBrush(Color.FromRgb(46, 204, 113));
+                    if (mainWindow.exclamImage.Visibility != System.Windows.Visibility.Visible)
+                    {
+                        mainWindow.exclamImage.Visibility = System.Windows.Visibility.Hidden;
+                    }
+                }
+            }
+            else
+            {
+                urgencyLabel.Content = "You haven't imported yet!";
+                lastImportDateLabel.Content = "You haven't imported yet!";
             }
         }
         private void FileBrowser_Click(object sender, RoutedEventArgs e)

@@ -38,7 +38,7 @@ namespace WpfApp1
                 int transactionPrice = 0;
                 string accountNumber = "";
                 string description = "";
-
+                string earningMethod = "-";
                 writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
                 tempTransactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
                 string[] splittedDate = tempTransactionDate.Split(' ');
@@ -90,7 +90,6 @@ namespace WpfApp1
                 int quantity = 0;
                 string transactionType = "";
                 string importer = "";
-
                 writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
                 transactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
                 stockName = ReadWorksheet.Cells[i, 3].Value.ToString();
@@ -117,6 +116,7 @@ namespace WpfApp1
                 if(stock.getTransactionType()=="Sell")
                 {
                     string earningString = "";
+                    string earningMethod = "-";
                     double earning = 0;
                     if (ReadWorksheet.Cells[i,8].Value!=null)
                     {
@@ -124,6 +124,11 @@ namespace WpfApp1
                         earning = double.Parse(earningString, CultureInfo.InvariantCulture);
                         stock.setProfit(earning);
                     }
+                    if(ReadWorksheet.Cells[i,9].Value!=null)
+                    {
+                        earningMethod = ReadWorksheet.Cells[i, 9].Value.ToString();
+                    }
+                    stock.setEarningMethod(earningMethod);
                 }
                 savedTransactionsStock.Add(stock);
                 i++;
@@ -141,14 +146,24 @@ namespace WpfApp1
         }
         public static void addToSavedTransactionsBank(List<Transaction> newImported)
         {
-            for(int i=0;i<newImported.Count;i++)
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            for (int i = 0; i < newImported.Count; i++)
+            {
+                newImported[i].setWriteDate(todaysDate);
+            }
+            for (int i=0;i<newImported.Count;i++)
             {
                 savedTransactionsBank.Add(newImported[i]);
             }
         }
         public static void addToSavedTransactionsStock(List<Stock> newImported)
         {
-            for(int i=0;i<newImported.Count;i++)
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            for (int i = 0; i < newImported.Count; i++)
+            {
+                newImported[i].setWriteDate(todaysDate);
+            }
+            for (int i=0;i<newImported.Count;i++)
             {
                 savedTransactionsStock.Add(newImported[i]);
             }

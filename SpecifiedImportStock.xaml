@@ -227,7 +227,7 @@
                 <TextBox x:Name="dateColumnTextBox" Style="{StaticResource labelUnderBorderStyle}" HorizontalAlignment="Left"/>
             </DockPanel>
             <DockPanel Margin="30,5,0,0">
-                <Label Content="Típus oszlop: " Style="{StaticResource myLabelStyle}"/>
+                <Label Content="Tranzakció típusa oszlop: " Style="{StaticResource myLabelStyle}"/>
                 <TextBox x:Name="transactionTypeTextBox" Style="{StaticResource labelUnderBorderStyle}" HorizontalAlignment="Left"/>
             </DockPanel>
             <Button  Content="Read in Transactions" Width="150" Height="45"  Style="{StaticResource importButtonStyle}" FontFamily="Maiandra GD" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding importPushed}"/>

@@ -92,6 +92,9 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="ToolTip" Value="{Binding earningMethod}"/>
+                    </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Transaction date" Width="*" Binding="{Binding transactionDate}"/>

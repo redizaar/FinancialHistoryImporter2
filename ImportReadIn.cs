@@ -74,8 +74,8 @@ namespace WpfApp1
                         }
                     }
                 }
-                excel.Application.Quit();
-                excel.Quit();
+                //excel.Application.Quit();
+                //excel.Quit();
             }
         }
         ~ImportReadIn()

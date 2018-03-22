@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
-        Title="Financial History Importer by Toth Patrik Csaba" Height="368" Width="880" Icon="MoneyIcon.png">
+        Title="Financial History Importer by Toth Patrik Csaba" Height="370" Width="880" Icon="MoneyIcon.png">
     <Grid Height="337" VerticalAlignment="Top" Background="#ECECEA">
         <Frame x:Name="MainFrame" Margin="150,70,0,0" NavigationUIVisibility="Hidden" BorderBrush="Black" BorderThickness="0"/>
         <DockPanel Margin="0,70,730,0" Background="#ECECEA">

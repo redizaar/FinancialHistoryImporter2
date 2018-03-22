@@ -7,7 +7,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="305" d:DesignWidth="730"
       Title="TransactionMain">
-      <Page.Resources>
+    <Page.Resources>
         <Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="#ffffff"/>
@@ -54,53 +54,51 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <Grid Height="auto" Width="auto" Background="#ECECEA">
-        <StackPanel>
-            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18" Click="Button_Click"/>
-            <DataGrid Name="TransactionTableXAML">
-                <DataGrid.Resources>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                        <Setter Property="Height" Value="20" />
-                        <Setter Property="SeparatorBrush" Value="DarkRed" />
-                        <Setter Property="FontWeight" Value="DemiBold" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                                    <Grid>
-                                        <Border x:Name="columnHeaderBorder"
+    <Grid Height="300" Width="730" Background="#ECECEA">
+        <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18" Click="Button_Click"  VerticalAlignment="Top"/>
+        <DataGrid Name="TransactionTableXAML" Height="270" VerticalAlignment="Bottom" HorizontalAlignment="Left" AutoGenerateColumns="True" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Height" Value="18" />
+                    <Setter Property="SeparatorBrush" Value="DarkRed" />
+                    <Setter Property="FontWeight" Value="DemiBold" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                                <Grid>
+                                    <Border x:Name="columnHeaderBorder"
 		                                BorderThickness="1"
 		                                Padding="3,0,3,0">
-                                            <Border.BorderBrush>
-                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                    <GradientStop Offset="0" Color="#A5A5A5" />
-                                                    <GradientStop Offset="1" Color="#4B4B4B" />
-                                                </LinearGradientBrush>
-                                            </Border.BorderBrush>
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                    <GradientStop Offset="0" Color="#8b9dc3" />
-                                                    <GradientStop Offset="1" Color="#dfe3ee" />
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                <GradientStop Offset="0" Color="#A5A5A5" />
+                                                <GradientStop Offset="1" Color="#4B4B4B" />
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                <GradientStop Offset="0" Color="#8b9dc3" />
+                                                <GradientStop Offset="1" Color="#dfe3ee" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 			     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
 				SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header=" Date of Transaction" Width="*" Binding="{Binding transactionDate}"/>
-                    <DataGridTextColumn Header=" Description" Width="*" Binding="{Binding transactionDescription}"/>
-                    <DataGridTextColumn Header=" Amount(HUF)"  Width="*" Binding="{Binding transactionPrice}"/>
-                    <DataGridTextColumn Header=" Date of Import" Width="*" Binding="{Binding writeDate}"/>
-                    <DataGridTextColumn Header=" Account number" Width="*" Binding="{Binding accountNumber}"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header=" Date of Transaction" Width="auto" Binding="{Binding transactionDate}"/>
+                <DataGridTextColumn Header=" Description" Width="auto" Binding="{Binding transactionDescription}"/>
+                <DataGridTextColumn Header=" Amount(HUF)"  Width="auto" Binding="{Binding transactionPrice}"/>
+                <DataGridTextColumn Header=" Date of Import" Width="auto" Binding="{Binding writeDate}"/>
+                <DataGridTextColumn Header=" Account number" Width="auto" Binding="{Binding accountNumber}"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

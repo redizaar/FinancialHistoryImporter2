@@ -513,11 +513,6 @@ namespace WpfApp1
                     allFinished = true;
                 }
             }
-            foreach(var test in allCompany)
-            {
-                Console.WriteLine("Share name:" +test.getStockName() + " Transaction Price: " +test.getStockPrice()+" Transaction type: "+test.getTransactionType());
-                Console.WriteLine("Profit: " + test.getProfit());
-            }
         }
         private void stockExportLIFO(ref List<Stock> allCompany)
         {
@@ -715,11 +710,6 @@ namespace WpfApp1
                 {
                     allFinished = true;
                 }
-            }
-            foreach (var test in allCompany)
-            {
-                Console.WriteLine("Share name:" + test.getStockName() + " Transaction Price: " + test.getStockPrice() + " Transaction type: " + test.getTransactionType());
-                Console.WriteLine("Profit: " + test.getProfit());
             }
         }
 

@@ -140,7 +140,10 @@ namespace WpfApp1
                 {
                     urgencyLabel.Content = "Not urgent";
                     urgencyLabel.Foreground = new SolidColorBrush(Color.FromRgb(46, 204, 113));
-                    mainWindow.exclamImage.Visibility = System.Windows.Visibility.Hidden;
+                    if (mainWindow.exclamImage.Visibility != System.Windows.Visibility.Visible)
+                    {
+                        mainWindow.exclamImage.Visibility = System.Windows.Visibility.Hidden;
+                    }
                 }
             }
             else
@@ -316,6 +319,7 @@ namespace WpfApp1
         }
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
             mainWindow.MainFrame.Content = ImportPageStock.getInstance(mainWindow);
         }
     }

@@ -218,8 +218,8 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header=" Date " Width="*" Binding="{Binding date}"/>
                 <DataGridTextColumn Header=" Open Price" Width="*" Binding="{Binding openPrice}"/>
-                <DataGridTextColumn Header=" Lowest Price"  Width="*" Binding="{Binding highPrice}"/>
-                <DataGridTextColumn Header=" Highest Price" Width="*" Binding="{Binding lowPrice}"/>
+                <DataGridTextColumn Header=" Highest Price"  Width="*" Binding="{Binding highPrice}"/>
+                <DataGridTextColumn Header=" Lowest Price" Width="*" Binding="{Binding lowPrice}"/>
                 <DataGridTextColumn Header=" Close Price" Width="*" Binding="{Binding closePrice}"/>
             </DataGrid.Columns>
         </DataGrid>

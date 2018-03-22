@@ -33,11 +33,10 @@ namespace WpfApp1
             {
                 TransactionTableXAML.Items.Clear();
             }
-            List<Transaction> _tableAttribues = SavedTransactions.getSavedTransactionsBank();
-            if (_tableAttribues != null)
+            tableAttributes = SavedTransactions.getSavedTransactionsBank();
+            if (tableAttributes != null)
             {
-                tableAttributes = _tableAttribues;
-                foreach (var transaction in _tableAttribues)
+                foreach (var transaction in tableAttributes)
                 {
                     if (transaction.getWriteDate() != null && transaction.getWriteDate().Length >= 12)
                     {
@@ -53,13 +52,23 @@ namespace WpfApp1
         }
         private void addAtribuesToTable()
         {
+            //valami baj van itt az ERSTE-s importal, automatikus importálás esetén
+            //közleményt kiválasztva
+
+            //nem adja hozzá a frissen importált részvényeket a táblázathoz
+            //lehet hogy a bankhoz sem....
+
+            //banki interface hogy müködik stb.
             foreach (var attribute in tableAttributes)
             {
                 string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
                 for (int i = 0; i < splittedAccountNumbers.Length; i++)
                 {
                     if (attribute.getAccountNumber() == splittedAccountNumbers[i])
+                    {
                         TransactionTableXAML.Items.Add(attribute);
+                    }
+
                 }
             }
         }
