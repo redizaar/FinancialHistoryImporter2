@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,11 +20,34 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for DatabaseDataStock.xaml
     /// </summary>
-    public partial class DatabaseDataStock : Page
+    public partial class DatabaseDataStock : Page, INotifyPropertyChanged
     {
         private static DatabaseDataStock instance;
-        private List<Stock> tableAttributes;
+        public List<Stock> _tableAttributes;
+        public List<Stock> tableAttributes
+        {
+            get
+            {
+                return _tableAttributes;
+            }
+            set
+            {
+                _tableAttributes = value;
+                OnPropertyChanged("tableAttributes");
+            }
+        }
         private MainWindow mainWindow;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
         private DatabaseDataStock(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
@@ -31,11 +56,18 @@ namespace WpfApp1
         }
         public void setTableAttributes()
         {
-            if (TransactionTableXAML != null)
+            //Binding is the reason for .ToList() , the count changed - it freezes it is not there
+            List<Stock> allTransactions = SavedTransactions.getSavedTransactionsStock();
+            List<Stock> reference = new List<Stock>();
+            foreach (var tableAttribute in allTransactions)
             {
-                TransactionTableXAML.Items.Clear();
+                if (tableAttribute.getImporter() == mainWindow.getCurrentUser().getUsername())
+                {
+                    reference.Add(tableAttribute);
+                }
             }
-            tableAttributes = SavedTransactions.getSavedTransactionsStock();
+            Console.WriteLine(reference.Count);
+            tableAttributes = new List<Stock>(reference);
             if (tableAttributes != null)
             {
                 foreach (var transaction in tableAttributes)
@@ -49,16 +81,6 @@ namespace WpfApp1
                         transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd"));
                     }
                 }
-                addAtribuesToTable();
-            }
-        }
-        private void addAtribuesToTable()
-        {
-        
-            foreach (var attribute in tableAttributes)
-            {
-                if (attribute.getImporter() == mainWindow.getCurrentUser().getUsername())
-                    TransactionTableXAML.Items.Add(attribute);
             }
         }
         public static DatabaseDataStock getInstance(MainWindow mainWindow)

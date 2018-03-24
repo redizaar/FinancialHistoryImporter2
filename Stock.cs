@@ -17,6 +17,7 @@ namespace WpfApp1
         public double profit { get; set; }
         public string importer { get; set; }
         public string earningMethod { get; set; }
+        public string originalAndCurrentQuantity { get; set; }
         //for StockDataGrid
         public string symbol { get;  set; }
         public string date { get;  set; }
@@ -54,6 +55,10 @@ namespace WpfApp1
             lowPrice = _lowPrice;
             closePrice = _closePrice;
         }
+        public void setOriginalAndSellQuantity(string value)
+        {
+            originalAndCurrentQuantity = value;
+        }
         public void setEarningMethod(string value)
         {
             earningMethod = value;
@@ -61,6 +66,10 @@ namespace WpfApp1
         public string getImporter()
         {
             return importer;
+        }
+        public void setImporter(string value)
+        {
+            importer = value;
         }
         public string getWriteDate()
         {

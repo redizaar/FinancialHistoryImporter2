@@ -55,8 +55,10 @@
         </Style>
     </Page.Resources>
     <Grid Height="300" Width="730" Background="#ECECEA">
-        <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18" Click="Button_Click"  VerticalAlignment="Top"/>
-        <DataGrid Name="TransactionTableXAML" Height="270" VerticalAlignment="Bottom" HorizontalAlignment="Left" AutoGenerateColumns="True" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18" Click="Button_Click"  VerticalAlignment="Top"/>
+            <DataGrid Name="TransactionTableXAML" Height="270" VerticalAlignment="Top" HorizontalAlignment="Left" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -100,5 +102,6 @@
                 <DataGridTextColumn Header=" Account number" Width="auto" Binding="{Binding accountNumber}"/>
             </DataGrid.Columns>
         </DataGrid>
+        </StackPanel>
     </Grid>
 </Page>

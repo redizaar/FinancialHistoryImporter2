@@ -33,7 +33,8 @@ namespace WpfApp1
                 Console.WriteLine(dateString.Substring(0,11));
             }
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
-                                                    //BUT FIRST - check if the transaction is already exported or not 
+                                                    //BUT FIRST - check if the transaction is already exported or not
+                                                    
             List<Transaction> neededTransactions = newTransactions(transactions);
             SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved 
             WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
@@ -258,6 +259,14 @@ namespace WpfApp1
                 case "CUSTOM":
                     break;
             }
+            //for DataBaseDataStock
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                string value = quantities[i] + " (" + transactions[i].getQuantity() + ")";
+                transactions[i].setOriginalAndSellQuantity(value);
+                transactions[i].setImporter(mainWindow.getCurrentUser().getUsername());
+                transactions[i].setEarningMethod(earningMethod);
+            }
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
             SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
             WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
@@ -285,18 +294,19 @@ namespace WpfApp1
                     typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
                     typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
                 {
-                    WriteWorksheet.Cells[row_number, 5].Value = quantities[i];                                    //!!!! quantity
-                    WriteWorksheet.Cells[row_number, 8].Value = transactions[i].getProfit();
-                    WriteWorksheet.Cells[row_number, 9].Value = earningMethod;
+                    WriteWorksheet.Cells[row_number, 5].Value = quantities[i];                                    //!! eredeti quantity
+                    WriteWorksheet.Cells[row_number, 9].Value = transactions[i].getProfit();
+                    WriteWorksheet.Cells[row_number, 10].Value = earningMethod;
                 }
                 else if(typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
                     typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
                     typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
                 {
-                    WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //!!!! quantity
-                    WriteWorksheet.Cells[row_number, 7].Value =quantities[i]*transactions[i].getStockPrice();     //!!!! quantity
+                    WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //! eredeti quantity
+                    WriteWorksheet.Cells[row_number, 8].Value =quantities[i]*transactions[i].getStockPrice();     //!! eredeti quantity
                 }
-                WriteWorksheet.Cells[row_number, 10].Value = mainWindow.getCurrentUser().getUsername();
+                WriteWorksheet.Cells[row_number, 7].Value = transactions[i].getQuantity();                       //!! mostani quantity
+                WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
                 row_number++;
                 Range line = (Range)WriteWorksheet.Rows[row_number];
                 line.Insert();
