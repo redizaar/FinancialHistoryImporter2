@@ -6,9 +6,13 @@
         xmlns:local="clr-namespace:WpfApp1"
         mc:Ignorable="d"
         Title="Financial History Importer by Toth Patrik Csaba" Height="370" Width="880" Icon="MoneyIcon.png">
-    <Grid Height="337" VerticalAlignment="Top" Background="#ECECEA">
-        <Frame x:Name="MainFrame" Margin="150,70,0,0" NavigationUIVisibility="Hidden" BorderBrush="Black" BorderThickness="0"/>
-        <DockPanel Margin="0,70,730,0" Background="#ECECEA">
+    <Grid  VerticalAlignment="Top" Background="#ECECEA">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="225*"/>
+            <RowDefinition Height="112*"/>
+        </Grid.RowDefinitions>
+        <Frame x:Name="MainFrame" Margin="150,70,0,0" NavigationUIVisibility="Hidden" BorderBrush="Black" BorderThickness="0" Grid.RowSpan="2"/>
+        <DockPanel Margin="0,70,730,0" Background="#ECECEA" Grid.RowSpan="2">
             <Border Margin="0,0,730,0">
                 <Canvas Margin="0,0,570,0">
                     <StackPanel Background="#D9853B" Width="150" Margin="-90,0,0,0">
@@ -37,52 +41,104 @@
                             </Style>
                         </StackPanel.Style>
                         <DockPanel Margin="0,0,0,0" x:Name="importDock">
-                            <Button  Height="50" Width="150" x:Name="ImportButton" Content="Import" Command="{Binding Path=ImportPushed}">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Canvas>
-                                            <Image Source="attachIcon2.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
-                                            <TextBlock Canvas.Left="20" Canvas.Top="13" Text="Import" FontFamily="Bookman Old Style" FontSize="14" Foreground="white" Margin="0,5,0,0"/>
-                                        </Canvas>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
+                            <Expander>
+                                <Expander.Header>
+                                    <BulletDecorator>
+                                        <BulletDecorator.Bullet>
+                                            <Button  Height="45" Width="125" x:Name="ImportButton" Content="Import" Command="{Binding Path=ImportPushed}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Canvas>
+                                                            <Image Source="attachIcon2.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
+                                                            <TextBlock Canvas.Left="0" Canvas.Top="8" Text="Import" FontFamily="Bookman Old Style" FontSize="17" Foreground="white" Margin="0,5,0,0"/>
+                                                        </Canvas>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </BulletDecorator.Bullet>
+                                    </BulletDecorator>
+                                </Expander.Header>
+                                <WrapPanel>
+                                    <Button x:Name="bankImport" Margin="20,5,5,5" Foreground="white" Content="Bank Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=BankImportPushed}"/>
+                                    <Button x:Name="stockImport" Margin="20,5,5,5" Foreground="white" Content="Stock Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=StockImportPushed}"/>
+                                </WrapPanel>
+                            </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0" x:Name="tableDock">
-                            <Button Height="50" Width="150" x:Name="TableButton" Content="Database" Command="{Binding Path=TablePushed}">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Canvas>
-                                            <Image Source="tableIcon8.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
-                                            <TextBlock Canvas.Left="20" Canvas.Top="13" Text="Databse" FontFamily="Bookman Old Style" FontSize="14" Foreground="white" Margin="0,5,0,0"/>
-                                        </Canvas>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
+                            <Expander>
+                                <Expander.Header>
+                                    <BulletDecorator>
+                                        <BulletDecorator.Bullet>
+                                            <Button Height="45" Width="125" x:Name="TableButton" Content="Database" Command="{Binding Path=TablePushed}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Canvas>
+                                                            <Image Source="tableIcon8.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
+                                                            <TextBlock Canvas.Left="0" Canvas.Top="8" Text="Databse" FontFamily="Bookman Old Style" FontSize="16" Foreground="white" Margin="0,5,0,0"/>
+                                                        </Canvas>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </BulletDecorator.Bullet>
+                                    </BulletDecorator>
+                                </Expander.Header>
+                                <WrapPanel>
+                                    <Button x:Name="bankDatabase" Margin="20,5,5,5" Foreground="white" Content="Bank Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=BankDatabasePushed}"/>
+                                    <Button x:Name="stockDatabase" Margin="20,5,5,5" Foreground="white" Content="Stock Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockDatabasePushed}"/>
+                                </WrapPanel>
+                            </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0" x:Name="stockChartDock">
-                            <Button Height="50" Width="150" x:Name="StockChartButton" Content="stockMarketData" Command="{Binding Path=PortfolioPushed}">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Canvas>
-                                            <Image Source="chartIcon.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
-                                            <TextBlock Canvas.Left="20" Canvas.Top="13" Text="Portfolio" FontFamily="Bookman Old Style" FontSize="14" Foreground="white" Margin="0,5,0,0"/>
-                                        </Canvas>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
+                            <Expander x:Name="porfiloExpander">
+                                <Expander.Header>
+                                    <BulletDecorator>
+                                        <BulletDecorator.Bullet>
+                                            <Button Height="45" Width="125" x:Name="StockChartButton" Content="stockMarketData" Command="{Binding Path=PortfolioPushed}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Canvas>
+                                                            <Image Source="chartIcon.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
+                                                            <TextBlock Canvas.Left="0" Canvas.Top="8" Text="Portfolio" FontFamily="Bookman Old Style" FontSize="16" Foreground="white" Margin="0,5,0,0"/>
+                                                        </Canvas>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </BulletDecorator.Bullet>
+                                    </BulletDecorator>
+                                </Expander.Header>
+                                <WrapPanel>
+                                    <StackPanel>
+                                        <Button x:Name="stockChart" Margin="20,5,5,5" Foreground="white" Content="Chart" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockChartPushed}"/>
+                                        <Button x:Name="stockDatagrid" Margin="20,5,5,5" Foreground="white" Content="DataGrid" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockDatagridPushed}"/>
+                                    </StackPanel>
+                                </WrapPanel>
+                            </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0">
-                            <Button Height="50" Width="150" x:Name="ExitButton" Content="Exit" Command="{Binding Path=ExitPushed}">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Canvas>
-                                            <Image Source="exitIcon5.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
-                                            <TextBlock Canvas.Left="20" Canvas.Top="13" Text="Exit" FontFamily="Bookman Old Style" FontSize="14" Foreground="white" Margin="0,5,0,0"/>
-                                        </Canvas>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
+                            <Expander>
+                                <Expander.Header>
+                                    <BulletDecorator>
+                                        <BulletDecorator.Bullet>
+                                            <Button Height="45" Width="125" x:Name="ExitButton" Content="Exit" Command="{Binding Path=ExitPushed}">
+                                                <Button.Template>
+                                                    <ControlTemplate>
+                                                        <Canvas>
+                                                            <Image Source="exitIcon5.png" Height="30" Canvas.Right="15" Canvas.Top="8"/>
+                                                            <TextBlock Canvas.Left="0" Canvas.Top="8" Text="Exit" FontFamily="Bookman Old Style" FontSize="17" Foreground="white" Margin="0,5,0,0"/>
+                                                        </Canvas>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </BulletDecorator.Bullet>
+                                    </BulletDecorator>
+                                </Expander.Header>
+                                <WrapPanel>
+                                    <StackPanel>
+                                        <Button Margin="20,5,5,5" Foreground="white" Content="Quit" Background="Transparent" FontSize="14" Width="120"/>
+                                        <Button Margin="20,5,5,5" Foreground="white" Content="Log out" Background="Transparent" FontSize="14" Width="120"/>
+                                    </StackPanel>
+                                </WrapPanel>
+                            </Expander>
                         </DockPanel>
                     </StackPanel>
                 </Canvas>
@@ -143,7 +199,7 @@
             </StackPanel>
         </Border>
         <Image x:Name="exclamImage" Source="exclamIcon.png" Height="20"  Width="20" HorizontalAlignment="Right" Margin="0,-320,0,0"/>
-        <Label x:Name="currentUserLabel" Content="User" Margin="800,40,0,267" FontWeight="Bold"/>
-        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden"/>
+        <Label x:Name="currentUserLabel" Content="User" Margin="800,40,0,155" FontWeight="Bold"/>
+        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden" Margin="0,0,-8,0" Grid.RowSpan="2"/>
     </Grid>
 </Window>

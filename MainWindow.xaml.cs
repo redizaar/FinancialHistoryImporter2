@@ -78,6 +78,54 @@ namespace WpfApp1
                 return btnCommand;
             }
         }
+        public ButtonCommands BankImportPushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(bankImport.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
+        public ButtonCommands StockImportPushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(stockImport.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
+        public ButtonCommands BankDatabasePushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(bankDatabase.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
+        public ButtonCommands stockDatabasePushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(stockDatabase.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
+        public ButtonCommands stockChartPushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(stockChart.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
+        public ButtonCommands stockDatagridPushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(stockDatagrid.Content.ToString(), this);
+                return btnCommand;
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -129,6 +177,13 @@ namespace WpfApp1
             mainWindow.tableMenuTop.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Hidden;
             mainWindow.portfolioMenuTop.Visibility = System.Windows.Visibility.Hidden;
+            mainWindow.bankImport.Background = Brushes.Transparent;
+            mainWindow.stockImport.Background = Brushes.Transparent;
+            mainWindow.bankDatabase.Background = Brushes.Transparent;
+            mainWindow.stockDatabase.Background = Brushes.Transparent;
+            mainWindow.stockChart.Background = Brushes.Transparent;
+            mainWindow.stockDatagrid.Background = Brushes.Transparent;
+            /*
             if (buttonContent.Equals("Import"))
             {
                 ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
@@ -136,24 +191,67 @@ namespace WpfApp1
                 mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
                 mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
             }
-           else if(buttonContent.Equals("Database"))
-           {
+            */
+            if (buttonContent == "Bank Import")
+            {
+                ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow);
+                mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.bankImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+            }
+            else if (buttonContent == "Stock Import")
+            {
+                ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                mainWindow.MainFrame.Content = ImportPageStock.getInstance(mainWindow);
+                mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.stockImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+            }
+            /*
+            else if(buttonContent.Equals("Database"))
+            {
                 DatabaseDataBank.getInstance(mainWindow).setTableAttributes();
                 mainWindow.MainFrame.Content=DatabaseDataBank.getInstance(mainWindow);
                 mainWindow.tableMenuTop.Visibility = System.Windows.Visibility.Visible;
                 mainWindow.tableDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
-           }
-           else if(buttonContent.Equals("stockMarketData"))
+            }
+            */
+            else if (buttonContent == "Bank Data")
+            {
+                DatabaseDataBank.getInstance(mainWindow).setTableAttributes();
+                mainWindow.MainFrame.Content = DatabaseDataBank.getInstance(mainWindow);
+                mainWindow.tableMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.tableDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.bankDatabase.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+            }
+            else if(buttonContent == "Stock Data")
+            {
+                DatabaseDataStock.getInstance(mainWindow).setTableAttributes();
+                mainWindow.MainFrame.Content = DatabaseDataStock.getInstance(mainWindow);
+                mainWindow.tableMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.tableDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.stockDatabase.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+            }
+            else if(buttonContent=="Chart")
             {
                 StockChart stockChart = new StockChart(mainWindow);
                 mainWindow.MainFrame.Content = stockChart;
                 mainWindow.portfolioMenuTop.Visibility = System.Windows.Visibility.Visible;
                 mainWindow.stockChartDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.stockChart.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
             }
-           else if(buttonContent.Equals("Exit"))
-           {
+            else if(buttonContent=="DataGrid")
+            {
+                mainWindow.MainFrame.Content = new StockDataGrid(mainWindow);
+                mainWindow.portfolioMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.stockChartDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.stockChart.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+            }
+            else if(buttonContent.Equals("Exit"))
+            {
                 mainWindow.Close();
-           }
+            }
         }
     }
 }
