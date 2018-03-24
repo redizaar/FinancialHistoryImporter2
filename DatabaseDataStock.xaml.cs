@@ -66,7 +66,6 @@ namespace WpfApp1
                     reference.Add(tableAttribute);
                 }
             }
-            Console.WriteLine(reference.Count);
             tableAttributes = new List<Stock>(reference);
             if (tableAttributes != null)
             {

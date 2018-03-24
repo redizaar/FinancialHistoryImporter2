@@ -57,8 +57,8 @@
     <Grid Background="#ECECEA">
         <StackPanel>
             <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO BANK DATA" FontSize="18" Click="Button_Click"/>
-            <DataGrid Name="TransactionTableXAML" Height="270" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid Name="TransactionTableXAML" Height="200" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0">
                 <DataGrid.Resources>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -102,7 +102,7 @@
                     <DataGridTextColumn Header="Stock name" Width="auto" Binding="{Binding stockName}"/>
                     <DataGridTextColumn Header="Stock Price"  Width="auto" Binding="{Binding stockPrice}"/>
                     <DataGridTextColumn Header="Transaction type" Width="auto" Binding="{Binding transactionType}"/>
-                    <DataGridTextColumn Header="QTY-original (current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
+                    <DataGridTextColumn Header="QTY- Original (Current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
                     <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}"/>
                     <DataGridTextColumn Header="Date of Import" Width="auto" Binding="{Binding writeDate}"/>
                 </DataGrid.Columns>

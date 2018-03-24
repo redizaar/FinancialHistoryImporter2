@@ -321,7 +321,7 @@ namespace WpfApp1
             {
 
             }
-            //ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
         }
         private void stockExportFIFO(ref List<Stock> allCompany)
         {
@@ -479,7 +479,7 @@ namespace WpfApp1
                                                 }
                                                 else
                                                 {
-                                                    finished = true;
+                                                    boughtIndex--;
                                                 }
                                             }
                                             else//we reached the sell transaction but the quantity is still not zero, ? to do in that case
@@ -497,6 +497,8 @@ namespace WpfApp1
                                         company.Find(i => i == boughtStock).setQuantity(leftBoughtStock);
                                         int index = transactionMap[soldStock];
                                         allCompany[index].setProfit(profit);
+                                        soldStock.setQuantity(0);
+                                        boughtStock.setQuantity(leftBoughtStock);
                                     }
                                 }
                                 else
@@ -504,18 +506,24 @@ namespace WpfApp1
                                     finished = true;
                                     distinctCompanyNames.RemoveAt(0);
                                 }
+                                if (boughtStock.getQuantity() > 0)
+                                    allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                             }
                             else
                             {
                                 finished = true;
                                 distinctCompanyNames.RemoveAt(0);
                             }
+                            if (boughtStock.getQuantity() > 0)
+                                allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                         }
                         else
                         {
                             finished = true;
                             distinctCompanyNames.RemoveAt(0);
                         }
+                        if (boughtStock.getQuantity() > 0)
+                            allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                     }
                 }
                 else
@@ -644,9 +652,12 @@ namespace WpfApp1
                                                         quantityRegex2.IsMatch(company[i].getTransactionType()) ||
                                                         quantityRegex3.IsMatch(company[i].getTransactionType()))
                                                     {
-                                                        boughtStock = company[i];
-                                                        boughtIndex = i;
-                                                        break;
+                                                        if (company[i].getQuantity() > 0)
+                                                        {
+                                                            boughtStock = company[i];
+                                                            boughtIndex = i;
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                                 /**
@@ -659,6 +670,7 @@ namespace WpfApp1
                                                     {
                                                         leftQuantity = soldStock.getQuantity() - boughtStock.getQuantity();
                                                         profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtStock.getQuantity();
+                                                        boughtStock.setQuantity(0);
                                                     }
                                                     else if (boughtStock.getQuantity() > soldStock.getQuantity())
                                                     {
@@ -677,7 +689,7 @@ namespace WpfApp1
                                                 }
                                                 else
                                                 {
-                                                    finished = true;
+                                                    boughtIndex++;
                                                 }
                                             }
                                             else//we reached the sell transaction but the quantity is still not zero, ? to do in that case
@@ -688,11 +700,12 @@ namespace WpfApp1
                                         int index = transactionMap[soldStock];
                                         allCompany[index].setProfit(profit);
                                     }
-                                    else if ((boughtStock.getQuantity() - soldStock.getQuantity()) > 0)
+                                    else if ((boughtStock.getQuantity() > soldStock.getQuantity()))
                                     {
                                         profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
                                         int leftBoughtStock = boughtStock.getQuantity() - soldStock.getQuantity();
                                         company.Find(i => i == boughtStock).setQuantity(leftBoughtStock);
+                                        soldStock.setQuantity(0);
                                         int index = transactionMap[soldStock];
                                         allCompany[index].setProfit(profit);
                                     }
@@ -701,18 +714,24 @@ namespace WpfApp1
                                 {
                                     finished = true;
                                     distinctCompanyNames.RemoveAt(0);
+                                    if (boughtStock.getQuantity() > 0)
+                                        allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                                 }
                             }
                             else
                             {
                                 finished = true;
                                 distinctCompanyNames.RemoveAt(0);
+                                if (boughtStock.getQuantity() > 0)
+                                    allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                             }
                         }
                         else
                         {
                             finished = true;
                             distinctCompanyNames.RemoveAt(0);
+                            if (boughtStock.getQuantity() > 0)
+                                allCompany.Find(i => i == boughtStock).setQuantity(boughtStock.getQuantity());
                         }
                     }
                 }
