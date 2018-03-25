@@ -39,7 +39,7 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <DockPanel Margin="0,0,0,0" x:Name="importDock">
+                        <DockPanel  x:Name="importDock">
                             <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=1}">
                                 <Expander.Header>
                                     <BulletDecorator>
@@ -63,7 +63,7 @@
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
-                        <DockPanel Margin="0,0,0,0" x:Name="tableDock">
+                        <DockPanel x:Name="tableDock">
                             <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=2}">
                                 <Expander.Header>
                                     <BulletDecorator>
@@ -113,7 +113,7 @@
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
-                        <DockPanel Margin="0,0,0,0" x:Name="exitDock">
+                        <DockPanel  x:Name="exitDock">
                             <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=4}">
                                 <Expander.Header>
                                     <BulletDecorator>

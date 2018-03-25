@@ -125,7 +125,7 @@ namespace WpfApp1
 
         public void readOutTransactionColumns(int row, int maxColumn)
         {
-            int descriptionColumn = getDescriptionColumn(row, maxColumn);
+            List<int> descriptionColumn = getDescriptionColumn(row, maxColumn);
             int dateColumn=getDateColumn(row,maxColumn);
             string pricecolumnType = isMultiplePriceColumn(row,maxColumn);
             int singlepriceColumn = -1;
@@ -145,7 +145,7 @@ namespace WpfApp1
             readOutTransactions(row,maxColumn,dateColumn,singlepriceColumn,balaceColumn,descriptionColumn);
         }
 
-        private int getDescriptionColumn(int row, int maxColumn)
+        private List<int> getDescriptionColumn(int row, int maxColumn)
         {
             Regex descrRegex1 = new Regex(@"^Közlemény$");
             Regex descrRegex2 = new Regex(@"típusa$");
@@ -189,39 +189,12 @@ namespace WpfApp1
                     }
                 }
             }
-            if (descrColumns.Count != 0)
-            {
-                if (descrColumns.Count == 2)
-                {
-                    MessageBoxResult messageBoxResult = CustomMessageBox.ShowYesNo(
-                        "\tPlease choose a Comment column!",
-                        "Alert!",
-                        descrColumnNames[0],
-                        descrColumnNames[1]);
-                    if (messageBoxResult == MessageBoxResult.Yes)
-                    {
-                        return descrColumns[0];
-                    }
-                    else if(messageBoxResult == MessageBoxResult.No)
-                    {
-                        return descrColumns[1];
-                    }
-                }
-                else if(descrColumns.Count==1)
-                {
-                    return descrColumns[0];
-                }
-                else if(descrColumns.Count>2)
-                {
-                    return descrColumns[0];
-                }
-            }
-            return 0;
+            return descrColumns;
         }
 
-        private void readOutTransactions(int row, int maxColumn,int dateColumn, int singlepriceColumn, int balaceColumn,int descriptionColumn)
+        private void readOutTransactions(int row, int maxColumn,int dateColumn, int singlepriceColumn, int balaceColumn,List<int> descriptionColumns)
         {
-            if(row==1)
+            if (row==1)
             {
                 row++;
             }
@@ -266,11 +239,16 @@ namespace WpfApp1
                             string transactionBalanceString = TransactionSheet.Cells[row, balaceColumn].Value.ToString();
 
                             string transactionDescription = "-";
-                            if(TransactionSheet.Cells[row, descriptionColumn].Value!=null)
+                            for (int i = 0; i < descriptionColumns.Count; i++)
                             {
-                                transactionDescription = TransactionSheet.Cells[row, descriptionColumn].Value.ToString(); 
+                                if (TransactionSheet.Cells[row, descriptionColumns[i]].Value != null)
+                                {
+                                    if(transactionDescription=="-")
+                                        transactionDescription = TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                    else
+                                        transactionDescription += " , " + TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                }
                             }
-
                             int transactionPrice = 0;
                             int transactionBalance = 0;
                             try
@@ -298,10 +276,16 @@ namespace WpfApp1
                             string transactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
                             string accountNumber = getAccountNumber();
                             string transactionPriceString = TransactionSheet.Cells[row, singlepriceColumn].Value.ToString();
-                            string transactionDescription="-";
-                            if (TransactionSheet.Cells[row, descriptionColumn].Value != null)
+                            string transactionDescription = "-";
+                            for (int i = 0; i < descriptionColumns.Count; i++)
                             {
-                                transactionDescription = TransactionSheet.Cells[row, descriptionColumn].Value.ToString();
+                                if (TransactionSheet.Cells[row, descriptionColumns[i]].Value != null)
+                                {
+                                    if (transactionDescription == "-")
+                                        transactionDescription = TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                    else
+                                        transactionDescription += " , " + TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                }
                             }
                             int transactionPrice = 0;
                             try
@@ -321,6 +305,7 @@ namespace WpfApp1
                     }
                     row++;
                 }
+                //string bankName = analyzeStoredColumns(row,accountNumberPos,dateColumn,singlepriceColumn,balaceColumn,descriptionColumns);
                 bankHanlder.addTransactions(transaction);
             }
             else//multiple price columns
@@ -380,9 +365,15 @@ namespace WpfApp1
                                     costPrice = int.Parse(costPriceString);
                                 }
                                 string transactionDescription = "-";
-                                if (TransactionSheet.Cells[row, descriptionColumn].Value != null)
+                                for (int i = 0; i < descriptionColumns.Count; i++)
                                 {
-                                    transactionDescription = TransactionSheet.Cells[row, descriptionColumn].Value.ToString();
+                                    if (TransactionSheet.Cells[row, descriptionColumns[i]].Value != null)
+                                    {
+                                        if (transactionDescription == "-")
+                                            transactionDescription = TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                        else
+                                            transactionDescription += " , " + TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                    }
                                 }
                                 string transactionBalanceString = "";
                                 int transactionBalance = 0;
@@ -476,9 +467,15 @@ namespace WpfApp1
 
                                 }
                                 string transactionDescription = "-";
-                                if (TransactionSheet.Cells[row, descriptionColumn].Value != null)
+                                for (int i = 0; i < descriptionColumns.Count; i++)
                                 {
-                                    transactionDescription = TransactionSheet.Cells[row, descriptionColumn].Value.ToString();
+                                    if (TransactionSheet.Cells[row, descriptionColumns[i]].Value != null)
+                                    {
+                                        if (transactionDescription == "-")
+                                            transactionDescription = TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                        else
+                                            transactionDescription += " , " + TransactionSheet.Cells[row, descriptionColumns[i]].Value.ToString();
+                                    }
                                 }
                                 transaction.Add(new Transaction("-", transactionDate, incomePrice, transactionDescription, accountNumber));
                             }
@@ -497,15 +494,22 @@ namespace WpfApp1
                 }
             }
         }
+
+        private string analyzeStoredColumns(int row, object accountNumberPos, int dateColumn, int singlepriceColumn, int balaceColumn, List<int> descriptionColumns)
+        {
+            Console.WriteLine(row + " " + accountNumberPos + " " + dateColumn + " " + singlepriceColumn + " " + balaceColumn + " " + descriptionColumns[0]);
+            return "";
+        }
+
         /**
-         * 1. az utolsó balance cella értéke ami nem volt null
-         * 2. az aktuális sor ahol tartunk(ahol null a balance cella)
-         * 3.az utolsó sor ahol volt értéke a balance cellának
-         * 4.a terhelés cella
-         * 5.a jövedelem cella
-         * 
-         * return value : the right balance value
-         * */
+* 1. az utolsó balance cella értéke ami nem volt null
+* 2. az aktuális sor ahol tartunk(ahol null a balance cella)
+* 3.az utolsó sor ahol volt értéke a balance cellának
+* 4.a terhelés cella
+* 5.a jövedelem cella
+* 
+* return value : the right balance value
+* */
         private int calculatePastBalance(int transactionBalance,int row,int tempRow,int costPriceColumn,int incomePriceColumn)
         {
             tempRow--;//we are currently at a cell where we have a balance value

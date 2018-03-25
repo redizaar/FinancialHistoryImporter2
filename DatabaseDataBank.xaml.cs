@@ -77,7 +77,7 @@ namespace WpfApp1
                     }
                     else
                     {
-                        transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd"));
+                        transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd").Substring(0,12));
                     }
                 }
             }
