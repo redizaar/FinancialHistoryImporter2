@@ -107,6 +107,5 @@
                 Foreground="Black" Style="{StaticResource FileBrowser}" FontFamily="Maiandra GD" FontSize="15" Click="FileBrowser_Click">
             </Button>
         </StackPanel>
-        <Button Content="Swtich to Bank Import " HorizontalAlignment="Right" Margin="0,74,0,0" VerticalAlignment="Top" Width="157" Click="Button_Click_1"  Style="{StaticResource BaseButtonStyle}"/>
     </Grid>
 </Page>

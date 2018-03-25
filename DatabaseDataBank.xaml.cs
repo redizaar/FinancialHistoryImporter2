@@ -90,11 +90,5 @@ namespace WpfApp1
             }
             return instance;
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            DatabaseDataStock.getInstance(mainWindow).setTableAttributes();
-            mainWindow.MainFrame.Content = DatabaseDataStock.getInstance(mainWindow);
-        }
     }
 }

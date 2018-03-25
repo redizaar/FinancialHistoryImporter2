@@ -245,10 +245,6 @@ namespace WpfApp1
                 fileAddresses[fileIndex] = newExcelPath; //overwriting the old path string
             }
         }
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow, "switch");
-        }
         public string getMethod()
         {
             if (_lifoMethod)

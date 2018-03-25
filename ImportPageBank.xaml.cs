@@ -176,17 +176,10 @@ namespace WpfApp1
             {
                 instance = new ImportPageBank(mainWindow);
             }
+            instance.Loaded += instance.Instance_Loaded;
             return instance;
         }
-        public static ImportPageBank getInstance(MainWindow mainWindow,string transition)
-        {
-            //when this function called it's 100% not null
-            //because we already made ImportPageBank a content one time, so it is initalized
-            //just makeing the page switch animation back from ImportPageStock
-            instance.Loaded += Instance_Loaded;
-            return instance;
-        }
-        private static void Instance_Loaded(object sender, RoutedEventArgs e)
+        private void Instance_Loaded(object sender, RoutedEventArgs e)
         {
             switch (instance.pageLoadAnimation)
             {
@@ -316,11 +309,6 @@ namespace WpfApp1
                     }
                 }
             }
-        }
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
-            mainWindow.MainFrame.Content = ImportPageStock.getInstance(mainWindow);
         }
     }
 }

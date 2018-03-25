@@ -90,6 +90,7 @@
     <Compile Include="Login_Page.xaml.cs">
       <DependentUpon>Login_Page.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Register_Page.xaml.cs">
       <DependentUpon>Register_Page.xaml</DependentUpon>
     </Compile>

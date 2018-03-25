@@ -90,11 +90,5 @@ namespace WpfApp1
             }
             return instance;
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            DatabaseDataBank.getInstance(mainWindow).setTableAttributes();
-            mainWindow.MainFrame.Content = DatabaseDataBank.getInstance(mainWindow);
-        }
     }
 }

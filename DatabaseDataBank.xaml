@@ -55,10 +55,8 @@
         </Style>
     </Page.Resources>
     <Grid Height="300" Width="730" Background="#ECECEA">
-        <StackPanel>
-            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO STOCK DATA" FontSize="18" Click="Button_Click"  VerticalAlignment="Top"/>
-            <DataGrid Name="TransactionTableXAML" Height="200" VerticalAlignment="Top" HorizontalAlignment="Left" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0">
+        <DataGrid Name="TransactionTableXAML" Height="250" Width="700" HorizontalAlignment="Left" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0" Margin="0,0,0,50">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -99,9 +97,8 @@
                 <DataGridTextColumn Header=" Description" Width="auto" Binding="{Binding transactionDescription}"/>
                 <DataGridTextColumn Header=" Amount(HUF)"  Width="auto" Binding="{Binding transactionPrice}"/>
                 <DataGridTextColumn Header=" Date of Import" Width="auto" Binding="{Binding writeDate}"/>
-                <DataGridTextColumn Header=" Account number" Width="auto" Binding="{Binding accountNumber}"/>
+                <DataGridTextColumn Header=" Account number" Width="*" Binding="{Binding accountNumber}"/>
             </DataGrid.Columns>
         </DataGrid>
-        </StackPanel>
     </Grid>
 </Page>

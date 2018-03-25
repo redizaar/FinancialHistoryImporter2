@@ -271,6 +271,5 @@
                 </Button>
             </DockPanel>
         </StackPanel>
-        <Button Content=" Swtich to Stock Import" HorizontalAlignment="Left" Margin="0,74,0,0" VerticalAlignment="Top" Width="157"  Style="{StaticResource BaseButtonStyle}" Click="Button_Click_1"/>
     </Grid>
 </Page>

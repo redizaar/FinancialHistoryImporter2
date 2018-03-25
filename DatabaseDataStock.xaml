@@ -55,58 +55,55 @@
         </Style>
     </Page.Resources>
     <Grid Background="#ECECEA">
-        <StackPanel>
-            <Button Height="30" Style="{StaticResource BaseButtonStyle}" Content="SWTICH TO BANK DATA" FontSize="18" Click="Button_Click"/>
-            <DataGrid Name="TransactionTableXAML" Height="200" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0">
-                <DataGrid.Resources>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                        <Setter Property="Height" Value="20" />
-                        <Setter Property="SeparatorBrush" Value="DarkRed" />
-                        <Setter Property="FontWeight" Value="DemiBold" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                                    <Grid>
-                                        <Border x:Name="columnHeaderBorder"
+        <DataGrid Name="TransactionTableXAML" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0" Height="250" Width="700" HorizontalAlignment="Left" Margin="0,0,0,50">
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Height" Value="20" />
+                    <Setter Property="SeparatorBrush" Value="DarkRed" />
+                    <Setter Property="FontWeight" Value="DemiBold" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                                <Grid>
+                                    <Border x:Name="columnHeaderBorder"
 		                                BorderThickness="1"
 		                                Padding="3,0,3,0">
-                                            <Border.BorderBrush>
-                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                    <GradientStop Offset="0" Color="#A5A5A5" />
-                                                    <GradientStop Offset="1" Color="#4B4B4B" />
-                                                </LinearGradientBrush>
-                                            </Border.BorderBrush>
-                                            <Border.Background>
-                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                                                    <GradientStop Offset="0" Color="#8b9dc3" />
-                                                    <GradientStop Offset="1" Color="#dfe3ee" />
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        <Border.BorderBrush>
+                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                <GradientStop Offset="0" Color="#A5A5A5" />
+                                                <GradientStop Offset="1" Color="#4B4B4B" />
+                                            </LinearGradientBrush>
+                                        </Border.BorderBrush>
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                <GradientStop Offset="0" Color="#8b9dc3" />
+                                                <GradientStop Offset="1" Color="#dfe3ee" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
 			     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
 				SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="ToolTip" Value="{Binding earningMethod}"/>
-                    </Style>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Transaction date" Width="auto" Binding="{Binding transactionDate}"/>
-                    <DataGridTextColumn Header="Stock name" Width="auto" Binding="{Binding stockName}"/>
-                    <DataGridTextColumn Header="Stock Price"  Width="auto" Binding="{Binding stockPrice}"/>
-                    <DataGridTextColumn Header="Transaction type" Width="auto" Binding="{Binding transactionType}"/>
-                    <DataGridTextColumn Header="QTY- Original (Current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
-                    <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}"/>
-                    <DataGridTextColumn Header="Date of Import" Width="auto" Binding="{Binding writeDate}"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="ToolTip" Value="{Binding earningMethod}"/>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Transaction date" Width="auto" Binding="{Binding transactionDate}"/>
+                <DataGridTextColumn Header="Stock name" Width="auto" Binding="{Binding stockName}"/>
+                <DataGridTextColumn Header="Stock Price"  Width="auto" Binding="{Binding stockPrice}"/>
+                <DataGridTextColumn Header="Transaction type" Width="auto" Binding="{Binding transactionType}"/>
+                <DataGridTextColumn Header="QTY- Original (Current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
+                <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}"/>
+                <DataGridTextColumn Header="Date of Import" Width="auto" Binding="{Binding writeDate}"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

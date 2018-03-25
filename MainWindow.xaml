@@ -7,15 +7,14 @@
         mc:Ignorable="d"
         Title="Financial History Importer by Toth Patrik Csaba" Height="370" Width="880" Icon="MoneyIcon.png">
     <Grid  VerticalAlignment="Top" Background="#ECECEA">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="225*"/>
-            <RowDefinition Height="112*"/>
-        </Grid.RowDefinitions>
-        <Frame x:Name="MainFrame" Margin="150,70,0,0" NavigationUIVisibility="Hidden" BorderBrush="Black" BorderThickness="0" Grid.RowSpan="2"/>
-        <DockPanel Margin="0,70,730,0" Background="#ECECEA" Grid.RowSpan="2">
+        <Frame x:Name="MainFrame" Margin="150,70,0,0" NavigationUIVisibility="Hidden" BorderBrush="Black" BorderThickness="0"/>
+        <DockPanel Margin="0,70,730,0" Background="#ECECEA">
             <Border Margin="0,0,730,0">
                 <Canvas Margin="0,0,570,0">
-                    <StackPanel Background="#D9853B" Width="150" Margin="-90,0,0,0">
+                    <StackPanel x:Name="menuStackPanel" Background="#D9853B" Width="150" Margin="-90,0,0,0">
+                        <StackPanel.Resources>
+                            <local:ExpanderToBooleanConverter x:Key="ExpanderToBooleanConverter" />
+                        </StackPanel.Resources>
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
@@ -41,7 +40,7 @@
                             </Style>
                         </StackPanel.Style>
                         <DockPanel Margin="0,0,0,0" x:Name="importDock">
-                            <Expander>
+                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=1}">
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -59,13 +58,13 @@
                                     </BulletDecorator>
                                 </Expander.Header>
                                 <WrapPanel>
-                                    <Button x:Name="bankImport" Margin="20,5,5,5" Foreground="white" Content="Bank Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=BankImportPushed}"/>
-                                    <Button x:Name="stockImport" Margin="20,5,5,5" Foreground="white" Content="Stock Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=StockImportPushed}"/>
+                                    <Button x:Name="bankImport" Margin="20,5,5,5" Foreground="white" Content="Bank Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=bankImportPushed}"/>
+                                    <Button x:Name="stockImport" Margin="20,5,5,5" Foreground="white" Content="Stock Import" Background="Transparent" FontSize="13" Width="120" Command="{Binding Path=stockImportPushed}"/>
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0" x:Name="tableDock">
-                            <Expander>
+                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=2}">
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -83,13 +82,13 @@
                                     </BulletDecorator>
                                 </Expander.Header>
                                 <WrapPanel>
-                                    <Button x:Name="bankDatabase" Margin="20,5,5,5" Foreground="white" Content="Bank Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=BankDatabasePushed}"/>
+                                    <Button x:Name="bankDatabase" Margin="20,5,5,5" Foreground="white" Content="Bank Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=bankDatabasePushed}"/>
                                     <Button x:Name="stockDatabase" Margin="20,5,5,5" Foreground="white" Content="Stock Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockDatabasePushed}"/>
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0" x:Name="stockChartDock">
-                            <Expander x:Name="porfiloExpander">
+                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=3}">
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -114,8 +113,8 @@
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
-                        <DockPanel Margin="0,0,0,0">
-                            <Expander>
+                        <DockPanel Margin="0,0,0,0" x:Name="exitDock">
+                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=4}">
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -200,6 +199,6 @@
         </Border>
         <Image x:Name="exclamImage" Source="exclamIcon.png" Height="20"  Width="20" HorizontalAlignment="Right" Margin="0,-320,0,0"/>
         <Label x:Name="currentUserLabel" Content="User" Margin="800,40,0,155" FontWeight="Bold"/>
-        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden" Margin="0,0,-8,0" Grid.RowSpan="2"/>
+        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden" Margin="0,0,-8,0" />
     </Grid>
 </Window>
