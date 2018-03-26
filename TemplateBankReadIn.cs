@@ -9,6 +9,7 @@ using System.Windows;
 using System.Data.SqlClient;
 using System.Data;
 using WPFCustomMessageBox;
+using Microsoft.VisualBasic;
 
 namespace WpfApp1
 {
@@ -23,8 +24,10 @@ namespace WpfApp1
         private int pastTransactionPrice;//in case of missing Balance column..
         private bool isFirstTransaction;//in case of missing Balance column..
         private string accountNumber;
+        private string accountNumberPos;
         private MainWindow mainWindow;
         private bool multipleColumn;
+        private string priceColumns;
         private bool calculatedBalance;//in case of having a balance column , but it is null in some of the rows..........
 
         public TemplateBankReadIn(ImportReadIn importReadin, Workbook workbook, Worksheet worksheet,MainWindow mainWindow,bool userSpecified)
@@ -47,12 +50,15 @@ namespace WpfApp1
         private void getTransactionRows()
         {
             this.accountNumber = "";
-            Regex accoutNumberRegex1 = new Regex(@"^Számlaszám$");
+            Regex accountNumberRegex1 = new Regex(@"^Számlaszám$");
             Regex accountNumberRegex2 = new Regex(@"^Könyvelési számla$");
-            Regex accoutNumberRegex3 = new Regex(@"^Számlaszám:$");
+            Regex accountNumberRegex3 = new Regex(@"^Számlaszám:$");
+            Regex accountNumberRegex4 = new Regex(@"^\d{8}-\d{8}");
+            Regex accountNumberRegex5 = new Regex(@"\d{8}-\d{8}-\d{8}");
             int blank_row=0;
             int blank_cells = 0;
             int i = 1;
+
 
             int maxColumns=1;
             int transactionsStartRow = 1;
@@ -61,15 +67,24 @@ namespace WpfApp1
                 int column = 1;
                 if(TransactionSheet.Cells[i,column].Value!=null)
                 {
-                    if (this.accountNumber.Equals(""))
+                    if (this.accountNumber=="")
                     {
                         if ((column == 1) || (column==2 ))
                         {
                             string cellValue = TransactionSheet.Cells[i, column].Value.ToString();
-                            if (accoutNumberRegex1.IsMatch(cellValue) || accountNumberRegex2.IsMatch(cellValue) || accoutNumberRegex3.IsMatch(cellValue))
+                            if (accountNumberRegex1.IsMatch(cellValue) ||
+                                accountNumberRegex2.IsMatch(cellValue) ||
+                                accountNumberRegex3.IsMatch(cellValue) ||
+                                accountNumberRegex4.IsMatch(cellValue) ||
+                                accountNumberRegex5.IsMatch(cellValue))
                             {
                                 string accountNumberValue = TransactionSheet.Cells[i, column + 1].Value.ToString();//the cell next to it
                                 setAccountNumber(accountNumberValue);
+                                //only in one cell i.e. B3
+                                char c1 = 'A';
+                                for (int k = 1; k < column; k++)
+                                    c1++;
+                                accountNumberPos = c1 + i.ToString();
                             }
                         }
                     }
@@ -97,17 +112,23 @@ namespace WpfApp1
                 {
                     maxColumns = column;
                     transactionsStartRow = i;
-                    if(this.accountNumber.Equals(""))
+                    if(this.accountNumber=="")
                     {
                         for(int j=1;j<column;j++)
                         {
                             if(TransactionSheet.Cells[i, j].Value!=null)
                             {
                                 string cellValue = TransactionSheet.Cells[i, j].Value.ToString();
-                                if(accoutNumberRegex1.IsMatch(cellValue) || accountNumberRegex2.IsMatch(cellValue) || accoutNumberRegex3.IsMatch(cellValue))
+                                if(accountNumberRegex1.IsMatch(cellValue)  ||
+                                    accountNumberRegex2.IsMatch(cellValue) ||
+                                    accountNumberRegex3.IsMatch(cellValue) ||
+                                    accountNumberRegex4.IsMatch(cellValue) ||
+                                    accountNumberRegex5.IsMatch(cellValue))
                                 {
                                     string accountNumberValue = TransactionSheet.Cells[i+1, j].Value.ToString();//the cell below it
                                     setAccountNumber(accountNumberValue);
+                                    //it's in every transaction in a column
+                                    accountNumberPos = column.ToString();
                                 }
                             }
                         }
@@ -115,9 +136,18 @@ namespace WpfApp1
                 }
                 i++;
             }
-            if (this.accountNumber.Equals(""))
+            if (this.accountNumber=="")
             {
-                accountNumber = TransactionSheet.Name;
+                string sheetname = TransactionSheet.Name;
+                if(accountNumberRegex4.IsMatch(sheetname) || accountNumberRegex5.IsMatch(sheetname))
+                {
+                    accountNumber = TransactionSheet.Name;
+                    accountNumberPos = "Sheet name";
+                }
+                else
+                {
+                    accountNumber = "?";
+                }
             }
             setStartingRow(transactionsStartRow);
             setNofColumns(maxColumns-blank_cells);
@@ -127,22 +157,27 @@ namespace WpfApp1
         {
             List<int> descriptionColumn = getDescriptionColumn(row, maxColumn);
             int dateColumn=getDateColumn(row,maxColumn);
-            string pricecolumnType = isMultiplePriceColumn(row,maxColumn);
-            int singlepriceColumn = -1;
-            try
+            string pricecolumn = isMultiplePriceColumn(row,maxColumn);
+            if (pricecolumn != null)
             {
-                singlepriceColumn=int.Parse(pricecolumnType);
-            }
-            catch(Exception e)
-            {
+                int singlepriceColumn = -1;
+                try
+                {
+                    singlepriceColumn = int.Parse(pricecolumn);
+                }
+                catch (Exception e)
+                {
 
+                }
+                if (singlepriceColumn == -1)
+                {
+                    this.multipleColumn = true;
+                    priceColumns = pricecolumn;
+                }
+                int balaceColumn = getAccountBalanceColumn(row, maxColumn);
+                readOutTransactions(row, maxColumn, dateColumn, singlepriceColumn, balaceColumn, descriptionColumn);
             }
-            if(singlepriceColumn==-1)
-            {
-                this.multipleColumn = true;
-            }
-            int balaceColumn=getAccountBalanceColumn(row,maxColumn);
-            readOutTransactions(row,maxColumn,dateColumn,singlepriceColumn,balaceColumn,descriptionColumn);
+            MessageBox.Show("Couldn't find the price columns, please use specified import on this file!");
         }
 
         private List<int> getDescriptionColumn(int row, int maxColumn)
@@ -305,7 +340,8 @@ namespace WpfApp1
                     }
                     row++;
                 }
-                //string bankName = analyzeStoredColumns(row,accountNumberPos,dateColumn,singlepriceColumn,balaceColumn,descriptionColumns);
+                //singlePricecolumn
+                string bankName = getBankNameFromStoredData(row,accountNumberPos,dateColumn,singlepriceColumn,balaceColumn,descriptionColumns);
                 bankHanlder.addTransactions(transaction);
             }
             else//multiple price columns
@@ -486,6 +522,8 @@ namespace WpfApp1
                         }
                         row++;
                     }
+                    //multiple priceColumns
+                    string bankName = getBankNameFromStoredData(row, accountNumberPos, dateColumn, priceColumns, balaceColumn, descriptionColumns);
                     bankHanlder.addTransactions(transaction);
                 }
                 else
@@ -495,21 +533,234 @@ namespace WpfApp1
             }
         }
 
-        private string analyzeStoredColumns(int row, object accountNumberPos, int dateColumn, int singlepriceColumn, int balaceColumn, List<int> descriptionColumns)
+        private string getBankNameFromStoredData(int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, List<int> descriptionColumns)
         {
-            Console.WriteLine(row + " " + accountNumberPos + " " + dateColumn + " " + singlepriceColumn + " " + balaceColumn + " " + descriptionColumns[0]);
-            return "";
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            string getEveryRow = "Select * From [StoredColumns]";
+            SqlDataAdapter sda = new SqlDataAdapter(getEveryRow, sqlConn);
+            System.Data.DataTable datatable = new System.Data.DataTable();
+            sda.Fill(datatable);
+            int maxMatch = 0;
+            DataRow mostMatchingrow=null;
+            foreach (DataRow row in datatable.Rows)
+            {
+                int matchCounter = 0;
+                int transactionsRow = int.Parse(row["TransStartRow"].ToString());
+                if(transactionsRow!=startingRow)
+                {
+                    string accountNumberPosString = row["AccountNumberPos"].ToString();
+                    string dateColumnString = row["DateColumn"].ToString();
+                    string priceColumnString = row["PriceColumn"].ToString();
+                    string balanceColumnString = row["BalanceColumn"].ToString();
+                    string commentColumnString = row["CommentColumn"].ToString();
+                    if (accountNumberPosString == accountNumberPos)
+                        matchCounter++;
+                    if (ExcelColumnNameToNumber(dateColumnString) == dateColumn)
+                        matchCounter++;
+                    if (balanceColumn != -1)
+                    {
+                        if (ExcelColumnNameToNumber(balanceColumnString) == balanceColumn)
+                            matchCounter++;
+                    }
+                    else
+                    {
+                        if (balanceColumnString == "None")
+                            matchCounter++;
+                    }
+                    if(ExcelColumnNameToNumber(priceColumnString)==singlepriceColumn)
+                    {
+                        matchCounter++;
+                    }
+                    string [] splittedComment=commentColumnString.Split(',');
+                    for(int i=0;i<descriptionColumns.Count;i++)
+                    {
+                        for(int j=0;j<splittedComment.Length;j++)
+                        {
+                            if (descriptionColumns[i] == ExcelColumnNameToNumber(splittedComment[j]))
+                            {
+                                matchCounter++;
+                                break;
+                            }
+                        }
+                    }
+                    if(matchCounter>maxMatch)
+                    {
+                        maxMatch = matchCounter;
+                        mostMatchingrow = row;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (datatable.Rows.Count == maxMatch)
+                return mostMatchingrow["BankName"].ToString();
+            else if(((((datatable.Rows.Count)-1) == maxMatch) || ((datatable.Rows.Count)-2)==maxMatch))
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Is this import file from " + mostMatchingrow["BankName"].ToString() + " ?",
+                    "Bankname alert!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if(messageBoxResult==MessageBoxResult.Yes)
+                {
+                    return mostMatchingrow["BankName"].ToString();
+                }
+                else
+                {
+                    string input = Interaction.InputBox("Please type in the Bank name!", "", "",0,0);
+                    string commentColumns = "";
+                    for(int j=0;j<descriptionColumns.Count;j++)
+                    {
+                        if (j == 0)
+                            commentColumns = descriptionColumns[j].ToString();
+                        else
+                            commentColumns +=","+descriptionColumns[j].ToString();
+                    }
+                    writeNewRecordToSql(input,startingRow,accountNumberPos,dateColumn,singlepriceColumn,balanceColumn,commentColumns);
+                    return input;
+                }
+            }
+            else
+            {
+                string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                string commentColumns = "";
+                for (int j = 0; j < descriptionColumns.Count; j++)
+                {
+                    if (j == 0)
+                        commentColumns = descriptionColumns[j].ToString();
+                    else
+                        commentColumns += "," + descriptionColumns[j].ToString();
+                }
+                writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
+                return input;
+            }
         }
-
+        private string getBankNameFromStoredData(int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, List<int> descriptionColumns)
+        {
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            string getEveryRow = "Select * From [StoredColumns]";
+            SqlDataAdapter sda = new SqlDataAdapter(getEveryRow, sqlConn);
+            System.Data.DataTable datatable = new System.Data.DataTable();
+            sda.Fill(datatable);
+            int maxMatch = 0;
+            DataRow mostMatchingrow = null;
+            string [] splittedPriceColumns = priceColumns.Split(',');
+            foreach (DataRow row in datatable.Rows)
+            {
+                int matchCounter = 0;
+                int transactionsRow = int.Parse(row["TransStartRow"].ToString());
+                if (transactionsRow != startingRow)
+                {
+                    string accountNumberPosString = row["AccountNumberPos"].ToString();
+                    string dateColumnString = row["DateColumn"].ToString();
+                    string priceColumnString = row["PriceColumn"].ToString();
+                    string balanceColumnString = row["BalanceColumn"].ToString();
+                    string commentColumnString = row["CommentColumn"].ToString();
+                    if (accountNumberPosString == accountNumberPos)
+                        matchCounter++;
+                    if (ExcelColumnNameToNumber(dateColumnString) == dateColumn)
+                        matchCounter++;
+                    if (balanceColumn != -1)
+                    {
+                        if (ExcelColumnNameToNumber(balanceColumnString) == balanceColumn)
+                            matchCounter++;
+                    }
+                    else
+                    {
+                        if (balanceColumnString == "None")
+                            matchCounter++;
+                    }
+                    for (int i = 0; i < splittedPriceColumns.Length; i++)
+                    {
+                        char c1 = 'A';
+                        for (int j = 1; j < int.Parse(splittedPriceColumns[i]); j++)
+                            c1++;
+                        if (ExcelColumnNameToNumber(priceColumnString) == c1)
+                        {
+                            matchCounter++;
+                        }
+                    }
+                    string[] splittedComment = commentColumnString.Split(',');
+                    for (int i = 0; i < descriptionColumns.Count; i++)
+                    {
+                        for (int j = 0; j < splittedComment.Length; j++)
+                        {
+                            if (descriptionColumns[i] == ExcelColumnNameToNumber(splittedComment[j]))
+                            {
+                                matchCounter++;
+                                break;
+                            }
+                        }
+                    }
+                    if (matchCounter > maxMatch)
+                    {
+                        maxMatch = matchCounter;
+                        mostMatchingrow = row;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (datatable.Rows.Count == maxMatch)
+                return mostMatchingrow["BankName"].ToString();
+            else if (((((datatable.Rows.Count) - 1) == maxMatch) || ((datatable.Rows.Count) - 2) == maxMatch))
+            {
+                MessageBoxResult messageBoxResult = MessageBox.Show("Is this import file from " + mostMatchingrow["BankName"].ToString() + " ?",
+                    "Bankname alert!", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (messageBoxResult == MessageBoxResult.Yes)
+                {
+                    return mostMatchingrow["BankName"].ToString();
+                }
+                else
+                {
+                    string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    string commentColumns = "";
+                    for (int j = 0; j < descriptionColumns.Count; j++)
+                    {
+                        if (j == 0)
+                            commentColumns = descriptionColumns[j].ToString();
+                        else
+                            commentColumns += "," + descriptionColumns[j].ToString();
+                    }
+                    writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, "1,2", balanceColumn, commentColumns);
+                    return input;
+                }
+            }
+            else
+            {
+                string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                string commentColumns = "";
+                for (int j = 0; j < descriptionColumns.Count; j++)
+                {
+                    if (j == 0)
+                        commentColumns = descriptionColumns[j].ToString();
+                    else
+                        commentColumns += "," + descriptionColumns[j].ToString();
+                }
+                writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, "1,2", balanceColumn, commentColumns);
+                return input;
+            }
+        }
+        private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, string commentColumns)
+        {
+            throw new NotImplementedException();
+        }
+        private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, string commentColumns)
+        {
+            throw new NotImplementedException();
+        }
         /**
-* 1. az utolsó balance cella értéke ami nem volt null
-* 2. az aktuális sor ahol tartunk(ahol null a balance cella)
-* 3.az utolsó sor ahol volt értéke a balance cellának
-* 4.a terhelés cella
-* 5.a jövedelem cella
-* 
-* return value : the right balance value
-* */
+        * 1. az utolsó balance cella értéke ami nem volt null
+        * 2. az aktuális sor ahol tartunk(ahol null a balance cella)
+        * 3.az utolsó sor ahol volt értéke a balance cellának
+        * 4.a terhelés cella
+        * 5.a jövedelem cella
+        * 
+        * return value : the right balance value
+        * */
         private int calculatePastBalance(int transactionBalance,int row,int tempRow,int costPriceColumn,int incomePriceColumn)
         {
             tempRow--;//we are currently at a cell where we have a balance value
@@ -594,9 +845,24 @@ namespace WpfApp1
                             {
                                 return j.ToString();
                             }
-                            else if (priceRegex3.IsMatch(inputData) || priceRegex4.IsMatch(inputData))
+                            else if (priceRegex3.IsMatch(inputData))
                             {
-                                return "multiple";
+                                if(TransactionSheet.Cells[i,j+1].Value!=null)
+                                {
+                                    string inputData2 = TransactionSheet.Cells[i, j + 1].Value.ToString();
+                                    if(priceRegex4.IsMatch(inputData2))
+                                    {
+                                        return inputData + "," + inputData2;
+                                    }
+                                }
+                                else if(TransactionSheet.Cells[i,j-1].Value!=null)
+                                {
+                                    string inputData2 = TransactionSheet.Cells[i, j - 1].Value.ToString();
+                                    if (priceRegex4.IsMatch(inputData2))
+                                    {
+                                        return inputData2 + "," + inputData2;
+                                    }
+                                }
                             }
                          }
                      }
@@ -613,9 +879,24 @@ namespace WpfApp1
                         {
                             return j.ToString();
                         }
-                        else if (priceRegex3.IsMatch(inputData) || priceRegex4.IsMatch(inputData))
+                        else if (priceRegex3.IsMatch(inputData))
                         {
-                            return "multiple";
+                            if (TransactionSheet.Cells[row, j + 1].Value != null)
+                            {
+                                string inputData2 = TransactionSheet.Cells[row, j + 1].Value.ToString();
+                                if (priceRegex4.IsMatch(inputData2))
+                                {
+                                    return inputData + "," + inputData2;
+                                }
+                            }
+                            else if (TransactionSheet.Cells[row, j - 1].Value != null)
+                            {
+                                string inputData2 = TransactionSheet.Cells[row, j - 1].Value.ToString();
+                                if (priceRegex4.IsMatch(inputData2))
+                                {
+                                    return inputData2 + "," + inputData2;
+                                }
+                            }
                         }
                     }
                 }
@@ -918,6 +1199,7 @@ namespace WpfApp1
             if (transactions.Count > 0)
             {
                 bankHanlder.addTransactions(transactions);
+                //todo another thread
                 addImportFileDataToDB(int.Parse(startingRow),accountNumberResult, 
                     dateColumnString,transactionPriceCB  ,balanceColumnString, commentColumnString);
             }
