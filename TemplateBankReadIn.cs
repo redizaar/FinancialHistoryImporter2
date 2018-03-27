@@ -356,8 +356,9 @@ namespace WpfApp1
                 }
                 //singlePricecolumn
                 string bankName = getBankNameFromStoredData(startingRowReference, accountNumberPos, dateColumn, singlepriceColumn, balaceColumn, descriptionColumns);
-                Console.WriteLine(bankName);
-                //bankHanlder.addTransactions(transaction);
+                foreach (var tempTransaction in transactions)
+                    tempTransaction.setBankname(bankName);
+                bankHanlder.addTransactions(transaction);
             }
             else//multiple price columns
             {
@@ -620,7 +621,11 @@ namespace WpfApp1
                     }
                     else
                     {
-                        string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                        string input = "";
+                        while (input == "")
+                        {
+                            input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                        }
                         string commentColumns = "";
                         for (int j = 0; j < descriptionColumns.Count; j++)
                         {
@@ -629,13 +634,17 @@ namespace WpfApp1
                             else
                                 commentColumns += "," + descriptionColumns[j].ToString();
                         }
-                        //writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
+                        writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
                         return input;
                     }
                 }
                 else
                 {
-                    string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    string input = "";
+                    while (input == "")
+                    {
+                        input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    }
                     string commentColumns = "";
                     for (int j = 0; j < descriptionColumns.Count; j++)
                     {
@@ -644,7 +653,7 @@ namespace WpfApp1
                         else
                             commentColumns += "," + descriptionColumns[j].ToString();
                     }
-                    //writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
+                    writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
                     return input;
                 }
             }
@@ -731,7 +740,11 @@ namespace WpfApp1
                 }
                 else
                 {
-                    string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    string input = "";
+                    while (input == "")
+                    {
+                        input=Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    }
                     string commentColumns = "";
                     for (int j = 0; j < descriptionColumns.Count; j++)
                     {
@@ -740,13 +753,17 @@ namespace WpfApp1
                         else
                             commentColumns += "," + descriptionColumns[j].ToString();
                     }
-                    //writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, priceColumns, balanceColumn, commentColumns);
+                    writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, priceColumns, balanceColumn, commentColumns);
                     return input;
                 }
             }
             else
             {
-                string input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                string input = "";
+                while (input == "")
+                {
+                    input=Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                }
                 string commentColumns = "";
                 for (int j = 0; j < descriptionColumns.Count; j++)
                 {
@@ -755,17 +772,45 @@ namespace WpfApp1
                     else
                         commentColumns += "," + descriptionColumns[j].ToString();
                 }
-                //writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, priceColumns, balanceColumn, commentColumns);
+                writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, priceColumns, balanceColumn, commentColumns);
                 return input;
             }
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, string commentColumns)
         {
-            throw new NotImplementedException();
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            sqlCommand.Parameters.AddWithValue("@bankName", input);
+            sqlCommand.Parameters.AddWithValue("@transStartRow", startingRow);
+                sqlCommand.Parameters.AddWithValue("@accountNumberPos", accountNumberPos);
+            sqlCommand.Parameters.AddWithValue("@dateColumn", dateColumn);
+                sqlCommand.Parameters.AddWithValue("@priceColumn", singlepriceColumn);
+            if (balanceColumn!=-1)
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", balanceColumn);
+            else
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
+            sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
+            sqlCommand.ExecuteNonQuery();
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, string commentColumns)
         {
-            throw new NotImplementedException();
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            sqlCommand.Parameters.AddWithValue("@bankName", input);
+            sqlCommand.Parameters.AddWithValue("@transStartRow", startingRow);
+            sqlCommand.Parameters.AddWithValue("@accountNumberPos", accountNumberPos);
+            sqlCommand.Parameters.AddWithValue("@dateColumn", dateColumn);
+            sqlCommand.Parameters.AddWithValue("@priceColumn", priceColumns);
+            if (balanceColumn != -1)
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", balanceColumn);
+            else
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
+            sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
+            sqlCommand.ExecuteNonQuery();
         }
         /**
         * 1. az utolsó balance cella értéke ami nem volt null
