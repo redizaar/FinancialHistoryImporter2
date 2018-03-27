@@ -69,6 +69,7 @@ namespace WpfApp1
                     }
                     WriteWorksheet.Cells[row_number, 14].Value = transctn.getTransactionDescription();
                     WriteWorksheet.Cells[row_number, 16].Value = transctn.getAccountNumber();
+                    WriteWorksheet.Cells[row_number, 17].Value = transctn.getBankname();
                     row_number++;
                     Range line = (Range)WriteWorksheet.Rows[row_number];
                     line.Insert();

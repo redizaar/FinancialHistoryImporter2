@@ -74,7 +74,7 @@ namespace WpfApp1
                         }
                     }
                 }
-                //excel.Application.Quit();
+                excel.Workbooks.Close();
                 //excel.Quit();
             }
         }
@@ -102,6 +102,10 @@ namespace WpfApp1
         public void writeOutBankTransactions()
         {
             new ExportTransactions(bankTransactions,mainWindow,currentFileName);
+        }
+        public string getCurrentFileName()
+        {
+            return currentFileName;
         }
     }
 }

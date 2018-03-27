@@ -282,7 +282,21 @@ namespace WpfApp1
                         {
                             blank_counter = 0;
 
-                            string transactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                            string transactionDate = "";
+                            string tempTransactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                            string[] splittedDate = tempTransactionDate.Split(' ');
+                            if (splittedDate.Length == 1)
+                            {
+                                transactionDate = tempTransactionDate;
+                            }
+                            else
+                            {
+                                for (int j = 0; j < splittedDate.Length - 1; j++)
+                                {
+                                    if (j < 3)
+                                        transactionDate += splittedDate[j];
+                                }
+                            }
                             string accountNumber = getAccountNumber();
                             string transactionPriceString = TransactionSheet.Cells[row, singlepriceColumn].Value.ToString();
                             string transactionBalanceString = TransactionSheet.Cells[row, balaceColumn].Value.ToString();
@@ -322,7 +336,21 @@ namespace WpfApp1
                         {
                             blank_counter = 0;
 
-                            string transactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                            string transactionDate = "";
+                            string tempTransactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                            string[] splittedDate = tempTransactionDate.Split(' ');
+                            if (splittedDate.Length == 1)
+                            {
+                                transactionDate = tempTransactionDate;
+                            }
+                            else
+                            {
+                                for (int j = 0; j < splittedDate.Length - 1; j++)
+                                {
+                                    if (j < 3)
+                                        transactionDate += splittedDate[j];
+                                }
+                            }
                             string accountNumber = getAccountNumber();
                             string transactionPriceString = TransactionSheet.Cells[row, singlepriceColumn].Value.ToString();
                             string transactionDescription = "-";
@@ -356,7 +384,7 @@ namespace WpfApp1
                 }
                 //singlePricecolumn
                 string bankName = getBankNameFromStoredData(startingRowReference, accountNumberPos, dateColumn, singlepriceColumn, balaceColumn, descriptionColumns);
-                foreach (var tempTransaction in transactions)
+                foreach (var tempTransaction in transaction)
                     tempTransaction.setBankname(bankName);
                 bankHanlder.addTransactions(transaction);
             }
@@ -398,7 +426,21 @@ namespace WpfApp1
                             {
                                 blank_counter = 0;
 
-                                string transactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                                string transactionDate = "";
+                                string tempTransactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                                string[] splittedDate = tempTransactionDate.Split(' ');
+                                if (splittedDate.Length == 1)
+                                {
+                                    transactionDate = tempTransactionDate;
+                                }
+                                else
+                                {
+                                    for (int j = 0; j < splittedDate.Length - 1; j++)
+                                    {
+                                        if (j < 3)
+                                            transactionDate += splittedDate[j];
+                                    }
+                                }
                                 string accountNumber = getAccountNumber();
 
                                 string incomePriceString = "";
@@ -485,7 +527,21 @@ namespace WpfApp1
                             {
                                 blank_counter = 0;
 
-                                string transactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                                string transactionDate = "";
+                                string tempTransactionDate = TransactionSheet.Cells[row, dateColumn].Value.ToString();
+                                string[] splittedDate = tempTransactionDate.Split(' ');
+                                if (splittedDate.Length == 1)
+                                {
+                                    transactionDate = tempTransactionDate;
+                                }
+                                else
+                                {
+                                    for (int j = 0; j < splittedDate.Length - 1; j++)
+                                    {
+                                        if (j < 3)
+                                            transactionDate += splittedDate[j];
+                                    }
+                                }
                                 string accountNumber = getAccountNumber();
 
                                 string incomePriceString = "";
@@ -540,6 +596,8 @@ namespace WpfApp1
                     }
                     //multiple priceColumns
                     string bankName = getBankNameFromStoredData(row, accountNumberPos, dateColumn, priceColumns, balaceColumn, descriptionColumns);
+                    foreach (var tempTransaction in transaction)
+                        tempTransaction.setBankname(bankName);
                     bankHanlder.addTransactions(transaction);
                 }
                 else
@@ -624,7 +682,7 @@ namespace WpfApp1
                         string input = "";
                         while (input == "")
                         {
-                            input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                            input = Interaction.InputBox("Please type in the Bank name!", "", "");
                         }
                         string commentColumns = "";
                         for (int j = 0; j < descriptionColumns.Count; j++)
@@ -643,15 +701,15 @@ namespace WpfApp1
                     string input = "";
                     while (input == "")
                     {
-                        input = Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                        input = Interaction.InputBox("Please type in the Bank name!", "", "");
                     }
                     string commentColumns = "";
                     for (int j = 0; j < descriptionColumns.Count; j++)
                     {
                         if (j == 0)
-                            commentColumns = descriptionColumns[j].ToString();
+                            commentColumns = ExcelColumnFromNumber(descriptionColumns[j]);
                         else
-                            commentColumns += "," + descriptionColumns[j].ToString();
+                            commentColumns += "," + ExcelColumnFromNumber(descriptionColumns[j]);
                     }
                     writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, singlepriceColumn, balanceColumn, commentColumns);
                     return input;
@@ -743,7 +801,7 @@ namespace WpfApp1
                     string input = "";
                     while (input == "")
                     {
-                        input=Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                        input=Interaction.InputBox("Please type in the Bank name!", "", "");
                     }
                     string commentColumns = "";
                     for (int j = 0; j < descriptionColumns.Count; j++)
@@ -762,15 +820,15 @@ namespace WpfApp1
                 string input = "";
                 while (input == "")
                 {
-                    input=Interaction.InputBox("Please type in the Bank name!", "", "", 0, 0);
+                    input=Interaction.InputBox("Please type in the Bank name!", "", "");
                 }
                 string commentColumns = "";
                 for (int j = 0; j < descriptionColumns.Count; j++)
                 {
                     if (j == 0)
-                        commentColumns = descriptionColumns[j].ToString();
+                        commentColumns = ExcelColumnFromNumber(descriptionColumns[j]);
                     else
-                        commentColumns += "," + descriptionColumns[j].ToString();
+                        commentColumns += "," + ExcelColumnFromNumber(descriptionColumns[j]);
                 }
                 writeNewRecordToSql(input, startingRow, accountNumberPos, dateColumn, priceColumns, balanceColumn, commentColumns);
                 return input;
@@ -778,17 +836,26 @@ namespace WpfApp1
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, string commentColumns)
         {
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
             sqlCommand.CommandType = CommandType.StoredProcedure;
             sqlCommand.Parameters.AddWithValue("@bankName", input);
             sqlCommand.Parameters.AddWithValue("@transStartRow", startingRow);
+            try
+            {
+                int priceColumn = int.Parse(accountNumberPos);
+                sqlCommand.Parameters.AddWithValue("@accountNumberPos", ExcelColumnFromNumber(priceColumn));
+            }
+            catch(Exception e)
+            {
+                //it's a cell
                 sqlCommand.Parameters.AddWithValue("@accountNumberPos", accountNumberPos);
-            sqlCommand.Parameters.AddWithValue("@dateColumn", dateColumn);
-                sqlCommand.Parameters.AddWithValue("@priceColumn", singlepriceColumn);
+            }
+            sqlCommand.Parameters.AddWithValue("@dateColumn", ExcelColumnFromNumber(dateColumn));
+            sqlCommand.Parameters.AddWithValue("@priceColumn", ExcelColumnFromNumber(singlepriceColumn));
             if (balanceColumn!=-1)
-                sqlCommand.Parameters.AddWithValue("@balanceColumn", balanceColumn);
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", ExcelColumnFromNumber(balanceColumn));
             else
                 sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
             sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
@@ -796,17 +863,26 @@ namespace WpfApp1
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, string commentColumns)
         {
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
             sqlCommand.CommandType = CommandType.StoredProcedure;
             sqlCommand.Parameters.AddWithValue("@bankName", input);
             sqlCommand.Parameters.AddWithValue("@transStartRow", startingRow);
-            sqlCommand.Parameters.AddWithValue("@accountNumberPos", accountNumberPos);
-            sqlCommand.Parameters.AddWithValue("@dateColumn", dateColumn);
+            try
+            {
+                int priceColumn = int.Parse(accountNumberPos);
+                sqlCommand.Parameters.AddWithValue("@accountNumberPos", ExcelColumnFromNumber(priceColumn));
+            }
+            catch (Exception e)
+            {
+                //it's a cell
+                sqlCommand.Parameters.AddWithValue("@accountNumberPos", accountNumberPos);
+            }
+            sqlCommand.Parameters.AddWithValue("@dateColumn", ExcelColumnFromNumber(dateColumn));
             sqlCommand.Parameters.AddWithValue("@priceColumn", priceColumns);
             if (balanceColumn != -1)
-                sqlCommand.Parameters.AddWithValue("@balanceColumn", balanceColumn);
+                sqlCommand.Parameters.AddWithValue("@balanceColumn", ExcelColumnFromNumber(balanceColumn));
             else
                 sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
             sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
@@ -1385,6 +1461,19 @@ namespace WpfApp1
             }
 
             return sum;
+        }
+        public static string ExcelColumnFromNumber(int column)
+        {
+            string columnString = "";
+            decimal columnNumber = column;
+            while (columnNumber > 0)
+            {
+                decimal currentLetterNumber = (columnNumber - 1) % 26;
+                char currentLetter = (char)(currentLetterNumber + 65);
+                columnString = currentLetter + columnString;
+                columnNumber = (columnNumber - (currentLetterNumber + 1)) / 26;
+            }
+            return columnString;
         }
         private void setStartingRow(int value)
         {

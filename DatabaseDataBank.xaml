@@ -98,6 +98,7 @@
                 <DataGridTextColumn Header=" Amount(HUF)"  Width="auto" Binding="{Binding transactionPrice}"/>
                 <DataGridTextColumn Header=" Date of Import" Width="auto" Binding="{Binding writeDate}"/>
                 <DataGridTextColumn Header=" Account number" Width="*" Binding="{Binding accountNumber}"/>
+                <DataGridTextColumn Header=" Bank name" Width="auto" Binding="{Binding bankName}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

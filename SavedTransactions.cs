@@ -39,6 +39,7 @@ namespace WpfApp1
                 string accountNumber = "";
                 string description = "";
                 string earningMethod = "-";
+                string bankname = "";
                 writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
                 tempTransactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
                 string[] splittedDate = tempTransactionDate.Split(' ');
@@ -71,8 +72,13 @@ namespace WpfApp1
                 {
                     description = ReadWorksheet.Cells[i, 14].Value.ToString();
                 }
-
-                savedTransactionsBank.Add(new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description));
+                if(ReadWorksheet.Cells[i,17].Value!=null)
+                {
+                    bankname = ReadWorksheet.Cells[i, 17].Value.ToString();
+                }
+                Transaction transaction = new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description);
+                transaction.setBankname(bankname);
+                savedTransactionsBank.Add(transaction);
                 i++;
             }
         }
