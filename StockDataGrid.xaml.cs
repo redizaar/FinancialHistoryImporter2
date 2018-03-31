@@ -140,9 +140,5 @@ namespace WpfApp1
                     storedStockDataGrid.Items.Add(attribute);
             }));
         }
-        private void switchToTable_Click(object sender, RoutedEventArgs e)
-        {
-            mainWindow.MainFrame.Content = new StockChart(mainWindow);
-        }
     }
 }

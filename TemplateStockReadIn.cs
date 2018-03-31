@@ -43,7 +43,7 @@ namespace WpfApp1
             companyNameColumn = getCompanyColumn();
             transactionDateColumn = getDateColumn();
             getHistoricalStockPrice(companyNameColumn, transactionDateColumn);
-            priceColumn=getPricesToDatesFromCSV(companyNameColumn,transactionDateColumn);
+            priceColumn =getPricesToDatesFromCSV(companyNameColumn,transactionDateColumn);
             quantityColumn = getQuantityColumn();
             transactionTypeColumn = getTransactionType();
         }
@@ -184,6 +184,7 @@ namespace WpfApp1
         }
         private int getPricesToDatesFromCSV(int companyNameColumn,int transactionDateColumn)
         {
+            Console.WriteLine("getPricesToDatesFromCSV elso sor");
             int blank_cell_counter = 0;
             int row = 2;
             string companyName;
@@ -201,6 +202,7 @@ namespace WpfApp1
                             double dayHighest = 0;
                             double dayLowest = 0;
                             getDayHighAndDayLowPrice(cToCSV.Value, transactionDate, ref dayHighest, ref dayLowest);
+                            Console.WriteLine(transactionDate+" -->  Higest: " + dayHighest + " Lowest: " + dayLowest);
                             int blank_column_counter = 0;
                             //we go through the columns
                             int column = 1;
@@ -378,37 +380,45 @@ namespace WpfApp1
             List<string> copyOfCompanyNames = new List<string>(companyNames);
             Dictionary<string, string> companyToDate = collectOldestShareDates(copyOfCompanyNames, companyColumn,dateColumn);
             companyToTicker = new Dictionary<string, string>();
-            string companyNamesCSV;
+            string companyNamesCSV="";
+            /*
             using (var web = new WebClient())
             {
+                web.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.0) Gecko/20100101 Firefox/4.0";
                 var url = $"http://www.nasdaq.com/screening/companies-by-industry.aspx?render=download";
                 companyNamesCSV = web.DownloadString(url);
             }
-            Regex reg = new Regex("\"([^\"]*?)\"");
-            var matches = reg.Matches(companyNamesCSV).
-                Cast<Match>()
-                .Select(m => m.Value)
-                .ToArray();
-            for (int i = 9; i < matches.Length; i += 9)
+            */
+            IEnumerable<String> all_lines = System.IO.File.ReadLines("C:/Users/Tocki/source/repos/WpfApp1/companylist.csv", Encoding.Default);
+            foreach (var lines in all_lines)
             {
-                for(int j=0;j<companyNames.Count;j++)
-                {
-                    string[] splitted1 = matches[i+1].Split('"');
-                    string companyName = "";
-                    for (int k = 0; k < splitted1.Length; k++)
-                        companyName += splitted1[k];
-                    if (matches[i+1].Contains(companyNames[j]) || levenshteinDistance(companyNames[j],companyName)==1)
-                    {
-                        string [] splitted = matches[i].Split('"');
-                        string ticker = "";
-                        for (int k = 0; k < splitted.Length; k++)
-                            ticker += splitted[k];
-                        companyToTicker.Add(companyNames[j], ticker);
-                    }
-                }
-                //Console.WriteLine("Ticker: {0} -> Company name :{1} ", matches[i], matches[i + 1]);
+                companyNamesCSV += lines;
             }
-            getCSVdataFromGoogle(companyToDate,companyToTicker);
+            Regex reg = new Regex("\"([^\"]*?)\"");
+                var matches = reg.Matches(companyNamesCSV).
+                    Cast<Match>()
+                    .Select(m => m.Value)
+                    .ToArray();
+                for (int i = 9; i < matches.Length; i += 9)
+                {
+                    for (int j = 0; j < companyNames.Count; j++)
+                    {
+                        string[] splitted1 = matches[i + 1].Split('"');
+                        string companyName = "";
+                        for (int k = 0; k < splitted1.Length; k++)
+                            companyName += splitted1[k];
+                        if (matches[i + 1].Contains(companyNames[j]) || levenshteinDistance(companyNames[j], companyName) == 1)
+                        {
+                            string[] splitted = matches[i].Split('"');
+                            string ticker = "";
+                            for (int k = 0; k < splitted.Length; k++)
+                                ticker += splitted[k];
+                            companyToTicker.Add(companyNames[j], ticker);
+                        }
+                    }
+                    //Console.WriteLine("Ticker: {0} -> Company name :{1} ", matches[i], matches[i + 1]);
+                }
+                getCSVdataFromGoogle(companyToDate, companyToTicker);
         }
 
         private void getCSVdataFromGoogle(Dictionary<string, string> companyToDate, Dictionary<string, string> companyToTicker)

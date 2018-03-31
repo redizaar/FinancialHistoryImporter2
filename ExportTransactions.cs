@@ -258,71 +258,75 @@ namespace WpfApp1
                     stockExportLIFO(ref transactions);
                     break;
                 case "CUSTOM":
+                    mainWindow.MainFrame.Content = new CustomStockExportPage(mainWindow, transactions);
                     break;
             }
-            //for DataBaseDataStock
-            for (int i = 0; i < transactions.Count; i++)
+            if (earningMethod == "FIFO" || earningMethod == "LIFO")
             {
-                string value = quantities[i] + " (" + transactions[i].getQuantity() + ")";
-                transactions[i].setOriginalAndSellQuantity(value);
-                transactions[i].setImporter(mainWindow.getCurrentUser().getUsername());
-                transactions[i].setEarningMethod(earningMethod);
-            }
-            MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
-            SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
-            WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
-            WriteWorksheet = WriteWorkbook.Worksheets[2];
-            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
-            int row_number = 1;
-            while (WriteWorksheet.Cells[row_number, 1].Value != null)
-            {
-                row_number++; // get the current last row
-            }
-            for(int i= 0;i<transactions.Count;i++)
-            {
-
-                WriteWorksheet.Cells[row_number, 1].Value = todaysDate;
-                WriteWorksheet.Cells[row_number, 2].Value = transactions[i].getTransactionDate();
-                WriteWorksheet.Cells[row_number, 3].Value = transactions[i].getStockName();
-                WriteWorksheet.Cells[row_number, 4].Value = transactions[i].getStockPrice();
-                Regex typeRegex1 = new Regex(@"Eladott");
-                Regex typeRegex2 = new Regex(@"Sold");
-                Regex typeRegex3 = new Regex(@"Sell");
-                Regex typeRegex4 = new Regex(@"Vásárolt");
-                Regex typeRegex5 = new Regex(@"Bought");
-                Regex typeRegex6 = new Regex(@"Buy");
-                if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
-                    typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
-                    typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
+                //for DataBaseDataStock
+                for (int i = 0; i < transactions.Count; i++)
                 {
-                    WriteWorksheet.Cells[row_number, 5].Value = quantities[i];                                    //!! eredeti quantity
-                    WriteWorksheet.Cells[row_number, 9].Value = transactions[i].getProfit();
-                    WriteWorksheet.Cells[row_number, 10].Value = earningMethod;
+                    string value = quantities[i] + " (" + transactions[i].getQuantity() + ")";
+                    transactions[i].setOriginalAndSellQuantity(value);
+                    transactions[i].setImporter(mainWindow.getCurrentUser().getUsername());
+                    transactions[i].setEarningMethod(earningMethod);
                 }
-                else if(typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
-                    typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
-                    typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
+                MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
+                SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
+                WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
+                WriteWorksheet = WriteWorkbook.Worksheets[2];
+                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+                int row_number = 1;
+                while (WriteWorksheet.Cells[row_number, 1].Value != null)
                 {
-                    WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //! eredeti quantity
-                    WriteWorksheet.Cells[row_number, 8].Value =quantities[i]*transactions[i].getStockPrice();     //!! eredeti quantity
+                    row_number++; // get the current last row
                 }
-                WriteWorksheet.Cells[row_number, 7].Value = transactions[i].getQuantity();                       //!! mostani quantity
-                WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
-                row_number++;
-                Range line = (Range)WriteWorksheet.Rows[row_number];
-                line.Insert();
-            }
-            try
-            {
-                excel.ActiveWorkbook.Save();
-                excel.Workbooks.Close();
-                excel.Quit();
-            }
-            catch (Exception e)
-            {
+                for (int i = 0; i < transactions.Count; i++)
+                {
 
+                    WriteWorksheet.Cells[row_number, 1].Value = todaysDate;
+                    WriteWorksheet.Cells[row_number, 2].Value = transactions[i].getTransactionDate();
+                    WriteWorksheet.Cells[row_number, 3].Value = transactions[i].getStockName();
+                    WriteWorksheet.Cells[row_number, 4].Value = transactions[i].getStockPrice();
+                    Regex typeRegex1 = new Regex(@"Eladott");
+                    Regex typeRegex2 = new Regex(@"Sold");
+                    Regex typeRegex3 = new Regex(@"Sell");
+                    Regex typeRegex4 = new Regex(@"Vásárolt");
+                    Regex typeRegex5 = new Regex(@"Bought");
+                    Regex typeRegex6 = new Regex(@"Buy");
+                    if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
+                    {
+                        WriteWorksheet.Cells[row_number, 5].Value = quantities[i];                                    //!! eredeti quantity
+                        WriteWorksheet.Cells[row_number, 9].Value = transactions[i].getProfit();
+                        WriteWorksheet.Cells[row_number, 10].Value = earningMethod;
+                    }
+                    else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
+                    {
+                        WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //! eredeti quantity
+                        WriteWorksheet.Cells[row_number, 8].Value = quantities[i] * transactions[i].getStockPrice();     //!! eredeti quantity
+                    }
+                    WriteWorksheet.Cells[row_number, 7].Value = transactions[i].getQuantity();                       //!! mostani quantity
+                    WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
+                    row_number++;
+                    Range line = (Range)WriteWorksheet.Rows[row_number];
+                    line.Insert();
+                }
+                try
+                {
+                    excel.ActiveWorkbook.Save();
+                    excel.Workbooks.Close();
+                    excel.Quit();
+                }
+                catch (Exception e)
+                {
+
+                }
+                ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
             }
-            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
         }
         private void stockExportFIFO(ref List<Stock> allCompany)
         {

@@ -25,6 +25,10 @@ namespace WpfApp1
         public double highPrice { get;  set; }
         public double lowPrice { get;  set; }
         public double closePrice { get;  set; }
+
+        //for custom Export
+        public bool IsSelected { get; set; }
+        
         //reading out from file Constructor
         public Stock(string _stockName,double _stockPrice,int _quantity,string _transactionDate,string _transactionType)
         {

@@ -54,7 +54,7 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <Grid Height="300" Width="730" Background="#ECECEA">
+    <Grid  Background="#ECECEA">
         <DataGrid Name="TransactionTableXAML" Height="250" Width="700" HorizontalAlignment="Left" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0" Margin="0,0,0,50">
             <DataGrid.Resources>

@@ -181,9 +181,6 @@
                 </DockPanel>
                 <DockPanel HorizontalAlignment="Right">
                     <Button x:Name="downloadButton" Content="Download Data" Width="100"  Command="{Binding getStockData}" HorizontalAlignment="Center" Margin="50,0,0,0" ToolTip="Downloading data using IEX API"/>
-                    <Button x:Name="switchToTable" Width="30" HorizontalAlignment="Right" Command="{Binding switchPage}"  ToolTip="Show the stored Share datas from database">
-                        <Image Source="databaseIcon4.png" Height="30"/>
-                    </Button>
                 </DockPanel>
             </DockPanel>
             <lvc:CartesianChart Series="{Binding Series,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="265">

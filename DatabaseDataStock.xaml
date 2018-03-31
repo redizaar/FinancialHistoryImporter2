@@ -56,7 +56,7 @@
     </Page.Resources>
     <Grid Background="#ECECEA">
         <DataGrid Name="TransactionTableXAML" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0" Height="250" Width="700" HorizontalAlignment="Left" Margin="0,0,0,50">
+                      ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0,1,0,0" Height="250" Width="700" HorizontalAlignment="Left" VerticalAlignment="Top">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />

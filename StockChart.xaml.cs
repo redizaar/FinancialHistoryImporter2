@@ -117,14 +117,6 @@ namespace WpfApp1
                 return btnCommand;
             }
         }
-        public ButtonCommands switchPage
-        {
-            get
-            {
-                btnCommand = new ButtonCommands(this, "SQLData",mainWindow);
-                return btnCommand;
-            }
-        }
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -182,10 +174,6 @@ namespace WpfApp1
                         timer1.Start();
                         stockChart.downloadButton.IsEnabled = false;
                     }
-                }
-                else if(action=="SQLData")
-                {
-                    mainWindow.MainFrame.Content = new StockDataGrid(mainWindow);
                 }
             }
             void timer1_Tick(object sender, EventArgs e)

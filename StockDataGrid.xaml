@@ -174,10 +174,7 @@
         <StackPanel>
             <DockPanel Background="#8b9dc3">
                 <Label Content="Symbol of Share: " FontSize="15"/>
-                <ComboBox x:Name="symbolComboBox" Width="100" SelectionChanged="symbolComboBox_SelectionChanged" ></ComboBox>
-                <Button x:Name="switchToTable" Width="35" HorizontalAlignment="Right" ToolTip="Switch views to display the requested data in a Chart"  Click="switchToTable_Click">
-                    <Image Source="chartIcon.png" Height="30"/>
-                </Button>
+                <ComboBox x:Name="symbolComboBox" Width="100" SelectionChanged="symbolComboBox_SelectionChanged" HorizontalAlignment="Left" ></ComboBox>
             </DockPanel>
             <DataGrid Name="storedStockDataGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Height="265">
             <DataGrid.Resources>

@@ -120,8 +120,11 @@ namespace WpfApp1
                     {
                         int tempValue1 = 0;
                         long size = sizeof(char) * accountNumberPosString.Length;
+                        int szajz = accountNumberPosString.Length;
+                        Console.WriteLine("regi: " + size);
+                        Console.WriteLine("uj: " + szajz);
                         //todo
-                        if (size > 1)//its a cell 
+                        if (szajz > 1)//its a cell 
                         {
                             int tempValue2 = 0;
                             try
@@ -143,7 +146,7 @@ namespace WpfApp1
                             accountNumberPos.Add(tempValue1);
                             accountNumberPos.Add(tempValue2);
                         }
-                        else if (size == 1)
+                        else if (szajz == 1)
                         {
                             try
                             {
