@@ -81,7 +81,6 @@
     <Compile Include="CustomStockExportPage.xaml.cs">
       <DependentUpon>CustomStockExportPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomStockExportPageViewModel.cs" />
     <Compile Include="DatabaseDataStock.xaml.cs">
       <DependentUpon>DatabaseDataStock.xaml</DependentUpon>
     </Compile>
@@ -287,6 +286,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="databaseIcon4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="restart.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

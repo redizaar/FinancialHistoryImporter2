@@ -25,6 +25,7 @@ namespace WpfApp1
     {
         private static List<Stock> stockTransactions;
         private MainWindow mainWindow;
+        public Dictionary<int,List<int>> startQuantities;
         public Dictionary<int, Stock> stocks;
         public List<Stock> _tableAttributes;
         public List<Stock> tableAttributes
@@ -119,6 +120,7 @@ namespace WpfApp1
             this.DataContext = this;
             InitializeComponent();
             exportAttributes = new List<Stock>();
+            startQuantities = new Dictionary<int, List<int>>();
             stocks = setTransactions(transactions);
             companies = addCompaniesToComboBox(stocks);
 
@@ -148,6 +150,11 @@ namespace WpfApp1
             for (int i = 0; i < transactions.Count; i++)
             {
                 _stocks.Add(i, transactions[i]);
+                //Didn't find a better solution, cant use the stocks Dictonary to make a copy in the beginning,
+                //it copies the references to the objects, if we modify the original, the reference will change too
+                List<int> quantity = new List<int>();
+                quantity.Add(transactions[i].getQuantity());
+                startQuantities.Add(i, quantity);
             }
             return _stocks;
         }
@@ -201,6 +208,10 @@ namespace WpfApp1
 
         private void dataGridChanger_Click(object sender, RoutedEventArgs e)
         {
+            calculateEnabled = false;
+            restartThisButton.IsEnabled = false;
+            restartAllButton.IsEnabled = false;
+            companiesComboBox.IsEnabled = false;
             exportPreviewGrid.Visibility = Visibility.Hidden;
             ImportedTransactions_Grid.Visibility = Visibility.Hidden;
             if (dataGridChanger.Content.ToString()=="Export Preview")
@@ -212,6 +223,10 @@ namespace WpfApp1
             {
                 ImportedTransactions_Grid.Visibility = Visibility.Visible;
                 dataGridChanger.Content = "Export Preview";
+                calculateEnabled = true;
+                restartThisButton.IsEnabled = true;
+                restartAllButton.IsEnabled = true;
+                companiesComboBox.IsEnabled = true;
             }
         }
 
@@ -331,8 +346,6 @@ namespace WpfApp1
                     }
                 }
             }
-
-            exportAttributes = tempExportAttributes;
             List<int> indexes = new List<int>();
             for (int i = 0; i < tempExportAttributes.Count; i++)
             {
@@ -356,19 +369,78 @@ namespace WpfApp1
                     indexes[minIdx] = copy;
                 }
             }
-            List<Stock> tempExportAttributes2 = new List<Stock>();
+            List<Stock> finalExportAttributes = new List<Stock>();
             for (int i = 0; i < indexes.Count; i++)
             {
-                for (int j = 0; j < tableAttributes.Count; j++)
+                for (int j = 0; j < tempExportAttributes.Count; j++)
                 {
-                    if (tableAttributes[j] == stocks[indexes[i]])
+                    if (tempExportAttributes[j] == stocks[indexes[i]])
                     {
-                        tempExportAttributes2.Add(tableAttributes[j]);
+                        int stocksID = stocks.FirstOrDefault(x => x.Value == tempExportAttributes[j]).Key;
+                        foreach (var y in startQuantities)
+                        {
+                            if (stocksID == y.Key)
+                            {
+                                tempExportAttributes[j].setOriginalAndSellQuantity(y.Value[0] + " (" + tempExportAttributes[j].getQuantity() + ")");
+                                finalExportAttributes.Add(tempExportAttributes[j]);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            exportAttributes = finalExportAttributes;
+        }
+
+        private void restartAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<Stock> tempTableAttributes = new List<Stock>();
+            foreach (var x in stocks)
+            {
+                foreach (var y in startQuantities)
+                {
+                    if (x.Key == y.Key)
+                    {
+                        x.Value.setQuantity(y.Value[0]);
+                        tempTableAttributes.Add(x.Value);
                         break;
                     }
                 }
             }
-            exportAttributes = tempExportAttributes2;
+            tableAttributes = tempTableAttributes;
+            exportAttributes = new List<Stock>();
+        }
+
+        private void exportButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void restartThisButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<Stock> tempTableAttributes = new List<Stock>();
+            foreach (var x in stocks)
+            {
+                foreach (var y in startQuantities)
+                {
+                    if ((selectedCompany == x.Value.getStockName()) && (x.Key == y.Key))
+                    {
+                        x.Value.setQuantity(y.Value[0]);
+                        tempTableAttributes.Add(x.Value);
+                        break;
+                    }
+                }
+            }
+            tableAttributes = tempTableAttributes;
+            List<Stock> tempExportattributes = exportAttributes.ToList();
+            foreach (var x in tempExportattributes.ToList())
+            {
+                if (x.getStockName() == selectedCompany)
+                {
+                    tempExportattributes.Remove(x);
+                }
+            }
+            exportAttributes = tempExportattributes;
         }
     }
 }
