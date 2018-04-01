@@ -27,7 +27,7 @@ namespace WpfApp1
         public double closePrice { get;  set; }
 
         //for custom Export
-        public bool IsSelected { get; set; }
+        public int originalQuantityForCustomEarning { get; set; }
         
         //reading out from file Constructor
         public Stock(string _stockName,double _stockPrice,int _quantity,string _transactionDate,string _transactionType)
@@ -62,6 +62,14 @@ namespace WpfApp1
         public void setOriginalAndSellQuantity(string value)
         {
             originalAndCurrentQuantity = value;
+        }
+        public void setOriginalQuantityForCustomEarning(int value)
+        {
+            originalQuantityForCustomEarning = value;
+        }
+        public int getOriginalQuantityForCustomEarning()
+        {
+            return originalQuantityForCustomEarning;
         }
         public void setEarningMethod(string value)
         {

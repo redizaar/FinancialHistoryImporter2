@@ -24,6 +24,7 @@ namespace WpfApp1
     public partial class CustomStockExportPage : Page, INotifyPropertyChanged
     {
         private static List<Stock> stockTransactions;
+        private string currentFileName;
         private MainWindow mainWindow;
         public Dictionary<int,List<int>> startQuantities;
         public Dictionary<int, Stock> stocks;
@@ -113,10 +114,11 @@ namespace WpfApp1
                 OnPropertyChanged("exportAttributes");
             }
         }
-        public CustomStockExportPage(MainWindow _mainWindow, List<Stock> transactions)
+        public CustomStockExportPage(MainWindow _mainWindow, List<Stock> transactions,string _currentFileName)
         {
             mainWindow = _mainWindow;
             stockTransactions = transactions;
+            currentFileName = _currentFileName;
             this.DataContext = this;
             InitializeComponent();
             exportAttributes = new List<Stock>();
@@ -382,6 +384,7 @@ namespace WpfApp1
                             if (stocksID == y.Key)
                             {
                                 tempExportAttributes[j].setOriginalAndSellQuantity(y.Value[0] + " (" + tempExportAttributes[j].getQuantity() + ")");
+                                tempExportAttributes[j].setOriginalQuantityForCustomEarning(y.Value[0]);
                                 finalExportAttributes.Add(tempExportAttributes[j]);
                                 break;
                             }
@@ -413,7 +416,7 @@ namespace WpfApp1
 
         private void exportButton_Click(object sender, RoutedEventArgs e)
         {
-
+            new ExportTransactions(exportAttributes, mainWindow, currentFileName, "CUSTOM");
         }
 
         private void restartThisButton_Click(object sender, RoutedEventArgs e)

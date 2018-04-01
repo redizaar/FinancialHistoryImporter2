@@ -287,8 +287,5 @@
   <ItemGroup>
     <Resource Include="databaseIcon4.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="restart.png" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
