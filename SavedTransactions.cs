@@ -7,6 +7,7 @@ using Microsoft.Office.Interop.Excel;
 using _Excel = Microsoft.Office.Interop.Excel;
 using System.Globalization;
 using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 
 namespace WpfApp1
 {
@@ -18,15 +19,16 @@ namespace WpfApp1
         public static List<Transaction> savedTransactionsBank;
         public static List<Stock> savedTransactionsStock;
         private static SavedTransactions instance;
+        private SqlConnection sqlConn;
         private SavedTransactions()
         {
             savedTransactionsBank = new List<Transaction>();
             savedTransactionsStock = new List<Stock>();
             ReadWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
+            sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
         }
         public void readOutSavedBankTransactions()
         {
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             string query = "Select * From [importedBankTransactions]";
             SqlDataAdapter sda = new SqlDataAdapter(query, sqlConn);
@@ -34,14 +36,14 @@ namespace WpfApp1
             sda.Fill(dtb);
             if (dtb.Rows.Count != 0)
             {
-                string writeoutDate;
-                string tempTransactionDate;
+                string writeoutDate="";
+                string tempTransactionDate="";
                 string transactionDate="";
                 int accountBalance;
                 int transactionPrice;
-                string accountNumber;
-                string description;
-                string bankName;
+                string accountNumber="";
+                string description="";
+                string bankName="";
                 foreach (System.Data.DataRow row in dtb.Rows)
                 {
                     writeoutDate = row["ExportDate"].ToString();
@@ -64,73 +66,124 @@ namespace WpfApp1
                     accountNumber = row["AccountNumber"].ToString();
                     description = row["Comment"].ToString();
                     bankName = row["BankName"].ToString();
-                    Console.WriteLine(writeoutDate + " - " + transactionDate + " - " + accountBalance + " - " + transactionPrice + " - " + description + " - " + bankName);
                     Transaction transaction = new Transaction(writeoutDate, transactionDate, accountBalance, transactionPrice, accountNumber, description);
                     transaction.setBankname(bankName);
                     savedTransactionsBank.Add(transaction);
                 }
             }
-                /*
-                ReadWorksheet = ReadWorkbook.Worksheets[1];
-                int i = 2;
-                while (ReadWorksheet.Cells[i, 1].Value != null)
+            /*
+            ReadWorksheet = ReadWorkbook.Worksheets[1];
+            int i = 2;
+            while (ReadWorksheet.Cells[i, 1].Value != null)
+            {
+                string writeoutDate = "";
+                string tempTransactionDate = "";
+                string transactionDate = "";
+                string balanceString = "";
+                int balance = 0;
+                string transactionPriceString = "";
+                int transactionPrice = 0;
+                string accountNumber = "";
+                string description = "";
+                string bankname = "";
+                writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
+                tempTransactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
+                string[] splittedDate = tempTransactionDate.Split(' ');
+                if (splittedDate.Length == 1)
                 {
-                    string writeoutDate = "";
-                    string tempTransactionDate = "";
-                    string transactionDate = "";
-                    string balanceString = "";
-                    int balance = 0;
-                    string transactionPriceString = "";
-                    int transactionPrice = 0;
-                    string accountNumber = "";
-                    string description = "";
-                    string earningMethod = "-";
-                    string bankname = "";
-                    writeoutDate = ReadWorksheet.Cells[i, 1].Value.ToString();
-                    tempTransactionDate = ReadWorksheet.Cells[i, 2].Value.ToString();
-                    string[] splittedDate = tempTransactionDate.Split(' ');
-                    if (splittedDate.Length == 1)
-                    {
-                        transactionDate = tempTransactionDate;
-                    }
-                    else
-                    {
-                        for (int j = 0; j < splittedDate.Length - 1; j++)
-                        {
-                            if (j < 3)
-                                transactionDate += splittedDate[j];
-                        }
-                    }
-                    balanceString = ReadWorksheet.Cells[i, 3].Value.ToString();
-                    balance = int.Parse(balanceString);
-                    if (ReadWorksheet.Cells[i, 7].Value != null)
-                    {
-                        transactionPriceString = ReadWorksheet.Cells[i, 7].Value.ToString();
-                        transactionPrice = int.Parse(transactionPriceString);
-                    }
-                    else if (ReadWorksheet.Cells[i, 9].Value != null)
-                    {
-                        transactionPriceString = ReadWorksheet.Cells[i, 9].Value.ToString();
-                        transactionPrice = int.Parse(transactionPriceString);
-                    }
-                    accountNumber = ReadWorksheet.Cells[i, 16].Value.ToString();
-                    if (ReadWorksheet.Cells[i, 14].Value != null)
-                    {
-                        description = ReadWorksheet.Cells[i, 14].Value.ToString();
-                    }
-                    if(ReadWorksheet.Cells[i,17].Value!=null)
-                    {
-                        bankname = ReadWorksheet.Cells[i, 17].Value.ToString();
-                    }
-                    Transaction transaction = new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description);
-                    transaction.setBankname(bankname);
-                    savedTransactionsBank.Add(transaction);
-                    i++;
+                    transactionDate = tempTransactionDate;
                 }
-                */
+                else
+                {
+                    for (int j = 0; j < splittedDate.Length - 1; j++)
+                    {
+                        if (j < 3)
+                            transactionDate += splittedDate[j];
+                    }
+                }
+                balanceString = ReadWorksheet.Cells[i, 3].Value.ToString();
+                balance = int.Parse(balanceString);
+                if (ReadWorksheet.Cells[i, 7].Value != null)
+                {
+                    transactionPriceString = ReadWorksheet.Cells[i, 7].Value.ToString();
+                    transactionPrice = int.Parse(transactionPriceString);
+                }
+                else if (ReadWorksheet.Cells[i, 9].Value != null)
+                {
+                    transactionPriceString = ReadWorksheet.Cells[i, 9].Value.ToString();
+                    transactionPrice = int.Parse(transactionPriceString);
+                }
+                accountNumber = ReadWorksheet.Cells[i, 16].Value.ToString();
+                if (ReadWorksheet.Cells[i, 14].Value != null)
+                {
+                    description = ReadWorksheet.Cells[i, 14].Value.ToString();
+                }
+                if(ReadWorksheet.Cells[i,17].Value!=null)
+                {
+                    bankname = ReadWorksheet.Cells[i, 17].Value.ToString();
+                }
+                Transaction transaction = new Transaction(writeoutDate, transactionDate, balance, transactionPrice, accountNumber, description);
+                transaction.setBankname(bankname);
+                savedTransactionsBank.Add(transaction);
+                i++;
             }
+            */
+            sqlConn.Close();
+        }
         public void readOutStockSavedTransactions()
         {
+            sqlConn.Open();
+            string query = "Select * From [importedStockTransactions]";
+            SqlDataAdapter sda = new SqlDataAdapter(query, sqlConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            sda.Fill(dtb);
+            if (dtb.Rows.Count != 0)
+            {
+                string writeoutDate = "";
+                string stockName = "";
+                string transactionDate = "";
+                double stockPrice = 0;
+                int originalQuantity = 0;
+                string transactionType = "";
+                string importer = "";
+                string currentQuantity = "";
+                string originalAndCurrentQuantity = "";
+                double profit = 0;
+                string earningMethod="";
+                foreach (System.Data.DataRow row in dtb.Rows)
+                {
+                    writeoutDate = row["ExportDate"].ToString();
+                    transactionDate = row["TransactionDate"].ToString();
+                    stockName = row["StockName"].ToString();
+                    stockPrice = double.Parse(row["StockPrice"].ToString());
+                    if (row["SoldQuantity"] != DBNull.Value)
+                    {
+                        transactionType = "Sell";
+                        originalQuantity = int.Parse(row["SoldQuantity"].ToString());
+                        originalAndCurrentQuantity = originalQuantity.ToString();
+                        profit = double.Parse(row["Profit"].ToString());
+                        earningMethod = row["EarningMethod"].ToString();
+                    }
+                    else if (row["BoughtQuantity"] != DBNull.Value)
+                    {
+                        transactionType = "Buy";
+                        originalQuantity = int.Parse(row["BoughtQuantity"].ToString());
+                        currentQuantity = row["CurrentQuantity"].ToString();
+                        originalAndCurrentQuantity = originalQuantity.ToString() + " (" + currentQuantity + ")";
+                    }
+                    importer = row["ImporterName"].ToString();
+                    Stock stock = new Stock(writeoutDate, transactionDate, stockName, stockPrice, originalQuantity, transactionType, importer);
+                    if(stock.getTransactionType()=="Sell")
+                    {
+                        stock.setProfit(profit);
+                        stock.setEarningMethod(earningMethod);
+                    }
+                    stock.setOriginalAndSellQuantity(originalAndCurrentQuantity);
+                    savedTransactionsStock.Add(stock);
+                }
+            }
+
+            /*
             ReadWorksheet = ReadWorkbook.Worksheets[2];
             int i = 2;
             while (ReadWorksheet.Cells[i, 1].Value != null)
@@ -196,6 +249,8 @@ namespace WpfApp1
             }
             excel.Workbooks.Close();
             excel.Quit();
+            */
+            sqlConn.Close();
         }
         public static List<Transaction> getSavedTransactionsBank()
         {

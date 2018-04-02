@@ -52,7 +52,6 @@ namespace WpfApp1
                 {
                     sqlCommand.Parameters.AddWithValue("@income", transactions[i].getTransactionPrice());
                     sqlCommand.Parameters.AddWithValue("@spending", DBNull.Value);
-
                 }
                 else
                 {
@@ -327,14 +326,20 @@ namespace WpfApp1
                         sqlCommand.Parameters.AddWithValue("@soldQuantity", quantities[i]);
                         sqlCommand.Parameters.AddWithValue("@profit", transactions[i].getProfit());
                         sqlCommand.Parameters.AddWithValue("@earningMethod", transactions[i].getEarningMethod());
+                        sqlCommand.Parameters.AddWithValue("@boughtQuantity", DBNull.Value);
+                        sqlCommand.Parameters.AddWithValue("@spending", DBNull.Value);
+                        sqlCommand.Parameters.AddWithValue("@currentQuantity", DBNull.Value);
                     }
                     else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
                         typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
                         typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
                     {
-                        sqlCommand.Parameters.AddWithValue("@boughtQuantity", transactions[i].getQuantity());
+                        sqlCommand.Parameters.AddWithValue("@boughtQuantity", quantities[i]);
                         sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getStockPrice() * quantities[i]);
                         sqlCommand.Parameters.AddWithValue("@currentQuantity", transactions[i].getQuantity());
+                        sqlCommand.Parameters.AddWithValue("@soldQuantity", DBNull.Value);
+                        sqlCommand.Parameters.AddWithValue("@profit", DBNull.Value);
+                        sqlCommand.Parameters.AddWithValue("@earningMethod", DBNull.Value);
                     }
                     sqlCommand.Parameters.AddWithValue("@importerName", transactions[i].getImporter());
                     sqlCommand.ExecuteNonQuery();
@@ -421,6 +426,9 @@ namespace WpfApp1
                     sqlCommand.Parameters.AddWithValue("@soldQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
                     sqlCommand.Parameters.AddWithValue("@profit", customTransactions[i].getProfit());
                     sqlCommand.Parameters.AddWithValue("@earningMethod", customTransactions[i].getEarningMethod());
+                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", DBNull.Value);
+                    sqlCommand.Parameters.AddWithValue("@spending", DBNull.Value);
+                    sqlCommand.Parameters.AddWithValue("@currentQuantity", DBNull.Value);
                 }
                 else if (typeRegex4.IsMatch(customTransactions[i].getTransactionType()) ||
                     typeRegex5.IsMatch(customTransactions[i].getTransactionType()) ||
@@ -429,6 +437,9 @@ namespace WpfApp1
                     sqlCommand.Parameters.AddWithValue("@boughtQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
                     sqlCommand.Parameters.AddWithValue("@spending", customTransactions[i].getStockPrice() * customTransactions[i].getOriginalQuantityForCustomEarning());
                     sqlCommand.Parameters.AddWithValue("@currentQuantity", customTransactions[i].getQuantity());
+                    sqlCommand.Parameters.AddWithValue("@soldQuantity", DBNull.Value);
+                    sqlCommand.Parameters.AddWithValue("@profit", DBNull.Value);
+                    sqlCommand.Parameters.AddWithValue("@earningMethod", DBNull.Value);
                 }
                 sqlCommand.Parameters.AddWithValue("@importerName", customTransactions[i].getImporter());
                 sqlCommand.ExecuteNonQuery();
