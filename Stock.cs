@@ -75,6 +75,10 @@ namespace WpfApp1
         {
             earningMethod = value;
         }
+        public string getEarningMethod()
+        {
+            return earningMethod;
+        }
         public string getImporter()
         {
             return importer;

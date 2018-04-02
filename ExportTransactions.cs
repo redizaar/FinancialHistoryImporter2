@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Threading;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using System.Data;
 
 namespace WpfApp1
 {
@@ -24,6 +25,7 @@ namespace WpfApp1
         public ExportTransactions(List<Transaction> transactions,MainWindow mainWindow,string currentFileName)
         {
             this.mainWindow = mainWindow;
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
             for (int i = 0; i < transactions.Count; i++)
             {
                 string [] spaceSplitted=transactions[i].getTransactionDate().Split(' ');
@@ -33,15 +35,33 @@ namespace WpfApp1
                 Console.WriteLine(dateString.Substring(0,11));
             }
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
-                                                    //BUT FIRST - check if the transaction is already exported or not
-                                                    
+            //BUT FIRST - check if the transaction is already exported or not
+
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            SqlCommand sqlCommand = new SqlCommand("insertBankTransaction", sqlConn);//SQLQuery 7
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                sqlCommand.Parameters.Clear();
+                sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
+                sqlCommand.Parameters.AddWithValue("@transactionDate", transactions[i].getTransactionDate());
+                sqlCommand.Parameters.AddWithValue("@accountBalance", transactions[i].getBalance_rn());
+                sqlCommand.Parameters.AddWithValue("@difference", transactions[i].getTransactionPrice());
+                sqlCommand.Parameters.AddWithValue("@income", transactions[i].getTransactionPrice());
+                sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getTransactionPrice());
+                sqlCommand.Parameters.AddWithValue("@comment", transactions[i].getTransactionDescription());
+                sqlCommand.Parameters.AddWithValue("@accountNumber", transactions[i].getAccountNumber());
+                sqlCommand.Parameters.AddWithValue("@bankName", transactions[i].getBankname());
+                sqlCommand.ExecuteNonQuery();
+            }
+
             List<Transaction> neededTransactions = newTransactions(transactions);
             SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved 
             WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
             WriteWorksheet = WriteWorkbook.Worksheets[1];
             if (neededTransactions != null)
             {
-                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
                 int row_number = 1;
                 while (WriteWorksheet.Cells[row_number, 1].Value != null)
                 {
@@ -272,10 +292,35 @@ namespace WpfApp1
                     transactions[i].setEarningMethod(earningMethod);
                 }
                 MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
+
+                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+                SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                sqlConn.Open();
+                SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    sqlCommand.Parameters.Clear();
+                    sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
+                    sqlCommand.Parameters.AddWithValue("@transactionDate", transactions[i].getTransactionDate());
+                    sqlCommand.Parameters.AddWithValue("@stockName", transactions[i].getStockName());
+                    sqlCommand.Parameters.AddWithValue("@stockPrice", transactions[i].getStockPrice());
+                    //todo, vásárolt, eladott
+                    sqlCommand.Parameters.AddWithValue("@soldQuantity", transactions[i].getQuantity());
+                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", transactions[i].getQuantity());
+                    //
+                    sqlCommand.Parameters.AddWithValue("@currentQuantity", quantities[i]);
+                    //todo vásárolt, eladott
+                    sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getStockPrice()*quantities[i]);
+                    sqlCommand.Parameters.AddWithValue("@profit", transactions[i].getProfit());
+                    //
+                    sqlCommand.Parameters.AddWithValue("@earningMethod", transactions[i].getEarningMethod());
+                    sqlCommand.Parameters.AddWithValue("@importerName", transactions[i].getImporter());
+                    sqlCommand.ExecuteNonQuery();
+                }
                 SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
                 WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
                 WriteWorksheet = WriteWorkbook.Worksheets[2];
-                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
                 int row_number = 1;
                 while (WriteWorksheet.Cells[row_number, 1].Value != null)
                 {
@@ -336,10 +381,34 @@ namespace WpfApp1
                     customTransactions[i].setEarningMethod(customEarning);
                 }
                 MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
+                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+                SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+                sqlConn.Open();
+                SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                for (int i = 0; i < customTransactions.Count; i++)
+                {
+                    sqlCommand.Parameters.Clear();
+                    sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
+                    sqlCommand.Parameters.AddWithValue("@transactionDate", customTransactions[i].getTransactionDate());
+                    sqlCommand.Parameters.AddWithValue("@stockName", customTransactions[i].getStockName());
+                    sqlCommand.Parameters.AddWithValue("@stockPrice", customTransactions[i].getStockPrice());
+                    //todo, vásárolt, eladott
+                    sqlCommand.Parameters.AddWithValue("@soldQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
+                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
+                    //
+                    sqlCommand.Parameters.AddWithValue("@currentQuantity", customTransactions[i].getQuantity());
+                    //todo vásárolt, eladott
+                    sqlCommand.Parameters.AddWithValue("@spending", customTransactions[i].getStockPrice()*customTransactions[i].getOriginalQuantityForCustomEarning());
+                    sqlCommand.Parameters.AddWithValue("@profit", customTransactions[i].getProfit());
+                    //
+                    sqlCommand.Parameters.AddWithValue("@earningMethod", customTransactions[i].getEarningMethod());
+                    sqlCommand.Parameters.AddWithValue("@importerName", customTransactions[i].getImporter());
+                    sqlCommand.ExecuteNonQuery();
+                }
                 SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
                 WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
                 WriteWorksheet = WriteWorkbook.Worksheets[2];
-                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
                 int row_number = 1;
                 while (WriteWorksheet.Cells[row_number, 1].Value != null)
                 {
