@@ -278,7 +278,7 @@ namespace WpfApp1
             }
             public void Execute(object parameter)
             {
-                if (specifiedImport.newBankTextbox.Text.ToString() != "")
+                if (specifiedImport.storedTypesCB.SelectedItem.ToString()!="Add new Bank" || specifiedImport.newBankTextbox.Text.ToString() != "")
                 {
                     List<string> currentFile = new List<string>();
                     currentFile.Add(currentFileName);

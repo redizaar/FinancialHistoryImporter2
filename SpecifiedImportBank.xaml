@@ -218,14 +218,14 @@
                 <ComboBox x:Name="accountNumberCB" Width="100" ItemsSource="{Binding accountNumberChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding accountNumberChoice}" SelectionChanged="accountNumberCB_SelectionChanged" HorizontalAlignment="Left"/>
                 <TextBox  x:Name="accountNumberTextBox" Style="{StaticResource labelUnderBorderStyle}" Width="50"/>
                 <DockPanel HorizontalAlignment="Right">
-                    <Label Content="Type : "  Style="{StaticResource myLabelStyle}"/>
-                    <ComboBox x:Name="storedTypesCB" Width="100" ItemsSource="{Binding bankChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding bankChoice}" SelectionChanged="storedTypesCB_SelectionChanged"/>
+                    <Label Content="Type : "  Style="{StaticResource myLabelStyle}" Margin="-200,0,0,0"/>
+                    <ComboBox x:Name="storedTypesCB" Width="100" Margin="-160,0,0,0" ItemsSource="{Binding bankChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding bankChoice}" SelectionChanged="storedTypesCB_SelectionChanged"/>
                 </DockPanel>
             </DockPanel>
             <DockPanel VerticalAlignment="Center" Margin="0,7,0,0">
                 <Label Content="Datum oszlop: " Style="{StaticResource myLabelStyle}"/>
                 <TextBox x:Name="dateColumnTextBox" Style="{StaticResource labelUnderBorderStyle}" HorizontalAlignment="Left"/>
-                <TextBox x:Name="newBankTextbox" Width="120" Style="{StaticResource labelUnderBorderStyle}" HorizontalAlignment="Right" ToolTip="Enter the new Bank name here!"/>
+                <TextBox x:Name="newBankTextbox" Width="120" Style="{StaticResource labelUnderBorderStyle}" Margin="400,0,0,0" ToolTip="Enter the new Bank name here!"/>
             </DockPanel>
             <DockPanel VerticalAlignment="Center" Margin="0,7,0,0">
                 <Label Content="Osszeg oszlop: " Style="{StaticResource myLabelStyle}"/>

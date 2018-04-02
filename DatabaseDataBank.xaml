@@ -93,12 +93,18 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header=" Date of Transaction" Width="auto" Binding="{Binding transactionDate}"/>
-                <DataGridTextColumn Header=" Description" Width="auto" Binding="{Binding transactionDescription}"/>
+                <DataGridTextColumn Header=" Transaction Date" Width="auto" Binding="{Binding transactionDate}"/>
+                <DataGridTextColumn Header=" Description" Width="150" Binding="{Binding transactionDescription}">
+                    <DataGridTextColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="{Binding transactionDescription}" />
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
                 <DataGridTextColumn Header=" Amount(HUF)"  Width="auto" Binding="{Binding transactionPrice}"/>
-                <DataGridTextColumn Header=" Date of Import" Width="auto" Binding="{Binding writeDate}"/>
-                <DataGridTextColumn Header=" Account number" Width="*" Binding="{Binding accountNumber}"/>
+                <DataGridTextColumn Header=" Account number" Width="130" Binding="{Binding accountNumber}"/>
                 <DataGridTextColumn Header=" Bank name" Width="auto" Binding="{Binding bankName}"/>
+                <DataGridTextColumn Header=" Date of Import" Width="*" Binding="{Binding writeDate}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

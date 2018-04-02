@@ -66,10 +66,9 @@ namespace WpfApp1
                     }
                 }
             }
-            tableAttributes = new List<Transaction>(reference);
             if (tableAttributes != null)
             {
-                foreach (var transaction in tableAttributes)
+                foreach (var transaction in reference)
                 {
                     if (transaction.getWriteDate() != null && transaction.getWriteDate().Length >= 12)
                     {
@@ -81,6 +80,7 @@ namespace WpfApp1
                     }
                 }
             }
+            tableAttributes = reference;
         }
         public static DatabaseDataBank getInstance(MainWindow mainWindow)
         {

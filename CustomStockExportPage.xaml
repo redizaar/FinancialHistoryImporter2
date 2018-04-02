@@ -220,9 +220,9 @@
         <DockPanel VerticalAlignment="top" Height="30" x:Name="upperDockPanel">
             <Label Content="Companies: " FontSize="16" VerticalAlignment="Center" ></Label>
             <ComboBox x:Name="companiesComboBox" Height="30" Width="100" HorizontalAlignment="Left" ItemsSource="{Binding companies,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding selectedCompany,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-            <Button x:Name="restartThisButton" Content="Restart This" Style="{StaticResource BaseButtonStyle}" Width="100" ToolTip="Restart the quantities and profits for the selected Transactions" Click="restartThisButton_Click"/>
+            <Button x:Name="calculateButton" Content="Calculate" Style="{StaticResource BaseButtonStyle}" IsEnabled="{Binding calculateEnabled, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Click="Button_Click" Width="105"/>
+            <Button x:Name="restartThisButton" Content="Restart This" Style="{StaticResource BaseButtonStyle}" Width="100" ToolTip="Restart the quantities and profits for the selected Transactions" Click="restartThisButton_Click" Margin="228,0,0,0" />
             <Button x:Name="restartAllButton" Content="Restart All" Style="{StaticResource BaseButtonStyle}" Width="100" ToolTip="Restarting the quantities and profits for all Transactions" Click="restartAllButton_Click"/>
-            <Button x:Name="calculateButton" Content="Calculate" Style="{StaticResource BaseButtonStyle}" IsEnabled="{Binding calculateEnabled, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Click="Button_Click" Width="105" HorizontalAlignment="Right"/>
         </DockPanel>
         <DataGrid x:Name="ImportedTransactions_Grid" IsReadOnly="true" IsHitTestVisible="True" ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                 AutoGenerateColumns="False"  BorderThickness="0,1,0,0" Height="240" Width="730" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" SelectionChanged="ImportedTransactions_Grid_SelectionChanged" >

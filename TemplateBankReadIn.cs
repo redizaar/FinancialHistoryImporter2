@@ -1334,6 +1334,13 @@ namespace WpfApp1
             }
             if (transactions.Count > 0)
             {
+                string bankName = "";
+                if (SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() != "Add new Bank")
+                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                else
+                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                for (int i = 0; i < transactions.Count; i++)
+                    transactions[i].setBankname(bankName);
                 bankHanlder.addTransactions(transactions);
                 //todo another thread
                 addImportFileDataToDB(int.Parse(startingRow), accountNumberResult,

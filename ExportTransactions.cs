@@ -48,8 +48,17 @@ namespace WpfApp1
                 sqlCommand.Parameters.AddWithValue("@transactionDate", transactions[i].getTransactionDate());
                 sqlCommand.Parameters.AddWithValue("@accountBalance", transactions[i].getBalance_rn());
                 sqlCommand.Parameters.AddWithValue("@difference", transactions[i].getTransactionPrice());
-                sqlCommand.Parameters.AddWithValue("@income", transactions[i].getTransactionPrice());
-                sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getTransactionPrice());
+                if (transactions[i].getTransactionPrice() > 0)
+                {
+                    sqlCommand.Parameters.AddWithValue("@income", transactions[i].getTransactionPrice());
+                    sqlCommand.Parameters.AddWithValue("@spending", DBNull.Value);
+
+                }
+                else
+                {
+                    sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getTransactionPrice());
+                    sqlCommand.Parameters.AddWithValue("@income", DBNull.Value);
+                }
                 sqlCommand.Parameters.AddWithValue("@comment", transactions[i].getTransactionDescription());
                 sqlCommand.Parameters.AddWithValue("@accountNumber", transactions[i].getAccountNumber());
                 sqlCommand.Parameters.AddWithValue("@bankName", transactions[i].getBankname());
@@ -294,6 +303,12 @@ namespace WpfApp1
                 MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
 
                 string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+                Regex typeRegex1 = new Regex(@"Eladott");
+                Regex typeRegex2 = new Regex(@"Sold");
+                Regex typeRegex3 = new Regex(@"Sell");
+                Regex typeRegex4 = new Regex(@"Vásárolt");
+                Regex typeRegex5 = new Regex(@"Bought");
+                Regex typeRegex6 = new Regex(@"Buy");
                 SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
                 sqlConn.Open();
                 SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
@@ -305,16 +320,22 @@ namespace WpfApp1
                     sqlCommand.Parameters.AddWithValue("@transactionDate", transactions[i].getTransactionDate());
                     sqlCommand.Parameters.AddWithValue("@stockName", transactions[i].getStockName());
                     sqlCommand.Parameters.AddWithValue("@stockPrice", transactions[i].getStockPrice());
-                    //todo, vásárolt, eladott
-                    sqlCommand.Parameters.AddWithValue("@soldQuantity", transactions[i].getQuantity());
-                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", transactions[i].getQuantity());
-                    //
-                    sqlCommand.Parameters.AddWithValue("@currentQuantity", quantities[i]);
-                    //todo vásárolt, eladott
-                    sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getStockPrice()*quantities[i]);
-                    sqlCommand.Parameters.AddWithValue("@profit", transactions[i].getProfit());
-                    //
-                    sqlCommand.Parameters.AddWithValue("@earningMethod", transactions[i].getEarningMethod());
+                    if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
+                    {
+                        sqlCommand.Parameters.AddWithValue("@soldQuantity", quantities[i]);
+                        sqlCommand.Parameters.AddWithValue("@profit", transactions[i].getProfit());
+                        sqlCommand.Parameters.AddWithValue("@earningMethod", transactions[i].getEarningMethod());
+                    }
+                    else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
+                    {
+                        sqlCommand.Parameters.AddWithValue("@boughtQuantity", transactions[i].getQuantity());
+                        sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getStockPrice() * quantities[i]);
+                        sqlCommand.Parameters.AddWithValue("@currentQuantity", transactions[i].getQuantity());
+                    }
                     sqlCommand.Parameters.AddWithValue("@importerName", transactions[i].getImporter());
                     sqlCommand.ExecuteNonQuery();
                 }
@@ -333,12 +354,6 @@ namespace WpfApp1
                     WriteWorksheet.Cells[row_number, 2].Value = transactions[i].getTransactionDate();
                     WriteWorksheet.Cells[row_number, 3].Value = transactions[i].getStockName();
                     WriteWorksheet.Cells[row_number, 4].Value = transactions[i].getStockPrice();
-                    Regex typeRegex1 = new Regex(@"Eladott");
-                    Regex typeRegex2 = new Regex(@"Sold");
-                    Regex typeRegex3 = new Regex(@"Sell");
-                    Regex typeRegex4 = new Regex(@"Vásárolt");
-                    Regex typeRegex5 = new Regex(@"Bought");
-                    Regex typeRegex6 = new Regex(@"Buy");
                     if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
                         typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
                         typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
@@ -353,8 +368,8 @@ namespace WpfApp1
                     {
                         WriteWorksheet.Cells[row_number, 6].Value = quantities[i];                                    //! eredeti quantity
                         WriteWorksheet.Cells[row_number, 8].Value = quantities[i] * transactions[i].getStockPrice();     //!! eredeti quantity
+                        WriteWorksheet.Cells[row_number, 7].Value = transactions[i].getQuantity();                       //!! mostani quantity
                     }
-                    WriteWorksheet.Cells[row_number, 7].Value = transactions[i].getQuantity();                       //!! mostani quantity
                     WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
                     row_number++;
                     Range line = (Range)WriteWorksheet.Rows[row_number];
@@ -375,90 +390,96 @@ namespace WpfApp1
         }
         public ExportTransactions(List<Stock> customTransactions, MainWindow mainWindow, string currentFileName,string customEarning)
         {
-                for (int i = 0; i < customTransactions.Count; i++)
+            for (int i = 0; i < customTransactions.Count; i++)
+            {
+                customTransactions[i].setImporter(mainWindow.getCurrentUser().getUsername());
+                customTransactions[i].setEarningMethod(customEarning);
+            }
+            MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            Regex typeRegex1 = new Regex(@"Eladott");
+            Regex typeRegex2 = new Regex(@"Sold");
+            Regex typeRegex3 = new Regex(@"Sell");
+            Regex typeRegex4 = new Regex(@"Vásárolt");
+            Regex typeRegex5 = new Regex(@"Bought");
+            Regex typeRegex6 = new Regex(@"Buy");
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+            SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            for (int i = 0; i < customTransactions.Count; i++)
+            {
+                sqlCommand.Parameters.Clear();
+                sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
+                sqlCommand.Parameters.AddWithValue("@transactionDate", customTransactions[i].getTransactionDate());
+                sqlCommand.Parameters.AddWithValue("@stockName", customTransactions[i].getStockName());
+                sqlCommand.Parameters.AddWithValue("@stockPrice", customTransactions[i].getStockPrice());
+                if (typeRegex1.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex2.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex3.IsMatch(customTransactions[i].getTransactionType())) //Eladott
                 {
-                    customTransactions[i].setImporter(mainWindow.getCurrentUser().getUsername());
-                    customTransactions[i].setEarningMethod(customEarning);
-                }
-                MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
-                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
-                SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-                sqlConn.Open();
-                SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
-                sqlCommand.CommandType = CommandType.StoredProcedure;
-                for (int i = 0; i < customTransactions.Count; i++)
-                {
-                    sqlCommand.Parameters.Clear();
-                    sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
-                    sqlCommand.Parameters.AddWithValue("@transactionDate", customTransactions[i].getTransactionDate());
-                    sqlCommand.Parameters.AddWithValue("@stockName", customTransactions[i].getStockName());
-                    sqlCommand.Parameters.AddWithValue("@stockPrice", customTransactions[i].getStockPrice());
-                    //todo, vásárolt, eladott
                     sqlCommand.Parameters.AddWithValue("@soldQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
-                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
-                    //
-                    sqlCommand.Parameters.AddWithValue("@currentQuantity", customTransactions[i].getQuantity());
-                    //todo vásárolt, eladott
-                    sqlCommand.Parameters.AddWithValue("@spending", customTransactions[i].getStockPrice()*customTransactions[i].getOriginalQuantityForCustomEarning());
                     sqlCommand.Parameters.AddWithValue("@profit", customTransactions[i].getProfit());
-                    //
                     sqlCommand.Parameters.AddWithValue("@earningMethod", customTransactions[i].getEarningMethod());
-                    sqlCommand.Parameters.AddWithValue("@importerName", customTransactions[i].getImporter());
-                    sqlCommand.ExecuteNonQuery();
                 }
-                SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
-                WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
-                WriteWorksheet = WriteWorkbook.Worksheets[2];
-                int row_number = 1;
-                while (WriteWorksheet.Cells[row_number, 1].Value != null)
+                else if (typeRegex4.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex5.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex6.IsMatch(customTransactions[i].getTransactionType()))//Vásárolt
                 {
-                    row_number++; // get the current last row
+                    sqlCommand.Parameters.AddWithValue("@boughtQuantity", customTransactions[i].getOriginalQuantityForCustomEarning());
+                    sqlCommand.Parameters.AddWithValue("@spending", customTransactions[i].getStockPrice() * customTransactions[i].getOriginalQuantityForCustomEarning());
+                    sqlCommand.Parameters.AddWithValue("@currentQuantity", customTransactions[i].getQuantity());
                 }
-                for (int i = 0; i < customTransactions.Count; i++)
-                {
+                sqlCommand.Parameters.AddWithValue("@importerName", customTransactions[i].getImporter());
+                sqlCommand.ExecuteNonQuery();
+            }
+            SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
+            WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
+            WriteWorksheet = WriteWorkbook.Worksheets[2];
+            int row_number = 1;
+            while (WriteWorksheet.Cells[row_number, 1].Value != null)
+            {
+                row_number++; // get the current last row
+            }
+            for (int i = 0; i < customTransactions.Count; i++)
+            {
 
-                    WriteWorksheet.Cells[row_number, 1].Value = todaysDate;
-                    WriteWorksheet.Cells[row_number, 2].Value = customTransactions[i].getTransactionDate();
-                    WriteWorksheet.Cells[row_number, 3].Value = customTransactions[i].getStockName();
-                    WriteWorksheet.Cells[row_number, 4].Value = customTransactions[i].getStockPrice();
-                    Regex typeRegex1 = new Regex(@"Eladott");
-                    Regex typeRegex2 = new Regex(@"Sold");
-                    Regex typeRegex3 = new Regex(@"Sell");
-                    Regex typeRegex4 = new Regex(@"Vásárolt");
-                    Regex typeRegex5 = new Regex(@"Bought");
-                    Regex typeRegex6 = new Regex(@"Buy");
-                    if (typeRegex1.IsMatch(customTransactions[i].getTransactionType()) ||
-                        typeRegex2.IsMatch(customTransactions[i].getTransactionType()) ||
-                        typeRegex3.IsMatch(customTransactions[i].getTransactionType())) //Eladott
-                    {
-                        WriteWorksheet.Cells[row_number, 5].Value = customTransactions[i].getOriginalQuantityForCustomEarning();            //!! eredeti quantity
-                        WriteWorksheet.Cells[row_number, 9].Value = customTransactions[i].getProfit();
-                        WriteWorksheet.Cells[row_number, 10].Value = customEarning;
-                    }
-                    else if (typeRegex4.IsMatch(customTransactions[i].getTransactionType()) ||
-                        typeRegex5.IsMatch(customTransactions[i].getTransactionType()) ||
-                        typeRegex6.IsMatch(customTransactions[i].getTransactionType()))//Vásárolt
-                    {
-                        WriteWorksheet.Cells[row_number, 6].Value = customTransactions[i].getOriginalQuantityForCustomEarning();                                 //! eredeti quantity
-                        WriteWorksheet.Cells[row_number, 8].Value = customTransactions[i].getOriginalQuantityForCustomEarning() * customTransactions[i].getStockPrice();     //!! eredeti quantity
-                    }
-                    WriteWorksheet.Cells[row_number, 7].Value = customTransactions[i].getQuantity();                       //!! mostani quantity
-                    WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
-                    row_number++;
-                    Range line = (Range)WriteWorksheet.Rows[row_number];
-                    line.Insert();
-                }
-                try
+                WriteWorksheet.Cells[row_number, 1].Value = todaysDate;
+                WriteWorksheet.Cells[row_number, 2].Value = customTransactions[i].getTransactionDate();
+                WriteWorksheet.Cells[row_number, 3].Value = customTransactions[i].getStockName();
+                WriteWorksheet.Cells[row_number, 4].Value = customTransactions[i].getStockPrice();
+                if (typeRegex1.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex2.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex3.IsMatch(customTransactions[i].getTransactionType())) //Eladott
                 {
-                    excel.ActiveWorkbook.Save();
-                    excel.Workbooks.Close();
-                    excel.Quit();
+                    WriteWorksheet.Cells[row_number, 5].Value = customTransactions[i].getOriginalQuantityForCustomEarning();            //!! eredeti quantity
+                    WriteWorksheet.Cells[row_number, 9].Value = customTransactions[i].getProfit();
+                    WriteWorksheet.Cells[row_number, 10].Value = customEarning;
                 }
-                catch (Exception e)
+                else if (typeRegex4.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex5.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex6.IsMatch(customTransactions[i].getTransactionType()))//Vásárolt
                 {
+                    WriteWorksheet.Cells[row_number, 6].Value = customTransactions[i].getOriginalQuantityForCustomEarning();                                 //! eredeti quantity
+                    WriteWorksheet.Cells[row_number, 8].Value = customTransactions[i].getOriginalQuantityForCustomEarning() * customTransactions[i].getStockPrice();     //!! eredeti quantity
+                    WriteWorksheet.Cells[row_number, 7].Value = customTransactions[i].getQuantity();
+                }                     //!! mostani quantity
+                WriteWorksheet.Cells[row_number, 11].Value = mainWindow.getCurrentUser().getUsername();
+                row_number++;
+                Range line = (Range)WriteWorksheet.Rows[row_number];
+                line.Insert();
+            }
+            try
+            {
+                excel.ActiveWorkbook.Save();
+                excel.Workbooks.Close();
+                excel.Quit();
+            }
+            catch (Exception e)
+            {
 
-                }
-                ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            }
+            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
         }
         private void stockExportFIFO(ref List<Stock> allCompany)
         {
