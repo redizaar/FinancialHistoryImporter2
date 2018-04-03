@@ -213,10 +213,16 @@
             <DockPanel Margin="30,5,0,0">
                 <Label Content="Részvény név oszlop: " Style="{StaticResource myLabelStyle}"/>
                 <TextBox x:Name="stockNameColumnTextBox" Style="{StaticResource labelUnderBorderStyle}"  HorizontalAlignment="Left"/>
+                <DockPanel HorizontalAlignment="Right">
+                    <Label Content="Típus : "  Style="{StaticResource myLabelStyle}" Margin="-200,0,0,0"/>
+                    <ComboBox x:Name="storedTypesCB" Width="100" Margin="-160,0,0,0" ItemsSource="{Binding bankChoices, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding bankChoice}" SelectionChanged="storedTypesCB_SelectionChanged"/>
+                </DockPanel>
             </DockPanel>
             <DockPanel Margin="30,5,0,0">
                 <Label Content="Osszeg oszlop: " Style="{StaticResource myLabelStyle}"/>
                 <TextBox x:Name="priceColumnTextBox" Style="{StaticResource labelUnderBorderStyle}" HorizontalAlignment="Left"/>
+
+                <TextBox x:Name="newBankTextbox" Width="120" Style="{StaticResource labelUnderBorderStyle}" Margin="370,0,0,0" ToolTip="Enter the new Bank name here!"/>
             </DockPanel>
             <DockPanel Margin="30,5,0,0">
                 <Label Content="Mennyiség oszlop: " Style="{StaticResource myLabelStyle}"/>

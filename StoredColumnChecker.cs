@@ -121,8 +121,6 @@ namespace WpfApp1
                         int tempValue1 = 0;
                         long size = sizeof(char) * accountNumberPosString.Length;
                         int szajz = accountNumberPosString.Length;
-                        Console.WriteLine("regi: " + size);
-                        Console.WriteLine("uj: " + szajz);
                         //todo
                         if (szajz > 1)//its a cell 
                         {

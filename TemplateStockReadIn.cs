@@ -31,6 +31,7 @@ namespace WpfApp1
         private int priceColumn;
         private int quantityColumn;
         private int transactionTypeColumn;
+        private MainWindow mainWindow;
         public TemplateStockReadIn(ImportReadIn _stockHandler,string filePath)
         {
             stockHandler = _stockHandler;
@@ -765,6 +766,10 @@ namespace WpfApp1
                 }
             }
         }
+        public void setMainWindowReference(MainWindow value)
+        {
+            mainWindow = value;
+        }
         public void readOutUserspecifiedTransactions(string startingRowString,string nameColumnString,string priceColumnString,
             string quantityColumnString,string dateColumnString,string transactionTypeColumnString)
         {
@@ -873,9 +878,65 @@ namespace WpfApp1
                     }
                     startingRow++;
                 }
-                stockHandler.addTransactions(importedStocks);
+            }
+            if (importedStocks.Count > 0)
+            {
+                string bankName = "";
+                if (SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() != "Add new Type")
+                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                else
+                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                /*
+                for (int i = 0; i < importedStocks.Count; i++)
+                    importedStocks[i].setBankname(bankName);
+                bankHanlder.addTransactions(transactions);
+                //todo another thread
+                */
+                addImportFileDataToDB(int.Parse(startingRowString), nameColumnString,
+                    priceColumnString, quantityColumnString, dateColumnString, transactionTypeColumnString);
             }
         }
+
+        private void addImportFileDataToDB(int startingRow, string nameColumnString, string priceColumnString,
+            string quantityColumnString, string dateColumnString, string transactionTypeColumnString)
+        {
+            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            sqlConn.Open();
+
+            string storedQuery = "";
+            storedQuery = "Select * From [StoredColumns_Stock] where TransStartRow = '" + startingRow + "'" +
+            " AND StockName = '" + nameColumnString + "'" +
+            " AND PriceColumn = '" + priceColumnString + "'" +
+            " AND QuantityColumn = '" + quantityColumnString + "'" +
+            " AND DateColumn = '" + dateColumnString + "'" +
+            " AND TypeColumn = '" + transactionTypeColumnString + "'";
+            SqlDataAdapter sda = new SqlDataAdapter(storedQuery, sqlConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            sda.Fill(dtb);
+            if (dtb.Rows.Count == 0)
+            {
+                SqlCommand sqlCommand = new SqlCommand("insertNewStockColumns", sqlConn);//insertNewStockColumns2
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                if (SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() == "Add new Type")
+                {
+                    string newBankName = SpecifiedImportStock.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                    sqlCommand.Parameters.AddWithValue("@bankName", newBankName);
+                }
+                else
+                {
+                    string bankName = SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                    sqlCommand.Parameters.AddWithValue("@bankName", bankName);
+                }
+                sqlCommand.Parameters.AddWithValue("@transStartRow", startingRow);
+                sqlCommand.Parameters.AddWithValue("@stockName", nameColumnString);
+                sqlCommand.Parameters.AddWithValue("@priceColumn", priceColumnString);
+                sqlCommand.Parameters.AddWithValue("@quantityColumn", quantityColumnString);
+                sqlCommand.Parameters.AddWithValue("@dateColumn", dateColumnString);
+                sqlCommand.Parameters.AddWithValue("@typeColumn", transactionTypeColumnString);
+                sqlCommand.ExecuteNonQuery();
+            }
+        }
+
         public static int ExcelColumnNameToNumber(string columnName)
         {
             if (string.IsNullOrEmpty(columnName)) throw new ArgumentNullException("columnName");

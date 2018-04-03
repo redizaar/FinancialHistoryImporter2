@@ -64,6 +64,7 @@ namespace WpfApp1
                         else//userSpecified==true
                         {
                             TemplateStockReadIn templateStock = new TemplateStockReadIn(this, path[i]);
+                            templateStock.setMainWindowReference(mainWindow);
                             string startingRowString = SpecifiedImportStock.getInstance(null, mainWindow).transactionsRowTextBox.ToString();
                             string nameColumnString = SpecifiedImportStock.getInstance(null, mainWindow).stockNameColumnTextBox.ToString();
                             string priceColumnString = SpecifiedImportStock.getInstance(null, mainWindow).priceColumnTextBox.ToString();

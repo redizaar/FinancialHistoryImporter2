@@ -20,8 +20,23 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for SpecifiedImportStock.xaml
     /// </summary>
-    public partial class SpecifiedImportStock : Page
+    public partial class SpecifiedImportStock : Page,INotifyPropertyChanged
     {
+        public List<string> bankChoices { get; set; }
+        public string _bankChoice;
+        public string bankChoice
+        {
+            get
+            {
+                return _bankChoice;
+            }
+            set
+            {
+                _bankChoice = value;
+                OnPropertyChanged("bankChoice");
+            }
+        }
+        public System.Data.DataTable dataTable;
         private static SpecifiedImportStock instance;
         public static List<string> folderPath;
         public MainWindow mainWindow;
@@ -33,6 +48,8 @@ namespace WpfApp1
             this.mainWindow = mainWindow;
             DataContext = this;
             InitializeComponent();
+            bankChoices = new List<string>();
+            bankChoices.Add("Add new Type");
         }
         public static SpecifiedImportStock getInstance(List<string> newfoldetPath,MainWindow mainWindow)
         {
@@ -71,6 +88,10 @@ namespace WpfApp1
         {
             return numberofFile;
         }
+        public void setDataTableFromSql(System.Data.DataTable _datatable)
+        {
+            dataTable = _datatable;
+        }
         public class ButtonCommands : ICommand
         {
             private SpecifiedImportStock specifiedImport;
@@ -106,24 +127,54 @@ namespace WpfApp1
             }
             public void Execute(object parameter)
             {
-                List<string> currentFile = new List<string>();
-                currentFile.Add(currentFileName);
-                new ImportReadIn("Stock", currentFile, specifiedImport.mainWindow, true);
-                if (SpecifiedImportStock.folderPath.Count < specifiedImport.getCurrentFileIndex())
+                if (specifiedImport.storedTypesCB.SelectedItem.ToString() != "Add new Type" || specifiedImport.newBankTextbox.Text.ToString() != "")
                 {
-                    specifiedImport.incrementNumberofFile();
-                    string nextFileName = SpecifiedImportStock.folderPath[specifiedImport.getCurrentFileIndex()];
-                    string[] splittedFileName = nextFileName.Split('\\');
-                    int lastSplitIndex = nextFileName.Length - 1;
-                    specifiedImport.currentFileLabel.Content = "File: " + splittedFileName[lastSplitIndex];
-                    set_box_values_to_zero();
-                    /*
-                    StoredColumnChecker columnChecker = new StoredColumnChecker();
-                    columnChecker.getDataTableFromSql(specifiedImport.mainWindow);
-                    columnChecker.setAnalyseWorksheet(nextFileName);
-                    columnChecker.setMostMatchesRow(columnChecker.findMostMatchingRow());
-                    columnChecker.setSpecifiedImportPageTextBoxes();
-                    */
+                    List<string> currentFile = new List<string>();
+                    currentFile.Add(currentFileName);
+                    new ImportReadIn("Stock", currentFile, specifiedImport.mainWindow, true);
+                    if (SpecifiedImportStock.folderPath.Count < specifiedImport.getCurrentFileIndex())
+                    {
+                        specifiedImport.incrementNumberofFile();
+                        string nextFileName = SpecifiedImportStock.folderPath[specifiedImport.getCurrentFileIndex()];
+                        string[] splittedFileName = nextFileName.Split('\\');
+                        int lastSplitIndex = nextFileName.Length - 1;
+                        specifiedImport.currentFileLabel.Content = "File: " + splittedFileName[lastSplitIndex];
+                        set_box_values_to_zero();
+                        /*
+                        StoredColumnChecker columnChecker = new StoredColumnChecker();
+                        columnChecker.getDataTableFromSql(specifiedImport.mainWindow);
+                        columnChecker.setAnalyseWorksheet(nextFileName);
+                        columnChecker.setMostMatchesRow(columnChecker.findMostMatchingRow());
+                        columnChecker.setSpecifiedImportPageTextBoxes();
+                        */
+                    }
+                }
+                else//didn't typed in the new banks name
+                {
+                    MessageBox.Show("Type in the new Bank name first, to the TextBox under the Type ComboBox!");
+                    specifiedImport.newBankTextbox.Focus();
+                }
+            }
+        }
+
+        private void storedTypesCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (bankChoice == "Add new Type")
+                newBankTextbox.Visibility = Visibility.Visible;
+            else if(dataTable.Rows.Count>0)
+            {
+                newBankTextbox.Visibility = Visibility.Hidden;
+                foreach (System.Data.DataRow record in dataTable.Rows)
+                {
+                    if (record["BankName"].ToString() == bankChoice)
+                    {
+                        transactionsRowTextBox.Text = record["TransStartRow"].ToString();
+                        stockNameColumnTextBox.Text = record["StockName"].ToString();
+                        priceColumnTextBox.Text = record["PriceColumn"].ToString();
+                        quantityColumnTextBox.Text = record["QuantityColumn"].ToString();
+                        dateColumnTextBox.Text = record["DateColumn"].ToString();
+                        transactionTypeTextBox.Text = record["TypeColumn"].ToString();
+                    }
                 }
             }
         }

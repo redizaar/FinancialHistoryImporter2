@@ -321,7 +321,8 @@ namespace WpfApp1
                         string accountNumber = record["AccountNumberPos"].ToString();
                         if (accountNumber != "Sheet name")
                         {
-                            long size = sizeof(char) * accountNumber.Length;
+                            long size;
+                            size = accountNumber.Length;
                             if (size > 1)
                             {
                                 accountNumberChoice = "Cell";
