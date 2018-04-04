@@ -178,6 +178,10 @@ namespace WpfApp1
                         stock.setProfit(profit);
                         stock.setEarningMethod(earningMethod);
                     }
+                    else
+                    {
+                        stock.setCurrentQuantity(int.Parse(currentQuantity));
+                    }
                     stock.setOriginalAndSellQuantity(originalAndCurrentQuantity);
                     savedTransactionsStock.Add(stock);
                 }

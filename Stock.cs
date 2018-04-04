@@ -18,6 +18,7 @@ namespace WpfApp1
         public string importer { get; set; }
         public string earningMethod { get; set; }
         public string originalAndCurrentQuantity { get; set; }
+        public int currentQuantity { get; set; }
         //for StockDataGrid
         public string symbol { get;  set; }
         public string date { get;  set; }
@@ -150,6 +151,14 @@ namespace WpfApp1
         public void setProfit(double value)
         {
             profit = value;
+        }
+        public void setCurrentQuantity(int value)
+        {
+            currentQuantity = value;
+        }
+        public int getCurrentQuantity()
+        {
+            return currentQuantity;
         }
     }
 }

@@ -1,57 +1,13 @@
-﻿<Page x:Class="WpfApp1.ImportPageBank"
+﻿<Page x:Class="WpfApp1.ImportStatsChartBank"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
       xmlns:local="clr-namespace:WpfApp1"
-      mc:Ignorable="d"
-      Title="ImportPage" Height="305" Width="720">
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="720">
     <Page.Resources>
-        <Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Background" Value="#ffffff"/>
-            <Setter Property="BorderBrush" Value="#cccccc"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="16,3,16,3"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border Name="Chrome"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                SnapsToDevicePixels="true">
-                            <ContentPresenter Name="Presenter" Margin="{TemplateBinding Padding}"
-                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    RecognizesAccessKey="True"
-                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Foreground" Value="#333333" />
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#dddddd" />
-                                <Setter Property="BorderBrush" Value="#cccccc" />
-                                <Setter Property="Foreground" Value="#333333" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#1ba1e2" />
-                                <Setter Property="BorderBrush" Value="#1ba1e2"/>
-                                <Setter Property="Foreground" Value="#ffffff"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="true">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#1ba1e2" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -107,7 +63,7 @@
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
             <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinWidth" Value="50"/>
             <Setter Property="MinHeight" Value="20"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Template">
@@ -214,80 +170,20 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <LinearGradientBrush x:Key="ButtonBackground" StartPoint="0.5,0" EndPoint="0.5,2">
-            <GradientStop Offset="0" Color="#C8F7C5" />
-            <GradientStop Offset="1" Color="Black"/>
-        </LinearGradientBrush>
-
-        <Style TargetType="Button" x:Key="FileBrowser">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="7" BorderThickness="0"  Background="{StaticResource ButtonBackground}">
-                            <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="Button.IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#A2DED0"/>
-                </Trigger>
-                <Trigger Property="Button.IsMouseOver" Value="False">
-                    <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Page.Resources>
-    <!--ComboBox style-->
-    <Grid Background="#ECECEA">
-        <Label Content="Statistics of Imported Bank Transactions" HorizontalAlignment="Center" FontSize="23" FontWeight="Medium" Foreground="#52B3D9"/>
-        <StackPanel HorizontalAlignment="Left">
-            <DockPanel>
-                <Label Content="Logged in user : "  Margin="0,38,0,0" FontSize="15" FontWeight="Medium"/>
-                <Label x:Name="usernameLabel" Content="Username by Code" Margin="0,40,0,0"  FontSize="15" FontFamily="Maiandra GD"/>
-            </DockPanel>
-            <DockPanel>
-                <Label Content="Date of Last Import : "  FontSize="15" FontWeight="Medium"/>
-                <Label x:Name="lastImportDateLabel" Content="Date by Code"   FontSize="15" FontFamily="Maiandra GD" VerticalAlignment="Bottom"/>
-            </DockPanel>
-            <DockPanel >
-                <Label Content="Transactions in Database : "   FontSize="15" FontWeight="Medium" />
-                <Label x:Name="noTransactionsLabel" Content="Number by Code"   FontSize="15" FontFamily="Maiandra GD" VerticalAlignment="Bottom" />
-            </DockPanel>
-            <DockPanel >
-                <Label Content="Urgency of Import : "   FontSize="15" FontWeight="Medium"/>
-                <Label x:Name="urgencyLabel" Content="Urgerncy generated by Code"    FontSize="15" FontFamily="Maiandra GD" VerticalAlignment="Bottom"/>
-            </DockPanel>
-            <DockPanel>
-                <Label Content="Distributes for Account number: "  FontSize="15" FontWeight="Medium"/>
-                <ComboBox Text="Account numbers" ItemsSource="{Binding accountNumbers,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                          SelectedItem="{Binding selectedAccountNumber,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                <Label x:Name="dividedForAccountNumber"  Content=" Quantity generated by Code" VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="15" FontFamily="Maiandra GD"/>
-            </DockPanel>
-            <DockPanel>
-                <Label Content="Distributed for Bank: "  FontSize="15" FontWeight="Medium"/>
-                <ComboBox Text="Banks" ItemsSource="{Binding banks,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+    <Grid Background="White">
+        <StackPanel>
+            <DockPanel Background="#8b9dc3">
+                <Label Content="Bank(s): " FontSize="15" VerticalAlignment="Center"/>
+                <ComboBox Width="100" HorizontalAlignment="Left" ItemsSource="{Binding banks,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                           SelectedItem="{Binding selectedBank,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                <Label x:Name="dividedForBanks" Content=" Quantity generated by Code" VerticalAlignment="Bottom" FontSize="15" FontFamily="Maiandra GD"/>
+                <Label FontSize="17" Content="Number of imported Transactions on days" HorizontalAlignment="Center" FontWeight="DemiBold" Margin="-50,0,0,0"></Label>
             </DockPanel>
-            <DockPanel>
-                <Label Content="On repeating transactions : " HorizontalAlignment="Left"  VerticalAlignment="Top" FontSize="15" FontWeight="Medium"/>
-                <RadioButton x:Name="alwaysAskCB" Content="Always ask"   VerticalAlignment="Center" IsChecked="{Binding alwaysAsk, Mode=OneWayToSource}"/>
-                <RadioButton x:Name="neverAskCB"  Content="Never ask"   VerticalAlignment="Center" IsChecked="{Binding neverAsk, Mode=OneWayToSource}"/>
-            </DockPanel>
-            <DockPanel>
-            </DockPanel>
+            <lvc:CartesianChart Series="{Binding SeriesCollection,  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="265"  LegendLocation="Right">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Month" Labels="{Binding Labels,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></lvc:Axis>
+                </lvc:CartesianChart.AxisX>
+            </lvc:CartesianChart>
         </StackPanel>
-        <Button  x:Name="importHistoryButton" Style="{StaticResource BaseButtonStyle}"  VerticalAlignment="Bottom" Command="{Binding Path=ImportHistoryPushed}" Height="42" Margin="503,0,63,71">
-        <DockPanel>
-            <Label Content="Import history" FontSize="14"></Label>
-            <Image Source="chartIcon2.png" Height="30" Width="25"></Image>
-        </DockPanel>
-        </Button>
-        <Button x:Name="FileBrowser" Content="Import Bank Transactions"  Width="175" Height="45"
-                Foreground="Black" Style="{StaticResource FileBrowser}" FontFamily="Maiandra GD" FontSize="15" Command="{Binding Path=OpenFilePushed}" Margin="492,87,52,173">
-        </Button>
     </Grid>
 </Page>

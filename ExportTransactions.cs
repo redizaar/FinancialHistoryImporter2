@@ -37,35 +37,36 @@ namespace WpfApp1
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
             //BUT FIRST - check if the transaction is already exported or not
 
+            List<Transaction> neededTransactions = newTransactions(transactions);
+            SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved 
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertBankTransaction", sqlConn);//SQLQuery 7
             sqlCommand.CommandType = CommandType.StoredProcedure;
-            for (int i = 0; i < transactions.Count; i++)
+            for (int i = 0; i < neededTransactions.Count; i++)
             {
                 sqlCommand.Parameters.Clear();
                 sqlCommand.Parameters.AddWithValue("@exportDate", todaysDate);
-                sqlCommand.Parameters.AddWithValue("@transactionDate", transactions[i].getTransactionDate());
-                sqlCommand.Parameters.AddWithValue("@accountBalance", transactions[i].getBalance_rn());
-                sqlCommand.Parameters.AddWithValue("@difference", transactions[i].getTransactionPrice());
-                if (transactions[i].getTransactionPrice() > 0)
+                sqlCommand.Parameters.AddWithValue("@transactionDate", neededTransactions[i].getTransactionDate());
+                sqlCommand.Parameters.AddWithValue("@accountBalance", neededTransactions[i].getBalance_rn());
+                sqlCommand.Parameters.AddWithValue("@difference", neededTransactions[i].getTransactionPrice());
+                if (neededTransactions[i].getTransactionPrice() > 0)
                 {
-                    sqlCommand.Parameters.AddWithValue("@income", transactions[i].getTransactionPrice());
+                    sqlCommand.Parameters.AddWithValue("@income", neededTransactions[i].getTransactionPrice());
                     sqlCommand.Parameters.AddWithValue("@spending", DBNull.Value);
                 }
                 else
                 {
-                    sqlCommand.Parameters.AddWithValue("@spending", transactions[i].getTransactionPrice());
+                    sqlCommand.Parameters.AddWithValue("@spending", neededTransactions[i].getTransactionPrice());
                     sqlCommand.Parameters.AddWithValue("@income", DBNull.Value);
                 }
-                sqlCommand.Parameters.AddWithValue("@comment", transactions[i].getTransactionDescription());
-                sqlCommand.Parameters.AddWithValue("@accountNumber", transactions[i].getAccountNumber());
-                sqlCommand.Parameters.AddWithValue("@bankName", transactions[i].getBankname());
+                sqlCommand.Parameters.AddWithValue("@comment", neededTransactions[i].getTransactionDescription());
+                sqlCommand.Parameters.AddWithValue("@accountNumber", neededTransactions[i].getAccountNumber());
+                sqlCommand.Parameters.AddWithValue("@bankName", neededTransactions[i].getBankname());
                 sqlCommand.ExecuteNonQuery();
             }
-
-            List<Transaction> neededTransactions = newTransactions(transactions);
-            SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved 
+            ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            /*
             WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
             WriteWorksheet = WriteWorkbook.Worksheets[1];
             if (neededTransactions != null)
@@ -119,6 +120,7 @@ namespace WpfApp1
             {
                 return;
             }
+            */
         }
         private List<Transaction> newTransactions(List<Transaction> importedTransactions) //check if the transaction is already exported or not
         {
@@ -345,6 +347,8 @@ namespace WpfApp1
                     sqlCommand.ExecuteNonQuery();
                 }
                 SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
+                ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                /*
                 WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
                 WriteWorksheet = WriteWorkbook.Worksheets[2];
                 int row_number = 1;
@@ -391,6 +395,7 @@ namespace WpfApp1
 
                 }
                 ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                */
             }
         }
         public ExportTransactions(List<Stock> customTransactions, MainWindow mainWindow, string currentFileName,string customEarning)
@@ -445,6 +450,8 @@ namespace WpfApp1
                 sqlCommand.ExecuteNonQuery();
             }
             SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
+            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            /*
             WriteWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
             WriteWorksheet = WriteWorkbook.Worksheets[2];
             int row_number = 1;
@@ -491,6 +498,7 @@ namespace WpfApp1
 
             }
             ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            */
         }
         private void stockExportFIFO(ref List<Stock> allCompany)
         {
@@ -921,8 +929,8 @@ namespace WpfApp1
         }
         ~ExportTransactions()
         {
-            excel.Application.Quit();
-            excel.Quit();
+            //excel.Application.Quit();
+            //excel.Quit();
         }
     }
 }

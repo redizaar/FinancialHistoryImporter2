@@ -91,6 +91,9 @@
     <Compile Include="ImportPageStock.xaml.cs">
       <DependentUpon>ImportPageStock.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportStatsChartBank.xaml.cs">
+      <DependentUpon>ImportStatsChartBank.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Login_Page.xaml.cs">
       <DependentUpon>Login_Page.xaml</DependentUpon>
     </Compile>
@@ -113,6 +116,7 @@
       <DependentUpon>StockDataGrid.xaml</DependentUpon>
     </Compile>
     <Compile Include="StoredColumnChecker.cs" />
+    <Compile Include="StoredStockColumnChecker.cs" />
     <Compile Include="TemplateBankReadIn.cs" />
     <Compile Include="TemplateStockReadIn.cs" />
     <Compile Include="Transaction.cs" />
@@ -134,6 +138,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ImportPageStock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportStatsChartBank.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,7 +19,7 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for ImportPageStock.xaml
     /// </summary>
-    public partial class ImportPageStock : System.Windows.Controls.Page
+    public partial class ImportPageStock : System.Windows.Controls.Page, INotifyPropertyChanged
     {
         public bool _lifoMethod  = true;
         public bool _fifoMethod  = false;
@@ -58,6 +60,48 @@ namespace WpfApp1
         public PageAnimation pageLoadAnimation { get; set; } = PageAnimation.SlideAndFadeInFromRight;
         public PageAnimation pageUnloadAnimation { get; set; } = PageAnimation.SlideAndFadeOutToLeft;
         public double slideSenconds { get; set; } = 0.5;
+        public string _selectedStock;
+        public string selectedStock
+        {
+            get
+            {
+                return _selectedStock;
+            }
+            set
+            {
+                if(_selectedStock!=value)
+                {
+                    int counter = 0;
+                    foreach(var transaction in SavedTransactions.getSavedTransactionsStock())
+                    {
+                        if(transaction.getStockName()==value && transaction.getCurrentQuantity()>0)
+                        {
+                            counter++;
+                        }
+                    }
+                    specifiedOwned.Content = counter.ToString();
+                    specifiedOwned.Visibility = Visibility.Visible;
+                    _selectedStock = value;
+                    OnPropertyChanged("selectedStock");
+                }
+            }
+        }
+        public List<string> _currentlyOwnedStocks;
+        public List<string> currentlyOwnedStocks
+        {
+            get
+            {
+                return _currentlyOwnedStocks;
+            }
+            set
+            {
+                if(_currentlyOwnedStocks!=value)
+                {
+                    _currentlyOwnedStocks = value;
+                    OnPropertyChanged("currentlyOwnedStocks");
+                }
+            }
+        }
         public MainWindow mainWindow;
         private static ImportPageStock instance; 
         private ImportPageStock(MainWindow mainWindow)
@@ -65,6 +109,7 @@ namespace WpfApp1
             this.mainWindow = mainWindow;
             DataContext = this;
             InitializeComponent();
+            specifiedOwned.Visibility = Visibility.Hidden;
         }
         public static ImportPageStock getInstance(MainWindow mainWindow)
         {
@@ -105,6 +150,8 @@ namespace WpfApp1
             string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
             DateTime todayDate = Convert.ToDateTime(todaysDate);
             usernameLabel.Content = currentUser.getUsername();
+            currentlyOwnedStocks = new List<string>();
+            int counter=0;
             foreach (var transactions in SavedTransactions.getSavedTransactionsStock())
             {
                 string username = currentUser.getUsername();
@@ -113,7 +160,14 @@ namespace WpfApp1
                     numberOfTransactions++;
                     latestImportDate = transactions.getWriteDate();
                 }
+                if (transactions.getCurrentQuantity() > 0)
+                {
+                    counter++;
+                    if(!currentlyOwnedStocks.Contains(transactions.getStockName()))
+                        currentlyOwnedStocks.Add(transactions.getStockName());
+                }
             }
+            allOwned.Content = counter.ToString();
             noTransactionsLabel.Content = numberOfTransactions;
             if (latestImportDate.Length >= 12)
             {
@@ -180,6 +234,12 @@ namespace WpfApp1
                         string[] fileName = dlg.FileNames.ToList()[0].Split('\\');
                         int lastPartIndex = fileName.Length - 1; // to see which file the user immporting first
                         SpecifiedImportStock.getInstance(fileAdresses, mainWindow).setCurrentFileLabel(fileName[lastPartIndex]);
+                        StoredStockColumnChecker columnChecker = new StoredStockColumnChecker();
+                        columnChecker.getDataTableFromSql(mainWindow);
+                        columnChecker.addDistinctBanksToCB();
+                        columnChecker.setAnalyseWorksheet(dlg.FileNames.ToList()[0]);
+                        columnChecker.setMostMatchesRow(columnChecker.findMostMatchingRow());
+                        columnChecker.setSpecifiedImportPageTextBoxes();
                         mainWindow.MainFrame.Content = SpecifiedImportStock.getInstance(fileAdresses, mainWindow);
                     }
                 }
@@ -244,6 +304,11 @@ namespace WpfApp1
                 app.Quit();
                 fileAddresses[fileIndex] = newExcelPath; //overwriting the old path string
             }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public string getMethod()
         {

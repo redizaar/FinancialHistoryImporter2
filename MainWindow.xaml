@@ -190,15 +190,15 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-        <Border x:Name="userNotification" BorderBrush="Black" BorderThickness="1,0,0,1" HorizontalAlignment="Left" Height="70" Margin="785,0,0,0" VerticalAlignment="Top" Width="87" Background="#74AFAD">
-            <StackPanel Margin="-21,0,35,0">
+        <Border x:Name="userNotification" BorderBrush="Black" BorderThickness="1,0,0,1" HorizontalAlignment="Left" Height="70" Margin="766,0,0,0" VerticalAlignment="Top" Width="106" Background="#74AFAD">
+            <StackPanel >
                 <Canvas>
-                    <Image Source="alarmIcon3.png" Width="70" Margin="30,5,0,0" Height="45"/>
+                    <Image Source="alarmIcon3.png" Width="48" Height="45" Canvas.Right="10" Canvas.Top="10"/>
+                    <Image x:Name="exclamImage" Source="exclamIcon.png" Height="20"  Width="20" Canvas.Bottom="-15" Canvas.Right="10" Canvas.Top="3" ToolTip="You didn't imported new since one month!!"/>
+                    <Label x:Name="currentUserLabel" Content="User"  FontWeight="Bold" Canvas.Bottom="-70" Canvas.Right="40"/>
                 </Canvas>
             </StackPanel>
         </Border>
-        <Image x:Name="exclamImage" Source="exclamIcon.png" Height="20"  Width="20" HorizontalAlignment="Right" Margin="0,-320,0,0"/>
-        <Label x:Name="currentUserLabel" Content="User" Margin="800,40,0,155" FontWeight="Bold"/>
-        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden" />
+        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden"  />
     </Grid>
 </Window>

@@ -241,6 +241,10 @@ namespace WpfApp1
                 urgencyLabel.Content = "You haven't imported yet!";
                 lastImportDateLabel.Content = "You haven't imported yet!";
             }
+            if (SavedTransactions.getSavedTransactionsBank().Count > 0)
+                importHistoryButton.Visibility = Visibility.Visible;
+            else
+                importHistoryButton.Visibility = Visibility.Hidden;
         }
         private void getTransactions(string importType, List<string> folderAddress)
         {
@@ -254,7 +258,14 @@ namespace WpfApp1
                 return btnCommand;
             }
         }
-
+        public ButtonCommands ImportHistoryPushed
+        {
+            get
+            {
+                btnCommand = new ButtonCommands(importHistoryButton.Name.ToString(), this);
+                return btnCommand;
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -397,6 +408,12 @@ namespace WpfApp1
                             }
                         }
                     }
+                }
+                else if(buttonContent == "importHistoryButton")
+                {
+                    ImportStatsChartBank importStatsChart = new ImportStatsChartBank(importPageBank.banks);
+                    importStatsChart.setBank(SavedTransactions.getSavedTransactionsBank()[0].getBankname());
+                    importPageBank.mainWindow.MainFrame.Content = importStatsChart;
                 }
             }
         }

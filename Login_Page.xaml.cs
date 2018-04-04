@@ -49,6 +49,11 @@ namespace WpfApp1
                 mainWindow.currentUserLabel.Content = currentUser.getUsername(); //notification label
                 mainWindow.setCurrentUser(currentUser);
                 Visibility = System.Windows.Visibility.Hidden;
+                ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow);
+                mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
+                mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                mainWindow.bankImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
             }
             else
             {
