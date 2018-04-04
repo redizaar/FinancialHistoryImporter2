@@ -8,6 +8,7 @@
       d:DesignHeight="300" d:DesignWidth="730"
       Title="DatabaseDataStock">
     <Page.Resources>
+        <local:CellColoringClass x:Key="NameToBrushConverter"/>
         <Style x:Key="BaseButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Background" Value="#ffffff"/>
@@ -104,6 +105,11 @@
                             <Setter Property="ToolTip" Value="{Binding earningMethod}" />
                         </Style>
                     </DataGridTextColumn.CellStyle>
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Background" Value="{Binding profit, Converter={StaticResource NameToBrushConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Date of Import" Width="*" Binding="{Binding writeDate}"/>
             </DataGrid.Columns>

@@ -28,13 +28,93 @@ namespace WpfApp1
     /// <summary>
     /// Interaction logic for ImportMainPage.xaml
     /// </summary>
-    public partial class ImportPageBank : System.Windows.Controls.Page
+    public partial class ImportPageBank : System.Windows.Controls.Page, INotifyPropertyChanged
     {
         private ButtonCommands btnCommand;
         private MainWindow mainWindow;
         private static ImportPageBank instance;
         public PageAnimation pageLoadAnimation { get; set; } = PageAnimation.SlideAndFadeInFromRight;
         public PageAnimation pageUnloadAnimation { get; set; } = PageAnimation.SlideAndFadeOutToLeft;
+        public string _selectedBank;
+        public string selectedBank
+        {
+            get
+            {
+                return _selectedBank;
+            }
+            set
+            {
+                if(_selectedBank!=value)
+                {
+                    int counter = 0;
+                    foreach(var transaction in SavedTransactions.getSavedTransactionsBank())
+                    {
+                        if (transaction.getBankname() == value)
+                            counter++;
+                    }
+                    dividedForBanks.Content = counter.ToString();
+                    dividedForBanks.Visibility = Visibility.Visible;
+                    _selectedBank = value;
+                    OnPropertyChanged("selectedBank");
+                }
+            }
+        }
+        public List<string> _banks;
+        public List<string> banks
+        {
+            get
+            {
+                return _banks;
+            }
+            set
+            {
+                if(_banks!=value)
+                {
+                    _banks = value;
+                    OnPropertyChanged("banks");
+                }
+            }
+        }
+        public string _selectedAccountNumber;
+        public string selectedAccountNumber
+        {
+            get
+            {
+                return _selectedAccountNumber;
+            }
+            set
+            {
+                if (_selectedAccountNumber != value)
+                {
+                    int counter = 0;
+                    foreach (var transactions in SavedTransactions.getSavedTransactionsBank())
+                    {
+                        if (value == transactions.getAccountNumber())
+                            counter++;
+                    }
+                    dividedForAccountNumber.Content = counter.ToString();
+                    dividedForAccountNumber.Visibility = Visibility.Visible;
+                    _selectedAccountNumber = value;
+                    OnPropertyChanged("selectedAccountNumber");
+                }
+            }
+        }
+        public List<string> _accountNumbers;
+        public List<string> accountNumbers
+        {
+            get
+            {
+                return _accountNumbers;
+            }
+            set
+            {
+                if (_accountNumbers != value)
+                {
+                    _accountNumbers = value;
+                    OnPropertyChanged("accountNumbers");
+                }
+            }
+        }
         public double slideSenconds { get; set; } = 0.5;
         public bool alwaysAsk
         {
@@ -84,6 +164,8 @@ namespace WpfApp1
             InitializeComponent();
             neverAskCB.IsChecked = true;
             this.mainWindow = mainWindow;
+            dividedForAccountNumber.Visibility = Visibility.Hidden;
+            dividedForBanks.Visibility = Visibility.Hidden;
         }
         public void setUserStatistics(User currentUser)
         {
@@ -94,12 +176,20 @@ namespace WpfApp1
             string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
             DateTime todayDate = Convert.ToDateTime(todaysDate);
             usernameLabel.Content = currentUser.getUsername();
+            string accountNumber = currentUser.getAccountNumber();
+            string[] splittedAccountNumber = accountNumber.Split(',');
+            accountNumbers = new List<string>();
+            banks = new List<string>();
+            for(int i=0;i<splittedAccountNumber.Length;i++)
+            {
+                accountNumbers.Add(splittedAccountNumber[i]);
+            }
             foreach (var transactions in SavedTransactions.getSavedTransactionsBank())
             {
-                string accountNumber = currentUser.getAccountNumber();
+                if (!banks.Contains(transactions.getBankname()))
+                    banks.Add(transactions.getBankname());
                 //it the user has more than 1 account number it separated by commas
-                string[] splittedAccountNumber = accountNumber.Split(',');
-                for (int i = 0; i < splittedAccountNumber.Length - 1; i++)
+                for (int i = 0; i < splittedAccountNumber.Length; i++)
                 {
                     if (transactions.getAccountNumber()==splittedAccountNumber[i])
                     {

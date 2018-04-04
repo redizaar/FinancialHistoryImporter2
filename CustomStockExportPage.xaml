@@ -8,6 +8,7 @@
       d:DesignHeight="300" d:DesignWidth="730"
       Title="CustomStockExportPage">
     <Page.Resources>
+        <local:CellColoringClass x:Key="NameToBrushConverter"/>
         <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -315,7 +316,13 @@
                 <DataGridTextColumn Header="Stock Price"  Width="auto" Binding="{Binding stockPrice}"/>
                 <DataGridTextColumn Header="Transaction type" Width="auto" Binding="{Binding transactionType}"/>
                 <DataGridTextColumn Header="QTY- Original (Current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
-                <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}"/>
+                <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Background" Value="{Binding profit, Converter={StaticResource NameToBrushConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
         <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">

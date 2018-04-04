@@ -91,4 +91,27 @@ namespace WpfApp1
             return instance;
         }
     }
+    public class CellColoringClass : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null)
+            {
+                string profitString = value.ToString();
+                double profit = double.Parse(profitString);
+                if (profit > 0)
+                    return Brushes.LightGreen;
+                else
+                    return Brushes.LightSalmon;
+            }
+            else
+            {
+                return DependencyProperty.UnsetValue;
+            }
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
 }

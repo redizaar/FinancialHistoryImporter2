@@ -18,7 +18,6 @@ namespace WpfApp1
 {
     public partial class DatabaseDataBank : Page, INotifyPropertyChanged
     {
-        public List<string> categoryName { get; set; }
         private static DatabaseDataBank instance;
         public List<Transaction> _tableAttributes;
         public List<Transaction> tableAttributes
@@ -54,9 +53,9 @@ namespace WpfApp1
         {
             List<Transaction> allTransactions = SavedTransactions.getSavedTransactionsBank();
             List<Transaction> reference = new List<Transaction>();
+            string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
             foreach (var tableAttribute in allTransactions)
             {
-                string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
                 for (int i = 0; i < splittedAccountNumbers.Length; i++)
                 {
                     if (tableAttribute.getAccountNumber() == splittedAccountNumbers[i])
@@ -76,7 +75,7 @@ namespace WpfApp1
                     }
                     else
                     {
-                        transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd").Substring(0,12));
+                        transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd").Substring(0, 12));
                     }
                 }
             }

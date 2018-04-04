@@ -26,7 +26,7 @@ namespace WpfApp1
         private static List<Stock> stockTransactions;
         private string currentFileName;
         private MainWindow mainWindow;
-        public Dictionary<int,List<int>> startQuantities;
+        public Dictionary<int, List<int>> startQuantities;
         public Dictionary<int, Stock> stocks;
         public List<Stock> _tableAttributes;
         public List<Stock> tableAttributes
@@ -53,7 +53,7 @@ namespace WpfApp1
             }
             set
             {
-                if(_companies!=value)
+                if (_companies != value)
                 {
                     _companies = value;
                     OnPropertyChanged("companies");
@@ -114,7 +114,7 @@ namespace WpfApp1
                 OnPropertyChanged("exportAttributes");
             }
         }
-        public CustomStockExportPage(MainWindow _mainWindow, List<Stock> transactions,string _currentFileName)
+        public CustomStockExportPage(MainWindow _mainWindow, List<Stock> transactions, string _currentFileName)
         {
             mainWindow = _mainWindow;
             stockTransactions = transactions;
@@ -187,13 +187,13 @@ namespace WpfApp1
                             if (selected is Stock)
                             {
                                 var stock = (Stock)selected;
-                                if (typeRegex2.IsMatch(stock.getTransactionType()) || 
+                                if (typeRegex2.IsMatch(stock.getTransactionType()) ||
                                     typeRegex4.IsMatch(stock.getTransactionType()) ||
                                      typeRegex6.IsMatch(stock.getTransactionType())) //todo
                                 {
                                     sold = true;
                                 }
-                                else if(typeRegex1.IsMatch(stock.getTransactionType()) ||
+                                else if (typeRegex1.IsMatch(stock.getTransactionType()) ||
                                         typeRegex3.IsMatch(stock.getTransactionType()) ||
                                         typeRegex5.IsMatch(stock.getTransactionType())) //todo
                                 {
@@ -216,7 +216,7 @@ namespace WpfApp1
             companiesComboBox.IsEnabled = false;
             exportPreviewGrid.Visibility = Visibility.Hidden;
             ImportedTransactions_Grid.Visibility = Visibility.Hidden;
-            if (dataGridChanger.Content.ToString()=="Export Preview")
+            if (dataGridChanger.Content.ToString() == "Export Preview")
             {
                 exportPreviewGrid.Visibility = Visibility.Visible;
                 dataGridChanger.Content = "Back to Joining";
@@ -258,7 +258,7 @@ namespace WpfApp1
             if (typeRegex1.IsMatch(selectedItems[0].getTransactionType()) ||
                 typeRegex3.IsMatch(selectedItems[0].getTransactionType()) ||
                 typeRegex5.IsMatch(selectedItems[0].getTransactionType())) //todo
-            { 
+            {
                 boughtStock = selectedItems[0];
                 boughtQuantity = boughtStock.getQuantity();
                 soldStock = selectedItems[1];
