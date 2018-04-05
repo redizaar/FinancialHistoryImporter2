@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -136,10 +137,29 @@ namespace WpfApp1
                     }
                     if(analyseWorksheet.Cells[transactionsRow,stockNameColumn].Value!=null)
                         tempCounter++;
-                    if(analyseWorksheet.Cells[transactionsRow,priceColumn].Value!=null)
-                        tempCounter++;
-                    if(analyseWorksheet.Cells[transactionsRow,quantityColumn].Value!=null)
-                        tempCounter++;
+                    if (analyseWorksheet.Cells[transactionsRow, priceColumn].Value != null)
+                    {
+                        try
+                        {
+                            string priceString = analyseWorksheet.Cells[transactionsRow, priceColumn].Value.ToString().Replace(',', '.');
+                            double price = double.Parse(priceString, CultureInfo.InvariantCulture);
+                            tempCounter++;
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+                    if (analyseWorksheet.Cells[transactionsRow, quantityColumn].Value != null)
+                    {
+                        try
+                        {
+                            int quantity = int.Parse(analyseWorksheet.Cells[transactionsRow, quantityColumn].Value.ToString());
+                            tempCounter++;
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
                     if (analyseWorksheet.Cells[transactionsRow, dateColumn].Value != null)
                         tempCounter++;
                     if (analyseWorksheet.Cells[transactionsRow, typeColumn].Value != null)
@@ -168,7 +188,7 @@ namespace WpfApp1
             }
             else//no data in sql
             {
-                SpecifiedImportBank.getInstance(null, mainWindow).bankChoice = "Add new Type";
+                SpecifiedImportStock.getInstance(null, mainWindow).bankChoice = "Add new Type";
             }
         }
         public void setMostMatchesRow(DataRow value)

@@ -22,7 +22,19 @@ namespace WpfApp1
     /// </summary>
     public partial class SpecifiedImportStock : Page,INotifyPropertyChanged
     {
-        public List<string> bankChoices { get; set; }
+        public List<string> _bankChoices;
+        public List<string> bankChoices
+        {
+            get
+            {
+                return _bankChoices;
+            }
+            set
+            {
+                _bankChoices = value;
+                OnPropertyChanged("bankChoices");
+            }
+        }
         public string _bankChoice;
         public string bankChoice
         {
@@ -48,8 +60,9 @@ namespace WpfApp1
             this.mainWindow = mainWindow;
             DataContext = this;
             InitializeComponent();
-            bankChoices = new List<string>();
-            bankChoices.Add("Add new Type");
+            List<string> xy = new List<string>();
+            xy.Add("Add new Type");
+            bankChoices = xy;
         }
         public static SpecifiedImportStock getInstance(List<string> newfoldetPath,MainWindow mainWindow)
         {
@@ -71,10 +84,25 @@ namespace WpfApp1
                 return btnCommand;
             }
         }
+        internal void setBoxValuesToZero()
+        {
+            storedTypesCB.SelectedIndex = -1;
+            transactionsRowTextBox.Text = "";
+            stockNameColumnTextBox.Text = "";
+            priceColumnTextBox.Text = "";
+            quantityColumnTextBox.Text = "";
+            transactionTypeTextBox.Text = "";
+            newBankTextbox.Text = "";
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (PropertyChanged != null)
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public void NotifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public void setCurrentFileLabel(string currentFile)
         {
@@ -127,7 +155,7 @@ namespace WpfApp1
             }
             public void Execute(object parameter)
             {
-                if (specifiedImport.storedTypesCB.SelectedItem.ToString() != "Add new Type" || specifiedImport.newBankTextbox.Text.ToString() != "")
+                if (specifiedImport.bankChoice != "Add new Type" || specifiedImport.newBankTextbox.Text.ToString() != "")
                 {
                     List<string> currentFile = new List<string>();
                     currentFile.Add(currentFileName);
@@ -139,14 +167,11 @@ namespace WpfApp1
                         string[] splittedFileName = nextFileName.Split('\\');
                         int lastSplitIndex = nextFileName.Length - 1;
                         specifiedImport.currentFileLabel.Content = "File: " + splittedFileName[lastSplitIndex];
-                        set_box_values_to_zero();
-                        /*
-                        StoredColumnChecker columnChecker = new StoredColumnChecker();
+                        StoredStockColumnChecker columnChecker = new StoredStockColumnChecker();
                         columnChecker.getDataTableFromSql(specifiedImport.mainWindow);
                         columnChecker.setAnalyseWorksheet(nextFileName);
                         columnChecker.setMostMatchesRow(columnChecker.findMostMatchingRow());
                         columnChecker.setSpecifiedImportPageTextBoxes();
-                        */
                     }
                 }
                 else//didn't typed in the new banks name

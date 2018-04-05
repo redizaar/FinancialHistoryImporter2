@@ -203,6 +203,10 @@ namespace WpfApp1
                 urgencyLabel.Content = "You haven't imported yet!";
                 lastImportDateLabel.Content = "You haven't imported yet!";
             }
+            if (SavedTransactions.getSavedTransactionsStock().Count > 0)
+                importHistoryButton.Visibility = Visibility.Visible;
+            else
+                importHistoryButton.Visibility = Visibility.Hidden;
         }
         private void FileBrowser_Click(object sender, RoutedEventArgs e)
         {
@@ -234,6 +238,7 @@ namespace WpfApp1
                         string[] fileName = dlg.FileNames.ToList()[0].Split('\\');
                         int lastPartIndex = fileName.Length - 1; // to see which file the user immporting first
                         SpecifiedImportStock.getInstance(fileAdresses, mainWindow).setCurrentFileLabel(fileName[lastPartIndex]);
+                        SpecifiedImportStock.getInstance(null, mainWindow).setBoxValuesToZero();
                         StoredStockColumnChecker columnChecker = new StoredStockColumnChecker();
                         columnChecker.getDataTableFromSql(mainWindow);
                         columnChecker.addDistinctBanksToCB();
@@ -319,6 +324,19 @@ namespace WpfApp1
             else if (_customMethod)
                 return "CUSTOM";
             return "LIFO";
+        }
+
+        private void importHistoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> stockNames = new List<string>();
+            foreach(var x in SavedTransactions.getSavedTransactionsStock())
+            {
+                if (!stockNames.Contains(x.getStockName()))
+                    stockNames.Add(x.getStockName());
+            }
+            ImportStatsChartStock importStatsChart = new ImportStatsChartStock(stockNames);
+            importStatsChart.displayAllData();
+            mainWindow.MainFrame.Content = importStatsChart;
         }
     }
 }

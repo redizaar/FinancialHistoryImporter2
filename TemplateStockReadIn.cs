@@ -827,6 +827,7 @@ namespace WpfApp1
             {
                 transactionTypeColumn = ExcelColumnNameToNumber(transactionTypeColumnString);
             }
+            Console.WriteLine(startingRow + " - " + nameColumn + " - " + dateColumn + " - " + priceColumn);
             if ((nameColumn != 0) && (dateColumn != 0) && (priceColumn != 0))
             {
                 importedStocks = new List<Stock>();
@@ -883,15 +884,15 @@ namespace WpfApp1
             {
                 string bankName = "";
                 if (SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() != "Add new Type")
-                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                    bankName = SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
                 else
-                    bankName = SpecifiedImportBank.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                    bankName = SpecifiedImportStock.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
                 /*
                 for (int i = 0; i < importedStocks.Count; i++)
                     importedStocks[i].setBankname(bankName);
-                bankHanlder.addTransactions(transactions);
-                //todo another thread
                 */
+                stockHandler.addTransactions(importedStocks);
+                //todo another thread
                 addImportFileDataToDB(int.Parse(startingRowString), nameColumnString,
                     priceColumnString, quantityColumnString, dateColumnString, transactionTypeColumnString);
             }

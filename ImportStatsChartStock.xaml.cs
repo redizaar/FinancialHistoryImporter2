@@ -17,31 +17,30 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
 namespace WpfApp1
 {
     /// <summary>
-    /// Interaction logic for ImportStatsChart.xaml
+    /// Interaction logic for ImportStatsChartStock.xaml
     /// </summary>
-    public partial class ImportStatsChartBank : Page, INotifyPropertyChanged
+    public partial class ImportStatsChartStock : Page, INotifyPropertyChanged
     {
-        public string _selectedBank;
-        public string selectedBank
+        public string _selectedStockName;
+        public string selectedStockName
         {
             get
             {
-                return _selectedBank;
+                return _selectedStockName;
             }
             set
             {
-                if(_selectedBank!=value)
+                if (_selectedStockName != value)
                 {
                     if (value == "All")
                         displayAllData();
                     else
                         displayData(value);
-                    _selectedBank = value;
-                    OnPropertyChanged("selectedBank");
+                    _selectedStockName = value;
+                    OnPropertyChanged("selectedStockName");
                 }
             }
         }
@@ -49,14 +48,14 @@ namespace WpfApp1
         public void displayAllData()
         {
             SeriesCollection = new SeriesCollection();
-            Labels = new string[SavedTransactions.getSavedTransactionsBank().Count];
+            Labels = new string[SavedTransactions.getSavedTransactionsStock().Count];
             LineSeries lineSeries = new LineSeries();
             lineSeries.Title = "All";
             ChartValues<int> stats = new ChartValues<int>();
             List<DateTime> distinctDays = new List<DateTime>();
             List<string> distinctDaysString = new List<string>();
             int counter = 0;
-            foreach (var transactions in SavedTransactions.getSavedTransactionsBank())
+            foreach (var transactions in SavedTransactions.getSavedTransactionsStock())
             {
                 DateTime dt = DateTime.ParseExact(transactions.getWriteDate(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 if (!distinctDays.Contains(dt))
@@ -72,7 +71,7 @@ namespace WpfApp1
                 string date = splittedDate[0] + splittedDate[1] + splittedDate[2];
                 date = date.Remove(date.Length - 1);
                 date = date.Replace('.', '-');
-                foreach (var y in SavedTransactions.getSavedTransactionsBank())
+                foreach (var y in SavedTransactions.getSavedTransactionsStock())
                 {
                     if (date == y.getWriteDate())
                         counter++;
@@ -90,42 +89,42 @@ namespace WpfApp1
             SeriesCollection.Add(lineSeries);
         }
 
-        public List<string> _banks;
-        public List<string> banks
+        public List<string> _stocks;
+        public List<string> stocks
         {
             get
             {
-                return _banks;
+                return _stocks;
             }
             set
             {
-                if(_banks!=value)
+                if (_stocks != value)
                 {
-                    _banks = value;
-                    OnPropertyChanged("banks");
+                    _stocks = value;
+                    OnPropertyChanged("stocks");
                 }
             }
         }
-        public ImportStatsChartBank(List<string> _value)
+        public ImportStatsChartStock(List<string> _value)
         {
             DataContext = this;
             InitializeComponent();
             _value.Add("All");
-            banks = _value;
+            stocks = _value;
         }
-        public void displayData(string bankName)
+        public void displayData(string stockName)
         {
             SeriesCollection = new SeriesCollection();
-            Labels = new string[SavedTransactions.getSavedTransactionsBank().Count];
+            Labels = new string[SavedTransactions.getSavedTransactionsStock().Count];
             LineSeries lineSeries = new LineSeries();
-            lineSeries.Title = bankName;
+            lineSeries.Title = stockName;
             ChartValues<int> stats = new ChartValues<int>();
             List<DateTime> distinctDays = new List<DateTime>();
             List<string> distinctDaysString = new List<string>();
             int counter = 0;
-            foreach(var transactions in SavedTransactions.getSavedTransactionsBank())
+            foreach (var transactions in SavedTransactions.getSavedTransactionsStock())
             {
-                if(transactions.getBankname()==bankName)
+                if (transactions.getStockName() == stockName)
                 {
                     DateTime dt = DateTime.ParseExact(transactions.getWriteDate(), "yyyy-MM-dd", CultureInfo.InvariantCulture);
                     if (!distinctDays.Contains(dt))
@@ -136,16 +135,16 @@ namespace WpfApp1
             distinctDays.Reverse();
 
             Dictionary<string, int> importedTransactionsToDays = new Dictionary<string, int>();
-            foreach(var x in distinctDays)
+            foreach (var x in distinctDays)
             {
                 counter = 0;
                 string[] splittedDate = x.ToString().Split(' ');
                 string date = splittedDate[0] + splittedDate[1] + splittedDate[2];
                 date = date.Remove(date.Length - 1);
                 date = date.Replace('.', '-');
-                foreach(var y in SavedTransactions.getSavedTransactionsBank())
+                foreach (var y in SavedTransactions.getSavedTransactionsStock())
                 {
-                    if (date == y.getWriteDate())
+                    if (date == y.getWriteDate() && stockName==y.getStockName())
                         counter++;
                 }
                 importedTransactionsToDays.Add(date, counter);
@@ -189,7 +188,7 @@ namespace WpfApp1
             }
             set
             {
-                if(_SeriesCollection!=value)
+                if (_SeriesCollection != value)
                 {
                     _SeriesCollection = value;
                     OnPropertyChanged("SeriesCollection");
@@ -205,7 +204,7 @@ namespace WpfApp1
             }
             set
             {
-                if(_Labels!=value)
+                if (_Labels != value)
                 {
                     _Labels = value;
                     OnPropertyChanged("Labels");

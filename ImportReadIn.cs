@@ -65,12 +65,12 @@ namespace WpfApp1
                         {
                             TemplateStockReadIn templateStock = new TemplateStockReadIn(this, path[i]);
                             templateStock.setMainWindowReference(mainWindow);
-                            string startingRowString = SpecifiedImportStock.getInstance(null, mainWindow).transactionsRowTextBox.ToString();
-                            string nameColumnString = SpecifiedImportStock.getInstance(null, mainWindow).stockNameColumnTextBox.ToString();
-                            string priceColumnString = SpecifiedImportStock.getInstance(null, mainWindow).priceColumnTextBox.ToString();
-                            string quantityColumnString = SpecifiedImportStock.getInstance(null, mainWindow).quantityColumnTextBox.ToString();
-                            string dateColumnString = SpecifiedImportStock.getInstance(null, mainWindow).dateColumnTextBox.ToString();
-                            string transactionTypeString = SpecifiedImportStock.getInstance(null, mainWindow).transactionTypeTextBox.ToString();
+                            string startingRowString = SpecifiedImportStock.getInstance(null, mainWindow).transactionsRowTextBox.Text.ToString();
+                            string nameColumnString = SpecifiedImportStock.getInstance(null, mainWindow).stockNameColumnTextBox.Text.ToString();
+                            string priceColumnString = SpecifiedImportStock.getInstance(null, mainWindow).priceColumnTextBox.Text. ToString();
+                            string quantityColumnString = SpecifiedImportStock.getInstance(null, mainWindow).quantityColumnTextBox.Text.ToString();
+                            string dateColumnString = SpecifiedImportStock.getInstance(null, mainWindow).dateColumnTextBox.Text.ToString();
+                            string transactionTypeString = SpecifiedImportStock.getInstance(null, mainWindow).transactionTypeTextBox.Text.ToString();
                             templateStock.readOutUserspecifiedTransactions(startingRowString, nameColumnString, priceColumnString, quantityColumnString, dateColumnString, transactionTypeString);
                         }
                     }

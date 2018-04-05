@@ -94,6 +94,9 @@
     <Compile Include="ImportStatsChartBank.xaml.cs">
       <DependentUpon>ImportStatsChartBank.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ImportStatsChartStock.xaml.cs">
+      <DependentUpon>ImportStatsChartStock.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Login_Page.xaml.cs">
       <DependentUpon>Login_Page.xaml</DependentUpon>
     </Compile>
@@ -142,6 +145,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ImportStatsChartBank.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportStatsChartStock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
