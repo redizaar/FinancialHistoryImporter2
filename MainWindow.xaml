@@ -82,8 +82,8 @@
                                     </BulletDecorator>
                                 </Expander.Header>
                                 <WrapPanel>
-                                    <Button x:Name="bankDatabase" Margin="20,5,5,5" Foreground="white" Content="Bank Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=bankDatabasePushed}"/>
-                                    <Button x:Name="stockDatabase" Margin="20,5,5,5" Foreground="white" Content="Stock Data" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockDatabasePushed}"/>
+                                    <Button x:Name="bankDatabase" Margin="20,5,5,5" Foreground="white" Content="Bank transactions" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=bankDatabasePushed}"/>
+                                    <Button x:Name="stockDatabase" Margin="20,5,5,5" Foreground="white" Content="Stock transactions" Background="Transparent" FontSize="14" Width="120" Command="{Binding Path=stockDatabasePushed}"/>
                                 </WrapPanel>
                             </Expander>
                         </DockPanel>
