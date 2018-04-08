@@ -55,11 +55,7 @@ namespace WpfApp1
                     }
                     else
                     {
-                        for (int j = 0; j < splittedDate.Length - 1; j++)
-                        {
-                            if (j < 3)
-                                transactionDate += splittedDate[j];
-                        }
+                        transactionDate = splittedDate[0] + splittedDate[1] + splittedDate[2];
                     }
                     accountBalance = int.Parse(row["AccountBalance"].ToString());
                     transactionPrice = int.Parse(row["Difference"].ToString());

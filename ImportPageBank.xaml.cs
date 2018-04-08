@@ -412,7 +412,7 @@ namespace WpfApp1
                 else if(buttonContent == "importHistoryButton")
                 {
                     ImportStatsChartBank importStatsChart = new ImportStatsChartBank(importPageBank.banks);
-                    importStatsChart.displayAllData();
+                    importStatsChart.selectedBank = "All";
                     importPageBank.mainWindow.MainFrame.Content = importStatsChart;
                 }
             }

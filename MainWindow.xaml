@@ -199,6 +199,6 @@
                 </Canvas>
             </StackPanel>
         </Border>
-        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden"  />
+        <Frame x:Name="LoginFrame" HorizontalAlignment="Left" Height="337" VerticalAlignment="Top" Width="880" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>

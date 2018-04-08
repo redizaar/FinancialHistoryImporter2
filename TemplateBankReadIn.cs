@@ -889,7 +889,7 @@ namespace WpfApp1
             sqlCommand.ExecuteNonQuery();
         }
         /**
-        * 1. az utolsó balance cella értéke ami nem volt null
+        * 1. az új utolsó balance cella értéke ami már nem volt null
         * 2. az aktuális sor ahol tartunk(ahol null a balance cella)
         * 3.az utolsó sor ahol volt értéke a balance cellának
         * 4.a terhelés cella
@@ -1084,6 +1084,7 @@ namespace WpfApp1
         public void readOutUserspecifiedTransactions(string startingRow, string dateColumnString, string commentColumnString
             , string accounNumberCB, string transactionPriceCB, string balanceCB, string balanceColumnString)
         {
+            int transactionRow = int.Parse(startingRow);
             //getting the account number fist
             string accountNumber = "";
             int accountNumberColumn;
@@ -1101,6 +1102,7 @@ namespace WpfApp1
                     //so we convert it to a number
                     accountNumberColumn = ExcelColumnNameToNumber(accountNumberResult);
                 }
+                accountNumber = TransactionSheet.Cells[transactionRow, accountNumberColumn].Value.ToString();
             }
             else if (accounNumberCB == "Cell")
             {
@@ -1181,7 +1183,6 @@ namespace WpfApp1
             {
                 dateColumn = ExcelColumnNameToNumber(dateColumnString);
             }
-            int transactionRow = int.Parse(startingRow);
             //we have the account number,desription column , date column , balance column(or we no there isn't)
             //the price column(s) left
             bool isOneColumn = true;
@@ -1246,12 +1247,18 @@ namespace WpfApp1
                             }
                         }
                     }
+                    else
+                    {
+                        if (TransactionSheet.Cells[transactionRow, transactionDescriptionColumn].Value != null)
+                            transactionDescription = TransactionSheet.Cells[transactionRow, transactionDescriptionColumn].Value.ToString();
+                    }
                     int transactionPrice = 0;
                     if (balanceColumn != -1)
                     {
-                        if (TransactionSheet.Cells[transactionRow, balanceColumn].Value != null)//check if the balance column has a value (fhb of course)
+                        if (TransactionSheet.Cells[transactionRow, balanceColumn].Value != null)//check if the balance column has a value (FHB bankfile of course)
                         {
                             string balanceRnString = TransactionSheet.Cells[transactionRow, balanceColumn].Value.ToString();
+                            Console.WriteLine(balanceRnString);
                             int balanceRn = int.Parse(balanceRnString);
                             if (isOneColumn) // single column , have balance column
                             {
@@ -1282,19 +1289,19 @@ namespace WpfApp1
                             {
                                 tempRow++;
                             }
-                            //az utolsó olyan sor ahol van értéke a balance cellának
-                            string lastKownBalanceString = TransactionSheet.Cells[tempRow, balanceColumn].Value.ToString();
-                            int lastKownBalance = int.Parse(lastKownBalanceString);
-                            int calcuatedBalance = calculatePastBalance(lastKownBalance, transactionRow, tempRow, spendingColumn, incomeColumn);
+                            //az első olyan sor ahol újra van értéke a balance cellának
+                            string newKownBalanceString = TransactionSheet.Cells[tempRow, balanceColumn].Value.ToString();
+                            int newKownBalance = int.Parse(newKownBalanceString);
+                            int calcuatedBalance = calculatePastBalance(newKownBalance, transactionRow, tempRow, spendingColumn, incomeColumn);
                             if (TransactionSheet.Cells[transactionRow, incomeColumn].Value != null)
                             {
                                 string incomeString = TransactionSheet.Cells[transactionRow, incomeColumn].Value.ToString();
                                 int income = int.Parse(incomeString);
                                 transactions.Add(new Transaction(calcuatedBalance, transactionDate, income, transactionDescription, accountNumber));
                             }
-                            else//it is a spending transaction
+                            else
                             {
-                                string spendingString = TransactionSheet.Cells[transactionRow, incomeColumn].Value.ToString();
+                                string spendingString = TransactionSheet.Cells[transactionRow, spendingColumn].Value.ToString();
                                 int spending = int.Parse(spendingString) * (-1);
                                 transactions.Add(new Transaction(calcuatedBalance, transactionDate, spending, transactionDescription, accountNumber));
                             }
@@ -1306,7 +1313,11 @@ namespace WpfApp1
                         if (isOneColumn) // single price column , no balance column
                         {
                             string transactionPriceString = TransactionSheet.Cells[transactionRow, priceColumn].Value.ToString();
-                            transactionPrice = int.Parse(transactionPriceString);
+                            string[] splittedPrice = transactionPriceString.Split(' ');
+                            if (splittedPrice.Length == 1)
+                                transactionPrice = int.Parse(transactionPriceString);
+                            else
+                                transactionPrice = int.Parse(splittedPrice[0]);
                             transactions.Add(new Transaction(noBalance, transactionDate, transactionPrice, transactionDescription, accountNumber));
                         }
                         else //multiple price column ,  doesnt have balance column

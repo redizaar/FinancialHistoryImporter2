@@ -145,7 +145,7 @@ namespace WpfApp1
                 date = date.Replace('.', '-');
                 foreach(var y in SavedTransactions.getSavedTransactionsBank())
                 {
-                    if (date == y.getWriteDate())
+                    if (date == y.getWriteDate() && bankName==y.getBankname())
                         counter++;
                 }
                 importedTransactionsToDays.Add(date, counter);

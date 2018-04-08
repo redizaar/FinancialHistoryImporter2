@@ -226,7 +226,7 @@
             <Button x:Name="restartAllButton" Content="Restart All" Style="{StaticResource BaseButtonStyle}" Width="100" ToolTip="Restarting the quantities and profits for all Transactions" Click="restartAllButton_Click"/>
         </DockPanel>
         <DataGrid x:Name="ImportedTransactions_Grid" IsReadOnly="true" IsHitTestVisible="True" ItemsSource="{Binding Path=tableAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                AutoGenerateColumns="False"  BorderThickness="0,1,0,0" Height="240" Width="730" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" SelectionChanged="ImportedTransactions_Grid_SelectionChanged" >
+                AutoGenerateColumns="False"  BorderThickness="0,1,0,0" Height="240" Width="730" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" SelectionChanged="ImportedTransactions_Grid_SelectionChanged"  ScrollViewer.CanContentScroll="False"  EnableRowVirtualization="True">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -274,7 +274,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <DataGrid x:Name="exportPreviewGrid" IsReadOnly="true" IsHitTestVisible="True" ItemsSource="{Binding Path=exportAttributes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                AutoGenerateColumns="False"  BorderThickness="0,1,0,0" Height="250" Width="730" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" Visibility="Hidden">
+                AutoGenerateColumns="False"  BorderThickness="0,1,0,0" Height="250" Width="730" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,30,0,0" Visibility="Hidden"  ScrollViewer.CanContentScroll="False"  EnableRowVirtualization="True">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />
