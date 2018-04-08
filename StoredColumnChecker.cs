@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WpfApp1
@@ -211,12 +212,26 @@ namespace WpfApp1
                     }
                     if (analyseWorksheet.Cells[transactionsRow, dateColumn].Value != null)
                     {
+                        Regex accountNumberRegex1 = new Regex(@"^\d{8}-\d{8}");
+                        Regex accountNumberRegex2 = new Regex(@"\d{8}-\d{8}-\d{8}");
+                        Regex accountNumberRegex3 = new Regex(@"\d{16}");
+                        string cellValue = analyseWorksheet.Cells[transactionsRow, dateColumn].Value.ToString();
+                        string currentYear = DateTime.Now.Year.ToString();
+                        if(cellValue.Contains(currentYear))
+                        {
+                            tempCounter++;
+                        }
                         if (accountNumberPos == null)
                         {
                             if (analyseWorksheet.Name != null)
                             {
-                                accountNumberComboBox = "Sheet name";
-                                tempCounter++;
+                                if (accountNumberRegex1.IsMatch(analyseWorksheet.Name) ||
+                                    accountNumberRegex2.IsMatch(analyseWorksheet.Name) ||
+                                    accountNumberRegex3.IsMatch(analyseWorksheet.Name))
+                                {
+                                    accountNumberComboBox = "Sheet name";
+                                    tempCounter++;
+                                }
                             }
                         }
                         else
@@ -243,16 +258,39 @@ namespace WpfApp1
                             if ((analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value != null) ||
                                 (analyseWorksheet.Cells[transactionsRow, priceColumns[1]].Value != null))
                             {
-                                priceComboBox = "Income,Spending";
-                                tempCounter++;
+                                if(analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value!=null)
+                                {
+                                    string priceCellValue1 = analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value.ToString();
+                                    int temp;
+                                    if (int.TryParse(priceCellValue1,out temp))
+                                    {
+                                        tempCounter++;
+                                        priceComboBox = "Income,Spending";
+                                    }
+                                }
+                                else
+                                {
+                                    string priceCellValue2 = analyseWorksheet.Cells[transactionsRow, priceColumns[1]].Value.ToString();
+                                    int temp;
+                                    if (int.TryParse(priceCellValue2, out temp))
+                                    {
+                                        tempCounter++;
+                                        priceComboBox = "Income,Spending";
+                                    }
+                                }
                             }
                         }
                         else
                         {
                             if (analyseWorksheet.Cells[transactionsRow, priceColumns[0]] != null)
                             {
-                                priceComboBox = "One column";
-                                tempCounter++;
+                                string pricecellValue = analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value.ToString();
+                                int temp;
+                                if (int.TryParse(pricecellValue, out temp))
+                                {
+                                    priceComboBox = "One column";
+                                    tempCounter++;
+                                }
                             }
                         }
                         for (int i = 0; i < commentColumns.Count; i++)
