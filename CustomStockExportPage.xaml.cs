@@ -405,7 +405,10 @@ namespace WpfApp1
                     if (x.Key == y.Key)
                     {
                         x.Value.setQuantity(y.Value[0]);
-                        tempTableAttributes.Add(x.Value);
+                        if (x.Value.getStockName() == selectedCompany)
+                        {
+                            tempTableAttributes.Add(x.Value);
+                        }
                         break;
                     }
                 }

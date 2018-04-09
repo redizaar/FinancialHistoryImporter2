@@ -315,8 +315,8 @@
                 <DataGridTextColumn Header="Stock name" Width="auto" Binding="{Binding stockName}"/>
                 <DataGridTextColumn Header="Stock Price"  Width="auto" Binding="{Binding stockPrice}"/>
                 <DataGridTextColumn Header="Transaction type" Width="auto" Binding="{Binding transactionType}"/>
-                <DataGridTextColumn Header="QTY- Original (Current)" Width="*" Binding="{Binding originalAndCurrentQuantity}"/>
-                <DataGridTextColumn Header="Profit / Expense" Width="auto" Binding="{Binding profit}">
+                <DataGridTextColumn Header="QTY- Original (Current)" Width="auto" Binding="{Binding originalAndCurrentQuantity}"/>
+                <DataGridTextColumn Header="Profit / Expense" Width="*" Binding="{Binding profit}">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="{x:Type TextBlock}">
                             <Setter Property="Background" Value="{Binding profit, Converter={StaticResource NameToBrushConverter}}"/>

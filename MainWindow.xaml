@@ -40,7 +40,19 @@
                             </Style>
                         </StackPanel.Style>
                         <DockPanel  x:Name="importDock">
-                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=1}">
+                            <Expander>
+                                <Expander.Style>
+                                    <Style TargetType="{x:Type Expander}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="IsExpanded" Value="False" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Expander.Style>
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -64,7 +76,19 @@
                             </Expander>
                         </DockPanel>
                         <DockPanel x:Name="tableDock">
-                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=2}">
+                            <Expander><!--IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=2}"-->
+                                <Expander.Style>
+                                    <Style TargetType="{x:Type Expander}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="IsExpanded" Value="False" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Expander.Style>
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -88,7 +112,19 @@
                             </Expander>
                         </DockPanel>
                         <DockPanel Margin="0,0,0,0" x:Name="stockChartDock">
-                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=3}">
+                            <Expander><!--IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=3}"-->
+                                <Expander.Style>
+                                    <Style TargetType="{x:Type Expander}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="IsExpanded" Value="False" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Expander.Style>
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>
@@ -114,7 +150,19 @@
                             </Expander>
                         </DockPanel>
                         <DockPanel  x:Name="exitDock">
-                            <Expander  IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=4}">
+                            <Expander><!--IsExpanded="{Binding SelectedExpander, Mode=TwoWay, Converter={StaticResource ExpanderToBooleanConverter}, ConverterParameter=4}"-->
+                                <Expander.Style>
+                                    <Style TargetType="{x:Type Expander}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="IsExpanded" Value="False" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Expander.Style>
                                 <Expander.Header>
                                     <BulletDecorator>
                                         <BulletDecorator.Bullet>

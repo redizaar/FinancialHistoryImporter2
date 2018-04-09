@@ -176,7 +176,7 @@
                 <Label Content="Symbol of Share: " FontSize="15"/>
                 <ComboBox x:Name="symbolComboBox" Width="100" SelectionChanged="symbolComboBox_SelectionChanged" HorizontalAlignment="Left" ></ComboBox>
             </DockPanel>
-            <DataGrid Name="storedStockDataGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Height="265">
+            <DataGrid Name="storedStockDataGrid"  Height="255" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False"  EnableRowVirtualization="True"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" IsReadOnly="True">
             <DataGrid.Resources>
                 <Style TargetType="{x:Type DataGridColumnHeader}">
                     <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -213,10 +213,10 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header=" Date " Width="*" Binding="{Binding date}"/>
-                <DataGridTextColumn Header=" Open Price" Width="*" Binding="{Binding openPrice}"/>
-                <DataGridTextColumn Header=" Highest Price"  Width="*" Binding="{Binding highPrice}"/>
-                <DataGridTextColumn Header=" Lowest Price" Width="*" Binding="{Binding lowPrice}"/>
+                <DataGridTextColumn Header=" Date " Width="144" Binding="{Binding date}"/>
+                <DataGridTextColumn Header=" Open Price" Width="144" Binding="{Binding openPrice}"/>
+                <DataGridTextColumn Header=" Highest Price"  Width="144" Binding="{Binding highPrice}"/>
+                <DataGridTextColumn Header=" Lowest Price" Width="144" Binding="{Binding lowPrice}"/>
                 <DataGridTextColumn Header=" Close Price" Width="*" Binding="{Binding closePrice}"/>
             </DataGrid.Columns>
         </DataGrid>

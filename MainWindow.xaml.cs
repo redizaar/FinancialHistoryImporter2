@@ -16,12 +16,12 @@ namespace WpfApp1
     {
         private bool newImport = false;
         public User currentUser;
-        private string accountNumber= " ";
+        private string accountNumber = " ";
         public MainWindow()
         {
             DataContext = this;
             InitializeComponent();
-            menuStackPanel.DataContext=new MainWindowViewModel(this);
+            menuStackPanel.DataContext = new MainWindowViewModel(this);
             LoginFrame.Content = new Login_Page(this);
             tableMenuTop.Visibility = System.Windows.Visibility.Hidden; //importmenu is default
             portfolioMenuTop.Visibility = System.Windows.Visibility.Hidden;
@@ -53,9 +53,9 @@ namespace WpfApp1
             SavedTransactions.getInstance().readOutSavedBankTransactions();
             SavedTransactions.getInstance().readOutStockSavedTransactions();
         }
-        public void getTransactions(string bankName,List<string> folderAddress)
+        public void getTransactions(string bankName, List<string> folderAddress)
         {
-            new ImportReadIn(bankName, folderAddress,this,false);
+            new ImportReadIn(bankName, folderAddress, this, false);
         }
     }
     public class ExpanderToBooleanConverter : IValueConverter
