@@ -20,8 +20,10 @@ namespace WpfApp1
     /// </summary>
     public partial class StockChart : Page,INotifyPropertyChanged
     {
+        private static int tik = 20;
         private ButtonCommands btnCommand;
-        public ChartValues<double> ValuesA { get; set; }
+        public ChartValues<double> highestValues { get; set; }
+        public ChartValues<double> lowestValues { get; set; }
         private SeriesCollection _Series;
         private MainWindow mainWindow;
         public List<string> _Labels;
@@ -77,19 +79,26 @@ namespace WpfApp1
         }
         public void refreshCSVChartAttribues()
         {
-            ValuesA = new ChartValues<double>();
+            highestValues = new ChartValues<double>();
+            lowestValues = new ChartValues<double>();
             int i = 0;
-            while(i<webStockData.getPrices().Count)
+            while(i<webStockData.getHighestPrices().Count)
             {
-                ValuesA.Add(webStockData.getPrices()[i]);
+                highestValues.Add(webStockData.getHighestPrices()[i]);
+                lowestValues.Add(webStockData.getLowestPrices()[i]);
                 i++;
             }
             Series = new SeriesCollection
             {
                 new LineSeries
                 {
-                    Title = tickerTextBox.Text.ToString(),
-                    Values = ValuesA,
+                    Title = "Highest price",
+                    Values = highestValues
+                },
+                new LineSeries
+                {
+                    Title = "Lowest price",
+                    Values = lowestValues
                 }
             };
             List<string> tempLabels = new List<string>();
@@ -132,7 +141,6 @@ namespace WpfApp1
         {
             private StockChart stockChart;
             private DispatcherTimer timer1;
-            private static int tik;
             private string action;
             private MainWindow mainWindow;
             public ButtonCommands(StockChart stockChart,string _action,MainWindow mainWindow)

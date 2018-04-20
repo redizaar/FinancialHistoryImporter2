@@ -12,7 +12,8 @@ namespace WpfApp1
     public class WebStockData
     {
         private List<string> dates;
-        private List<double> prices;
+        private List<double> highestPrices;
+        private List<double> lowestPrices;
         private List<Stock> stocksForSql;
         public WebStockData()
         {
@@ -30,7 +31,8 @@ namespace WpfApp1
                 date = dateSplitted[0] + "y";
             }
             dates = new List<string>();
-            prices = new List<double>();
+            highestPrices = new List<double>();
+            lowestPrices = new List<double>();
             string csv;
             using (var web = new WebClient())
             {
@@ -58,7 +60,8 @@ namespace WpfApp1
                 double closePrice = double.Parse(lines[i+4].Replace('.', ','));
                 Stock stock = new Stock(ticker, tempDate,openPrice,highPrice,lowPrice,closePrice);
                 stocksForSql.Add(stock);
-                prices.Add(closePrice);
+                highestPrices.Add(highPrice);
+                lowestPrices.Add(lowPrice);
                 j = 0;
             }
             ThreadStart threadStart = delegate
@@ -138,9 +141,13 @@ namespace WpfApp1
                 }
             }
         }
-        public List<double> getPrices()
+        public List<double> getHighestPrices()
         {
-            return prices;
+            return highestPrices;
+        }
+        public List<double> getLowestPrices()
+        {
+            return lowestPrices;
         }
         public List<string> getDates()
         {
