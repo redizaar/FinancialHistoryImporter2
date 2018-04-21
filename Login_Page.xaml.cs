@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -36,28 +38,46 @@ namespace WpfApp1
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            string loginQuery = "Select * From [UserDatas] where username = '" + usernameTextbox.Text.ToString()+"' and password = '"+passwordTextbox.Password.ToString()+"'";
+            string loginQuery = "Select * From [UserDatas] where username = '" + usernameTextbox.Text.ToString()+"'";
             SqlDataAdapter sda = new SqlDataAdapter(loginQuery,sqlConn);
             DataTable dtb = new DataTable();
             sda.Fill(dtb);
             if(dtb.Rows.Count==1)
             {
-                failedLogins = 0;
-                User currentUser = new User();
-                currentUser.setUsername(usernameTextbox.Text.ToString());
-                currentUser.setAccountNumber(dtb.Rows[0][2].ToString());
-                mainWindow.currentUserLabel.Content = currentUser.getUsername(); //notification label
-                mainWindow.setCurrentUser(currentUser);
-                Visibility = System.Windows.Visibility.Hidden;
-                ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
-                mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow);
-                mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
-                mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
-                mainWindow.bankImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+                string decryptedPassword = decryptString(dtb.Rows[0][1].ToString());
+                if (decryptedPassword == passwordTextbox.Password.ToString())
+                {
+                    failedLogins = 0;
+                    User currentUser = new User();
+                    currentUser.setUsername(usernameTextbox.Text.ToString());
+                    currentUser.setAccountNumber(dtb.Rows[0][2].ToString());
+                    mainWindow.currentUserLabel.Content = currentUser.getUsername(); //notification label
+                    mainWindow.setCurrentUser(currentUser);
+                    Visibility = System.Windows.Visibility.Hidden;
+                    ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                    mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow);
+                    mainWindow.importMenuTop.Visibility = System.Windows.Visibility.Visible;
+                    mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                    mainWindow.bankImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+                }
+                else
+                {
+                    MessageBox.Show("Wrong username or password!");
+                    failedLogins++;
+                    if (failedLogins > 3)
+                    {
+                        timer1 = new DispatcherTimer();
+                        tik = 30;
+                        timer1.Interval = new TimeSpan(0, 0, 0, 1);
+                        timer1.Tick += new EventHandler(timer1_Tick);
+                        timer1.Start();
+                    }
+                }
             }
             else
             {
                 MessageBox.Show("Wrong username or password!");
+                failedLogins++;
                 if (failedLogins > 3)
                 {
                     timer1 = new DispatcherTimer();
@@ -81,7 +101,30 @@ namespace WpfApp1
                 loginButton.Content = "Login";
             }
         }
-
+        public string decryptString(string inputString)
+        {
+            MemoryStream memStream = null;
+            try
+            {
+                byte[] key = { };
+                byte[] IV = { 12, 21, 43, 17, 57, 35, 67, 27 };
+                string encryptKey = "aXb2uy4z"; // MUST be 8 characters
+                key = Encoding.UTF8.GetBytes(encryptKey);
+                byte[] byteInput = new byte[inputString.Length];
+                byteInput = Convert.FromBase64String(inputString);
+                DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
+                memStream = new MemoryStream();
+                ICryptoTransform transform = provider.CreateDecryptor(key, IV);
+                CryptoStream cryptoStream = new CryptoStream(memStream, transform, CryptoStreamMode.Write);
+                cryptoStream.Write(byteInput, 0, byteInput.Length);
+                cryptoStream.FlushFinalBlock();
+            }
+            catch (Exception ex)
+            {
+            }
+            Encoding encoding1 = Encoding.UTF8;
+            return encoding1.GetString(memStream.ToArray());
+        }
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             mainWindow.LoginFrame.Content = new Register_Page(mainWindow);

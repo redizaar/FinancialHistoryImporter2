@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,14 +35,13 @@ namespace WpfApp1
         {
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
-            SqlCommand sqlCommand = new SqlCommand("registrationQuery3", sqlConn);
+            SqlCommand sqlCommand = new SqlCommand("registrationQuery4", sqlConn);
             sqlCommand.CommandType = CommandType.StoredProcedure;
             if (checkUsername() && checkPassword())
             {
                 sqlCommand.Parameters.AddWithValue("@username", registerUsernameTextbox.Text.ToString());
-                sqlCommand.Parameters.AddWithValue("@password", RegisterPasswordTextbox.Password.ToString());
-                sqlCommand.Parameters.AddWithValue("@failedlogins", 0);
-                sqlCommand.Parameters.AddWithValue("@accountnumber", "-");
+                sqlCommand.Parameters.AddWithValue("@password", encryptString(RegisterPasswordTextbox.Password.ToString()));
+                sqlCommand.Parameters.AddWithValue("@accountNumber", "-");
                 sqlCommand.ExecuteNonQuery();
                 if (MessageBox.Show("You can log in now!", "Successfull registartion!",
                          MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
@@ -48,9 +49,29 @@ namespace WpfApp1
                     mainWindow.LoginFrame.Content = new Login_Page(mainWindow);
                 }
             }
-
         }
-
+        public string encryptString(string inputString)
+        {
+            MemoryStream memStream = null;
+            try
+            {
+                byte[] key = { };
+                byte[] IV = { 12, 21, 43, 17, 57, 35, 67, 27 };
+                string encryptKey = "aXb2uy4z"; // MUST be 8 characters
+                key = Encoding.UTF8.GetBytes(encryptKey);
+                byte[] byteInput = Encoding.UTF8.GetBytes(inputString);
+                DESCryptoServiceProvider provider = new DESCryptoServiceProvider();
+                memStream = new MemoryStream();
+                ICryptoTransform transform = provider.CreateEncryptor(key, IV);
+                CryptoStream cryptoStream = new CryptoStream(memStream, transform, CryptoStreamMode.Write);
+                cryptoStream.Write(byteInput, 0, byteInput.Length);
+                cryptoStream.FlushFinalBlock();
+            }
+            catch (Exception ex)
+            {
+            }
+            return Convert.ToBase64String(memStream.ToArray());
+        }
         private bool checkPassword()
         {
             if (RegisterPasswordTextbox.Password.ToString() == RegisterPasswordTextbox2.Password.ToString())
