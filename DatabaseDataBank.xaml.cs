@@ -19,6 +19,70 @@ namespace WpfApp1
     public partial class DatabaseDataBank : Page, INotifyPropertyChanged
     {
         private static DatabaseDataBank instance;
+        public string _accountNumberChoice;
+        public string accountNumberChoice
+        {
+            get
+            {
+                return _accountNumberChoice;
+            }
+            set
+            {
+                if(_accountNumberChoice!=value)
+                {
+                    _accountNumberChoice = value;
+                    OnPropertyChanged("accountNumberChoice");
+                }
+            }
+        }
+        public List<string> _accountNumberChoices;
+        public List<string> accountNumberChoices
+        {
+            get
+            {
+                return _accountNumberChoices;
+            }
+            set
+            {
+                if(_accountNumberChoices!=value)
+                {
+                    _accountNumberChoices = value;
+                    OnPropertyChanged("accountNumberChoices");
+                }
+            }
+        }
+        public string _bankChoice;
+        public string bankChoice
+        {
+            get
+            {
+                return _bankChoice;
+            }
+            set
+            {
+                if(_bankChoice!=value)
+                {
+                    _bankChoice = value;
+                    OnPropertyChanged("bankChoice");
+                }
+            }
+        }
+        public List<string> _bankChoices;
+        public List<string> bankChoices
+        {
+            get
+            {
+                return _bankChoices;
+            }
+            set
+            {
+                if(_bankChoices!=value)
+                {
+                    _bankChoices = value;
+                    OnPropertyChanged("bankChoices");
+                }
+            }
+        }
         public List<Transaction> _tableAttributes;
         public List<Transaction> tableAttributes
         {
@@ -51,6 +115,7 @@ namespace WpfApp1
         }
         public void setTableAttributes()
         {
+            bankChoices = new List<string>();
             List<Transaction> allTransactions = SavedTransactions.getSavedTransactionsBank();
             List<Transaction> reference = new List<Transaction>();
             string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
@@ -80,6 +145,43 @@ namespace WpfApp1
                 }
             }
             tableAttributes = reference;
+            foreach(var x in tableAttributes)
+            {
+                if (!bankChoices.Contains(x.getBankname()))
+                    bankChoices.Add(x.getBankname());
+            }
+        }
+        public void setTableAttributesToBankName(string bankName)
+        {
+            List<Transaction> allTransactions = SavedTransactions.getSavedTransactionsBank();
+            List<Transaction> reference = new List<Transaction>();
+            string[] splittedAccountNumbers = mainWindow.getCurrentUser().getAccountNumber().Split(',');
+            foreach (var tableAttribute in allTransactions)
+            {
+                for (int i = 0; i < splittedAccountNumbers.Length; i++)
+                {
+                    if ((tableAttribute.getAccountNumber() == splittedAccountNumbers[i]) && (tableAttribute.getBankname()==bankName))
+                    {
+                        reference.Add(tableAttribute);
+                        break;
+                    }
+                }
+            }
+            if (tableAttributes != null)
+            {
+                foreach (var transaction in reference)
+                {
+                    if (transaction.getWriteDate() != null && transaction.getWriteDate().Length >= 12)
+                    {
+                        transaction.setWriteDate(transaction.getWriteDate().Substring(0, 12));
+                    }
+                    else
+                    {
+                        transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd").Substring(0, 12));
+                    }
+                }
+            }
+            tableAttributes = reference;
         }
         public static DatabaseDataBank getInstance(MainWindow mainWindow)
         {
@@ -88,6 +190,11 @@ namespace WpfApp1
                 instance = new DatabaseDataBank(mainWindow);
             }
             return instance;
+        }
+
+        private void bankNameComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            setTableAttributesToBankName(bankChoice);
         }
     }
 }
