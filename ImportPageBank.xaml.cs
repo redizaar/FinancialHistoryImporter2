@@ -301,7 +301,6 @@ namespace WpfApp1
                     break;
             }
         }
-
         public class ButtonCommands : ICommand
         {
             private string buttonContent;
