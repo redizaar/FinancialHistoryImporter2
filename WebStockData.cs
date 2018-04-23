@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -43,26 +44,24 @@ namespace WpfApp1
                 csv = web.DownloadString(url);
             }
             string[] lines = csv.Split(',');
-            int j = 0;
             string regex = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
             string tempDate="";
-            for (int i = 11; i < lines.Length-1; i+=11)
+            for (int i = 11; i < lines.Length-1; i++)
             {
                 if ((Regex.IsMatch(lines[i], regex)))
                 {
                     string[] _date = lines[i].Split('\n');
                     dates.Add(_date[1]);
                     tempDate = _date[1];
+                    double openPrice = double.Parse(lines[i + 1], CultureInfo.InvariantCulture);
+                    double highPrice = double.Parse(lines[i + 2], CultureInfo.InvariantCulture);
+                    double lowPrice = double.Parse(lines[i + 3], CultureInfo.InvariantCulture);
+                    double closePrice = double.Parse(lines[i + 4], CultureInfo.InvariantCulture);
+                    Stock stock = new Stock(ticker, tempDate, openPrice, highPrice, lowPrice, closePrice);
+                    stocksForSql.Add(stock);
+                    highestPrices.Add(highPrice);
+                    lowestPrices.Add(lowPrice);
                 }
-                double openPrice = double.Parse(lines[i+1].Replace('.', ','));
-                double highPrice = double.Parse(lines[i+2].Replace('.', ','));
-                double lowPrice = double.Parse(lines[i+3].Replace('.', ','));
-                double closePrice = double.Parse(lines[i+4].Replace('.', ','));
-                Stock stock = new Stock(ticker, tempDate,openPrice,highPrice,lowPrice,closePrice);
-                stocksForSql.Add(stock);
-                highestPrices.Add(highPrice);
-                lowestPrices.Add(lowPrice);
-                j = 0;
             }
             ThreadStart threadStart = delegate
             {

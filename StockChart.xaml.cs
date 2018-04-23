@@ -92,12 +92,12 @@ namespace WpfApp1
             {
                 new LineSeries
                 {
-                    Title = "Highest price",
+                    Title = "Highest price: ",
                     Values = highestValues
                 },
                 new LineSeries
                 {
-                    Title = "Lowest price",
+                    Title = "Lowest price: ",
                     Values = lowestValues
                 }
             };
@@ -150,7 +150,6 @@ namespace WpfApp1
                 this.stockChart = stockChart;
                 this.stockChart.PropertyChanged += new PropertyChangedEventHandler(test_PropertyChanged);
                 timer1 = new DispatcherTimer();
-                tik = 20;
             }
             private void test_PropertyChanged(object sender, PropertyChangedEventArgs e)
             {
@@ -192,7 +191,7 @@ namespace WpfApp1
                 else
                 {
                     stockChart.downloadButton.IsEnabled = true;
-                    stockChart.downloadButton.Content = "Download Data";
+                    stockChart.downloadButton.Content = "DownloadData";
                 }
             }
         }
