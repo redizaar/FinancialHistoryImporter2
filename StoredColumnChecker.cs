@@ -282,8 +282,9 @@ namespace WpfApp1
                         }
                         else
                         {
-                            if (analyseWorksheet.Cells[transactionsRow, priceColumns[0]] != null)
+                            if (analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value != null)
                             {
+                                Console.WriteLine(priceColumns[0]);
                                 string pricecellValue = analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value.ToString();
                                 int temp;
                                 if (int.TryParse(pricecellValue, out temp))

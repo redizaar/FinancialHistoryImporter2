@@ -122,7 +122,7 @@ namespace WpfApp1
         {
             get
             {
-                btnCommand = new ButtonCommands(this,"DownloadData",mainWindow);
+                btnCommand = new ButtonCommands(this,"Download Data",mainWindow);
                 return btnCommand;
             }
         }
@@ -168,7 +168,7 @@ namespace WpfApp1
 
             public void Execute(object parameter)
             {
-                if (action == "DownloadData")
+                if (action == "Download Data")
                 {
                     if (tik == 20)
                     {
@@ -191,7 +191,7 @@ namespace WpfApp1
                 else
                 {
                     stockChart.downloadButton.IsEnabled = true;
-                    stockChart.downloadButton.Content = "DownloadData";
+                    stockChart.downloadButton.Content = "Download Data";
                 }
             }
         }
