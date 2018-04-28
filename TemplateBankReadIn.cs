@@ -10,13 +10,14 @@ using System.Data.SqlClient;
 using System.Data;
 using WPFCustomMessageBox;
 using Microsoft.VisualBasic;
+using System.Data.SQLite;
 
 namespace WpfApp1
 {
     class TemplateBankReadIn
     {
         private Worksheet TransactionSheet;
-
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         private List<Transaction> transactions;
         private ImportReadIn bankHanlder = null;
         private int startingRow;
@@ -32,7 +33,7 @@ namespace WpfApp1
 
         public TemplateBankReadIn(ImportReadIn importReadin, Workbook workbook, Worksheet worksheet, MainWindow mainWindow, bool userSpecified)
         {
-
+            mConn.Open();
             worksheet = workbook.Worksheets[1];
             this.bankHanlder = importReadin;
             this.mainWindow = mainWindow;
@@ -606,18 +607,33 @@ namespace WpfApp1
                 }
             }
         }
-
+        //singlePriceColumn
         private string getBankNameFromStoredData(int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, List<int> descriptionColumns)
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "select * from [StoredColumnsBank]";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             string getEveryRow = "Select * From [StoredColumns]";
             SqlDataAdapter sda = new SqlDataAdapter(getEveryRow, sqlConn);
             System.Data.DataTable datatable = new System.Data.DataTable();
             sda.Fill(datatable);
+            */
             int maxMatch = 0;
             DataRow mostMatchingrow = null;
-            foreach (DataRow row in datatable.Rows)
+            foreach (DataRow row in dtb.Rows)
             {
                 int matchCounter = 0;
                 int transactionsRow = int.Parse(row["TransStartRow"].ToString());
@@ -665,11 +681,11 @@ namespace WpfApp1
                 }
             }
             //Columns-1 because we don't count the BankName column, (we are looking for that)
-            if (datatable.Columns.Count-1 == maxMatch)
+            if (dtb.Columns.Count-1 == maxMatch)
                 return mostMatchingrow["BankName"].ToString();
             else if (mostMatchingrow != null)
             {
-                if (((((datatable.Columns.Count) - 2) == maxMatch) || ((datatable.Columns.Count) - 3) == maxMatch))
+                if (((((dtb.Columns.Count) - 2) == maxMatch) || ((dtb.Columns.Count) - 3) == maxMatch))
                 {
                     MessageBoxResult messageBoxResult = MessageBox.Show("Is this import file from " + mostMatchingrow["BankName"].ToString() + " ?",
                         "Filename: "+bankHanlder.getCurrentFileName(), MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -717,18 +733,34 @@ namespace WpfApp1
             }
             return "unkown";
         }
+        //multiplePricecolumn
         private string getBankNameFromStoredData(int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, List<int> descriptionColumns)
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "select * from [StoredColumnsBank]";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             string getEveryRow = "Select * From [StoredColumns]";
             SqlDataAdapter sda = new SqlDataAdapter(getEveryRow, sqlConn);
             System.Data.DataTable datatable = new System.Data.DataTable();
             sda.Fill(datatable);
+            */
             int maxMatch = 0;
             DataRow mostMatchingrow = null;
             string[] splittedPriceColumns = priceColumns.Split(',');
-            foreach (DataRow row in datatable.Rows)
+            foreach (DataRow row in dtb.Rows)
             {
                 int matchCounter = 0;
                 int transactionsRow = int.Parse(row["TransStartRow"].ToString());
@@ -786,9 +818,9 @@ namespace WpfApp1
                     mostMatchingrow = row;
                 }
             }
-            if (datatable.Columns.Count-1 == maxMatch)
+            if (dtb.Columns.Count-1 == maxMatch)
                 return mostMatchingrow["BankName"].ToString();
-            else if (((((datatable.Columns.Count) - 2) == maxMatch) || ((datatable.Columns.Count) - 3) == maxMatch))
+            else if (((((dtb.Columns.Count) - 2) == maxMatch) || ((dtb.Columns.Count) - 3) == maxMatch))
             {
                 MessageBoxResult messageBoxResult = MessageBox.Show("Is this import file from " + mostMatchingrow["BankName"].ToString() + " ?",
                     "Filename: "+bankHanlder.getCurrentFileName(), MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -836,6 +868,15 @@ namespace WpfApp1
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, int singlepriceColumn, int balanceColumn, string commentColumns)
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
@@ -860,9 +901,40 @@ namespace WpfApp1
                 sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
             sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
             sqlCommand.ExecuteNonQuery();
+            */
+            string insertQuery = "insert into [StoredColumnsBank](BankName, TransStartRow, AccountNumberPos,DateColumn,PriceColumn,BalanceColumn,CommentColumn) " +
+                        "values('" + input + "','" + startingRow +"'";
+            try
+            {
+                int priceColumn = int.Parse(accountNumberPos);
+                insertQuery+=",'"+ExcelColumnFromNumber(priceColumn)+"'";
+            }
+            catch (Exception e)
+            {
+                //it's a cell
+                insertQuery+=",'"+accountNumberPos+"'";
+            }
+            insertQuery += ",'" + ExcelColumnFromNumber(dateColumn) + "','" + ExcelColumnFromNumber(singlepriceColumn) + "'";
+            if (balanceColumn != -1)
+                insertQuery+=",'"+ExcelColumnFromNumber(balanceColumn)+"'";
+            else
+                insertQuery+=",'None'";
+            insertQuery+=",'"+commentColumns+"')";
+            SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
+            insercommand.CommandType = CommandType.Text;
+            insercommand.ExecuteNonQuery();
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, string commentColumns)
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertNewColumns3", sqlConn);//SQLQuery 8
@@ -887,6 +959,28 @@ namespace WpfApp1
                 sqlCommand.Parameters.AddWithValue("@balanceColumn", "None");
             sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumns);
             sqlCommand.ExecuteNonQuery();
+            */
+            string insertQuery = "insert into [StoredColumnsBank](BankName, TransStartRow, AccountNumberPos,DateColumn,PriceColumn,BalanceColumn,CommentColumn) " +
+                        "values('" + input + "','" + startingRow + "'";
+            try
+            {
+                int priceColumn = int.Parse(accountNumberPos);
+                insertQuery += ",'" + ExcelColumnFromNumber(priceColumn) + "'";
+            }
+            catch (Exception e)
+            {
+                //it's a cell
+                insertQuery += ",'" + accountNumberPos + "'";
+            }
+            insertQuery += ",'" + ExcelColumnFromNumber(dateColumn) + "','" + priceColumns + "'";
+            if (balanceColumn != -1)
+                insertQuery += ",'" + ExcelColumnFromNumber(balanceColumn) + "'";
+            else
+                insertQuery += ",'None'";
+            insertQuery += ",'" + commentColumns + "')";
+            SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
+            insercommand.CommandType = CommandType.Text;
+            insercommand.ExecuteNonQuery();
         }
         /**
         * 1. az új utolsó balance cella értéke ami már nem volt null
@@ -1361,9 +1455,8 @@ namespace WpfApp1
         private void addImportFileDataToDB(int startingRow, string accountNumberTextBox,
             string dateColumnTextBox, string priceCheckBox, string balanceColumnTextBox, string commentColumnTextbox)
         {
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            sqlConn.Open();
-
+            //SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            //sqlConn.Open();
             string storedQuery = "";
             string firstColumn = ""; //price
             string secondColumn = ""; //price
@@ -1373,7 +1466,7 @@ namespace WpfApp1
             if (SpecifiedImportBank.getInstance(null, mainWindow).accountNumberCB.SelectedItem.ToString() == "Sheet name")
             {
                 accountTextBoxSheetName = true;
-                storedQuery = "Select * From [StoredColumns] where TransStartRow = '" + startingRow + "'" +
+                storedQuery = "Select * From [StoredColumnsBank] where TransStartRow = '" + startingRow + "'" +
                " AND AccountNumberPos = '" + "Sheet name" + "'" +
                " AND DateColumn = '" + dateColumnTextBox + "'";
                 firstColumn = SpecifiedImportBank.getInstance(null, mainWindow).priceColumnTextBox_1.Text.ToString();
@@ -1402,7 +1495,7 @@ namespace WpfApp1
             }
             else
             {
-                storedQuery = "Select * From [StoredColumns] where TransStartRow = '" + startingRow + "'" +
+                storedQuery = "Select * From [StoredColumnsBank] where TransStartRow = '" + startingRow + "'" +
                " AND AccountNumberPos = '" + accountNumberTextBox + "'" +
                " AND DateColumn = '" + dateColumnTextBox + "'";
                 firstColumn = SpecifiedImportBank.getInstance(null, mainWindow).priceColumnTextBox_1.Text.ToString();
@@ -1429,6 +1522,47 @@ namespace WpfApp1
 
                 storedQuery += " AND CommentColumn = '" + commentColumnTextbox + "'";
             }
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count == 0)
+            {
+                string insertQuery = "insert into [StoredColumnsBank](BankName, TransStartRow, AccountNumberPos,DateColumn,PriceColumn,BalanceColumn,CommentColumn) " +
+                        "values(";
+                if (SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() == "Add new Bank")
+                {
+                    string newBankName = SpecifiedImportBank.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                    insertQuery += "'" + newBankName + "'";
+                }
+                else
+                {
+                    string bankName = SpecifiedImportBank.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                    insertQuery += "'" + bankName + "'";
+                }
+                insertQuery += ",'" + startingRow + "'";
+                if (accountTextBoxSheetName)
+                    insertQuery += ",'Sheet name'";
+                else
+                    insertQuery += ",'" + accountNumberTextBox + "'";
+                insertQuery += ",'" + dateColumnTextBox + "'";
+                if (isMultiplePriceColumns)
+                {
+                    string columns = firstColumn + "," + secondColumn;
+                    insertQuery += ",'" + columns + "'";
+                }
+                else
+                    insertQuery += ",'" + firstColumn + "'";
+                if (haveBalanceColumn)
+                    insertQuery += ",'" + balanceColumnTextBox + "'";
+                else
+                    insertQuery += ",'None'";
+                insertQuery += ",'" + commentColumnTextbox + "')";
+                SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
+                insercommand.CommandType = CommandType.Text;
+                insercommand.ExecuteNonQuery();
+            }
+            /*
             SqlDataAdapter sda = new SqlDataAdapter(storedQuery, sqlConn);
             System.Data.DataTable dtb = new System.Data.DataTable();
             sda.Fill(dtb);
@@ -1463,6 +1597,7 @@ namespace WpfApp1
                 sqlCommand.Parameters.AddWithValue("@commentColumn", commentColumnTextbox);
                 sqlCommand.ExecuteNonQuery();
             }
+            */
         }
         public static int ExcelColumnNameToNumber(string columnName)
         {
@@ -1541,6 +1676,10 @@ namespace WpfApp1
         public bool getCalculatedBalance()
         {
             return calculatedBalance;
+        }
+        ~TemplateBankReadIn()
+        {
+            mConn.Close();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -33,6 +34,36 @@ namespace WpfApp1
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            #region SQLite
+            if (checkPassword() && checkUsername())
+            {
+                try
+                {
+                    SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
+                    mConn.Open();
+                    string insertQuery = "insert into [UserInfo](Username, Password, AccountNumber) " +
+                        "values('" + registerUsernameTextbox.Text.ToString() + "','" + encryptString(RegisterPasswordTextbox.Password.ToString()) + "','" + "-" + "')";
+                    SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
+                    insercommand.CommandType = CommandType.Text;
+                    try
+                    {
+                        insercommand.ExecuteNonQuery();
+                        MessageBox.Show("You can log in now!", "Successfull registartion!");
+                        mainWindow.LoginFrame.Content = new Login_Page(mainWindow);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    MessageBox.Show(MainWindow.dbPath);
+                }
+            }
+            #endregion
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("registrationQuery4", sqlConn);
@@ -49,6 +80,7 @@ namespace WpfApp1
                     mainWindow.LoginFrame.Content = new Login_Page(mainWindow);
                 }
             }
+            */
         }
         public string encryptString(string inputString)
         {
@@ -75,7 +107,15 @@ namespace WpfApp1
         private bool checkPassword()
         {
             if (RegisterPasswordTextbox.Password.ToString() == RegisterPasswordTextbox2.Password.ToString())
-                return true;
+            {
+                if (RegisterPasswordTextbox.Password.Length >= 4)
+                    return true;
+                else
+                {
+                    MessageBox.Show("Password has to be atleast 4 characters!");
+                    return false;
+                }
+            }
             else
             {
                 MessageBox.Show("Passwords doesn't match");
@@ -85,6 +125,26 @@ namespace WpfApp1
 
         private bool checkUsername()
         {
+            SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [UserInfo] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'Username' TEXT, 'Password' TEXT, 'AccountNumber' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string usernameInUseQuery = "select * from [UserInfo] where Username= '"+registerUsernameTextbox.Text.ToString()+"'";
+            SQLiteCommand command = new SQLiteCommand(usernameInUseQuery, mConn);
+            DataTable DT = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(DT);
+            if (DT.Rows.Count == 0)
+                return true;
+            else
+            {
+                MessageBox.Show("Username is already in use!");
+                return false;
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             string loginQuery = "Select * From [UserDatas] where username = '" + registerUsernameTextbox.Text.ToString()+"'";
             SqlDataAdapter sda = new SqlDataAdapter(loginQuery, sqlConn);
@@ -97,6 +157,7 @@ namespace WpfApp1
                 MessageBox.Show("This username is already in use!");
                 return false;
             }
+            */
         }
     }
 }

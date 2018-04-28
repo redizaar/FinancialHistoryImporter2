@@ -9,12 +9,12 @@ namespace WpfApp1
     public class Stock
     {
         public string stockName { get;  set; }
-        public double stockPrice { get;  set; }
+        public string stockPrice { get;  set; }
         public int quantity { get;  set; }
         public string transactionDate { get;  set; }
         public string transactionType { get;  set; }
         public string writeDate { get;  set; }
-        public double profit { get; set; }
+        public string profit { get; set; }
         public string importer { get; set; }
         public string earningMethod { get; set; }
         public string originalAndCurrentQuantity { get; set; }
@@ -22,16 +22,16 @@ namespace WpfApp1
         //for StockDataGrid
         public string symbol { get;  set; }
         public string date { get;  set; }
-        public double openPrice { get;  set; }
-        public double highPrice { get;  set; }
-        public double lowPrice { get;  set; }
-        public double closePrice { get;  set; }
+        public string openPrice { get;  set; }
+        public string highPrice { get;  set; }
+        public string lowPrice { get;  set; }
+        public string closePrice { get;  set; }
 
         //for custom Export
         public int originalQuantityForCustomEarning { get; set; }
         
         //reading out from file Constructor
-        public Stock(string _stockName,double _stockPrice,int _quantity,string _transactionDate,string _transactionType)
+        public Stock(string _stockName,string _stockPrice,int _quantity,string _transactionDate,string _transactionType)
         {
             stockName = _stockName;
             stockPrice = _stockPrice;
@@ -40,7 +40,7 @@ namespace WpfApp1
             transactionType = _transactionType;
         }
         //writing to file Constructor
-        public Stock(string _writeDate, string _transactionDate,string _stockName,double _stockPrice, int _quantity, string _transactionType,string _importer)
+        public Stock(string _writeDate, string _transactionDate,string _stockName,string _stockPrice, int _quantity, string _transactionType,string _importer)
         {
             writeDate = _writeDate;
             stockName = _stockName;
@@ -51,7 +51,7 @@ namespace WpfApp1
             importer = _importer;
         }
         //sql Stock constructor
-        public Stock(string _smybol,string _date,double _openPrice,double _highPrice,double _lowPrice,double _closePrice)
+        public Stock(string _smybol,string _date, string _openPrice, string _highPrice, string _lowPrice, string _closePrice)
         {
             symbol = _smybol;
             date = _date;
@@ -100,7 +100,7 @@ namespace WpfApp1
         {
             return symbol;
         }
-        public double getProfit()
+        public string getProfit()
         {
             return profit;
         }
@@ -108,19 +108,19 @@ namespace WpfApp1
         {
             return date;
         }
-        public double getOpenPriceForSql()
+        public string getOpenPriceForSql()
         {
             return openPrice;
         }
-        public double getHighPriceForSql()
+        public string getHighPriceForSql()
         {
             return highPrice;
         }
-        public double getLowPriceForSql()
+        public string getLowPriceForSql()
         {
             return lowPrice;
         }
-        public double getClosePriceForSql()
+        public string getClosePriceForSql()
         {
             return closePrice;
         }
@@ -128,7 +128,7 @@ namespace WpfApp1
         {
             return stockName;
         }
-        public double getStockPrice()
+        public string getStockPrice()
         {
             return stockPrice;
         }
@@ -148,7 +148,7 @@ namespace WpfApp1
         {
             quantity = value;
         }
-        public void setProfit(double value)
+        public void setProfit(string value)
         {
             profit = value;
         }

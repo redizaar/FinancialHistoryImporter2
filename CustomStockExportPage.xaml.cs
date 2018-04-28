@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -140,7 +141,6 @@ namespace WpfApp1
                 if (!_companies.Contains(x.getStockName()))
                 {
                     _companies.Add(x.getStockName());
-                    Console.WriteLine("?");
                 }
             }
             return _companies;
@@ -263,21 +263,23 @@ namespace WpfApp1
                 boughtQuantity = boughtStock.getQuantity();
                 soldStock = selectedItems[1];
                 soldQuantity = soldStock.getQuantity();
+                double soldStockPrice = double.Parse(soldStock.getStockPrice());
+                double boughtStockPrice = double.Parse(boughtStock.getStockPrice());
                 if (boughtQuantity == soldQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * boughtQuantity;
                     soldStock.setQuantity(0);
                     boughtStock.setQuantity(0);
                 }
                 else if (boughtQuantity > soldQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * soldQuantity;
                     soldStock.setQuantity(0);
                     boughtStock.setQuantity(boughtQuantity - soldQuantity);
                 }
                 else if (soldQuantity > boughtQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * boughtQuantity;
                     boughtStock.setQuantity(0);
                     soldStock.setQuantity(soldQuantity - boughtQuantity);
                 }
@@ -291,19 +293,21 @@ namespace WpfApp1
                 boughtQuantity = boughtStock.getQuantity();
                 soldStock = selectedItems[0];
                 soldQuantity = soldStock.getQuantity();
+                double soldStockPrice = double.Parse(soldStock.getStockPrice());
+                double boughtStockPrice = double.Parse(boughtStock.getStockPrice());
                 if (boughtQuantity == soldQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * boughtQuantity;
                 }
                 else if (boughtQuantity > soldQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * soldQuantity;
                     soldStock.setQuantity(0);
                     boughtStock.setQuantity(boughtQuantity - soldQuantity);
                 }
                 else if (soldQuantity > boughtQuantity)
                 {
-                    earning = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtQuantity;
+                    earning = (soldStockPrice - boughtStockPrice) * boughtQuantity;
                     boughtStock.setQuantity(0);
                     soldStock.setQuantity(soldQuantity - boughtQuantity);
                 }

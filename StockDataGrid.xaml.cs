@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,7 @@ namespace WpfApp1
     {
         private MainWindow mainWindow;
         public List<string> datesFromSql { get; set; }
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         public StockDataGrid(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
@@ -35,6 +37,28 @@ namespace WpfApp1
         }
         public void addItemsToSymbolCB()
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StockData] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT,'Name' TEXT, 'Date' TEXT, 'openPrice' TEXT, " +
+                        "'highPrice' TEXT, 'lowPrice' TEXT, 'closePrice' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "select distinct Name from [StockData]";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            DataTable dtb = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if(dtb.Rows.Count>0)
+            {
+                foreach (DataRow row in dtb.Rows)
+                {
+                    string nameFromSql = row["Name"].ToString();
+                    symbolComboBox.Items.Add(nameFromSql);
+                }
+            }
+            mConn.Close();
+            /*
             string distinctNameQuery = "Select distinct Name From [Stock_WebData]";
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
@@ -49,11 +73,30 @@ namespace WpfApp1
                     symbolComboBox.Items.Add(nameFromSql);
                 }
             }
+            */
         }
 
         private void symbolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string symbol = symbolComboBox.SelectedItem.ToString();
+            mConn.Open();
+            string storedQuery = "select *  from [StockData] where Name='"+symbol+"'";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            DataTable dtb = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count > 0)
+            {
+                ThreadStart threadStart = delegate
+                {
+                    sortDatesInOrder(dtb, symbol);
+                };
+                Thread sqlThread = new Thread(threadStart);
+                sqlThread.IsBackground = true;
+                sqlThread.Start();
+                sqlThread.Join();
+            }
+            /*
             string selectedItemQuery = "Select * From [Stock_WebData] Where Name='"+symbol+"'";
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
@@ -71,6 +114,7 @@ namespace WpfApp1
                 sqlThread.Start();
                 sqlThread.Join();
             }
+            */
         }
         private void sortDatesInOrder(DataTable dtb,string symbol)
         {
@@ -114,10 +158,10 @@ namespace WpfApp1
                         if (dt == latestDate)
                         {
                             dates.Remove(latestDate);
-                            double openPrice = double.Parse(dtb.Rows[i]["openPrice"].ToString().Replace(',', '.'), CultureInfo.InvariantCulture);
-                            double HighPrice = double.Parse(dtb.Rows[i]["highPrice"].ToString().Replace(',', '.'), CultureInfo.InvariantCulture);
-                            double LowPrice = double.Parse(dtb.Rows[i]["lowPrice"].ToString().Replace(',', '.'), CultureInfo.InvariantCulture);
-                            double closePrice = double.Parse(dtb.Rows[i]["closePrice"].ToString().Replace(',', '.'), CultureInfo.InvariantCulture);
+                            string openPrice = dtb.Rows[i]["openPrice"].ToString();
+                            string HighPrice = dtb.Rows[i]["highPrice"].ToString();
+                            string LowPrice = dtb.Rows[i]["lowPrice"].ToString();
+                            string closePrice = dtb.Rows[i]["closePrice"].ToString();
                             Stock stock = new Stock(symbol, dt.ToString().Substring(0, 12), openPrice, HighPrice, LowPrice, closePrice);
                             tableAttributes.Add(stock);
                             dtb.Rows[i].Delete();

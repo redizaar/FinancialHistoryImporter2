@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
-using _Excel = Microsoft.Office.Interop.Excel;
 using System.Windows;
 using System.IO;
 using System.Globalization;
@@ -12,14 +10,13 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Data;
+using System.Data.SQLite;
 
 namespace WpfApp1
 {
     class ExportTransactions
     {
-        Workbook WriteWorkbook;
-        Worksheet WriteWorksheet;
-        _Application excel = new _Excel.Application();
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         private MainWindow mainWindow;
         private string importerAccountNumber;
         public ExportTransactions(List<Transaction> transactions,MainWindow mainWindow,string currentFileName)
@@ -32,13 +29,36 @@ namespace WpfApp1
                 string dateString="";
                 for (int j = 0; j < spaceSplitted.Length; j++)
                     dateString += spaceSplitted[j];
-                Console.WriteLine(dateString.Substring(0,11));
             }
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
             //BUT FIRST - check if the transaction is already exported or not
 
             List<Transaction> neededTransactions = newTransactions(transactions);
-            SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved 
+            SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved
+            if (neededTransactions != null)
+            {
+                mConn.Open();
+                for (int i = 0; i < neededTransactions.Count; i++)
+                {
+                    string insertQuery = "insert into [importedBankTransactions]" +
+                    "(ExportDate,TransactionDate,AccountBalance,Difference,Income,Spending,Comment,AccountNumber,BankName)" +
+                    " values('" + todaysDate + "','" + neededTransactions[i].getTransactionDate() + "','" + neededTransactions[i].getBalance_rn() + "','" + neededTransactions[i].getTransactionPrice() + "'";
+                    if (neededTransactions[i].getTransactionPrice() > 0)
+                    {
+                        insertQuery += ",'" + neededTransactions[i].getTransactionPrice() + "','" + DBNull.Value + "'";
+                    }
+                    else
+                    {
+                        insertQuery += ",'" + DBNull.Value + "','" + neededTransactions[i].getTransactionPrice() + "'";
+                    }
+                    insertQuery += ",'" + neededTransactions[i].getTransactionDescription() + "','" + neededTransactions[i].getAccountNumber() + "','" + neededTransactions[i].getBankname() + "')";
+                    SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
+                    insertcommand.CommandType = CommandType.Text;
+                    insertcommand.ExecuteNonQuery();
+                }
+                ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertBankTransaction", sqlConn);//SQLQuery 7
@@ -220,19 +240,8 @@ namespace WpfApp1
         }
         private void writeAccountNumberToSql(string accountNumber)
         {
-            string storedAccountNumber="-"; //alapértelmezett érték ha valaki regisztrált és még nem importált
-            SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            string accountNumberQuery = "Select * From [UserDatas] where Username = '" + mainWindow.getCurrentUser().getUsername() + "'";
-            SqlDataAdapter sda = new SqlDataAdapter(accountNumberQuery, sqlConn);
-            System.Data.DataTable dtb = new System.Data.DataTable();
-            sda.Fill(dtb);
-            if (dtb.Rows.Count == 1)
-            {
-                foreach(System.Data.DataRow row in dtb.Rows)
-                {
-                    storedAccountNumber = row["AccountNumber"].ToString();
-                }
-            }
+            mConn.Open();
+            string storedAccountNumber = mainWindow.getCurrentUser().getAccountNumber();
             string []splittedAccountNumber = storedAccountNumber.Split(',');
             bool stored = false;
             for (int i = 0; i < splittedAccountNumber.Length; i++)
@@ -246,27 +255,21 @@ namespace WpfApp1
             if (!stored && storedAccountNumber!="-")
             {
                 storedAccountNumber += "," + accountNumber;
-                using (SqlCommand command = sqlConn.CreateCommand())
-                {
-                    command.CommandText = "UPDATE UserDatas SET AccountNumber = '" + storedAccountNumber + "' Where Username = '" + mainWindow.getCurrentUser().getUsername() + "'";
-                    sqlConn.Open();
-                    command.ExecuteNonQuery();
-                    sqlConn.Close();
-                }
+                string updateAcountNumberQuery = "UPDATE [UserInfo] SET AccountNumber = '" + storedAccountNumber + "' Where Username = '" + mainWindow.getCurrentUser().getUsername() + "'";
+                SQLiteCommand insercommand = new SQLiteCommand(updateAcountNumberQuery, mConn);
+                insercommand.CommandType = CommandType.Text;
+                insercommand.ExecuteNonQuery();
                 mainWindow.currentUser.setAccountNumber(storedAccountNumber += "," + accountNumber);
             }
             else if(storedAccountNumber=="-")
             {
-                storedAccountNumber = accountNumber;
-                using (SqlCommand command = sqlConn.CreateCommand())
-                {
-                    command.CommandText = "UPDATE UserDatas SET AccountNumber = '" + storedAccountNumber + "' Where Username = '" + mainWindow.getCurrentUser().getUsername() + "'";
-                    sqlConn.Open();
-                    command.ExecuteNonQuery();
-                    sqlConn.Close();
-                }
+                string updateAcountNumberQuery = "UPDATE [UserInfo] SET AccountNumber = '" + accountNumber + "' Where Username = '" + mainWindow.getCurrentUser().getUsername() + "'";
+                SQLiteCommand insercommand = new SQLiteCommand(updateAcountNumberQuery, mConn);
+                insercommand.CommandType = CommandType.Text;
+                insercommand.ExecuteNonQuery();
                 mainWindow.currentUser.setAccountNumber(accountNumber);
             }
+            mConn.Close();
         }
         public ExportTransactions(List<Stock> transactions, MainWindow mainWindow,string currentFileName)
         {
@@ -310,6 +313,47 @@ namespace WpfApp1
                 Regex typeRegex4 = new Regex(@"Vásárolt");
                 Regex typeRegex5 = new Regex(@"Bought");
                 Regex typeRegex6 = new Regex(@"Buy");
+                mConn.Open();
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    string insertQuery = "insert into [importedStockTransactions]" +
+                    "(ExportDate,TransactionDate,StockName," +
+                    "StockPrice,SoldQuantity,BoughtQuantity" +
+                    ",CurrentQuantity,Spending,Profit" +
+                    ",EarningMethod,ImporterName)" +
+                    " values('" + todaysDate + "','" + transactions[i].getTransactionDate() + "','" +
+                    transactions[i].getStockName() + "','" + transactions[i].getStockPrice() + "'";
+                    if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
+                       typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
+                       typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
+                    {
+                        insertQuery += ",'" + quantities[i] + "','" +
+                            DBNull.Value + "','" +
+                            DBNull.Value + "','" +
+                            DBNull.Value + "','" + 
+                            transactions[i].getProfit() +
+                            "','" + transactions[i].getEarningMethod() + "'";
+                    }
+                    else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
+                        typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
+                    {
+                        double stockPrice = double.Parse(transactions[i].getStockPrice(), CultureInfo.InvariantCulture);
+                        insertQuery += ",'" + DBNull.Value +
+                            "','" + quantities[i] +
+                            "','" + transactions[i].getQuantity() +
+                            "','" + stockPrice * quantities[i] +
+                            "','" + DBNull.Value +
+                            "','" + DBNull.Value + "'";
+                    }
+                    insertQuery += ",'" + transactions[i].getImporter() + "')";
+                    SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
+                    insertcommand.CommandType = CommandType.Text;
+                    insertcommand.ExecuteNonQuery();
+                }
+                SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
+                ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                /*
                 SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
                 sqlConn.Open();
                 SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
@@ -413,6 +457,33 @@ namespace WpfApp1
             Regex typeRegex4 = new Regex(@"Vásárolt");
             Regex typeRegex5 = new Regex(@"Bought");
             Regex typeRegex6 = new Regex(@"Buy");
+            mConn.Open();
+            for (int i = 0; i < customTransactions.Count; i++)
+            {
+                string insertQuery = "insert into [importedStockTransactions]" +
+                "(ExportDate,TransactionDate,StockName,StockPrice,SoldQuantity,BoughtQuantity,CurrentQuantity,Spending,Profit,EarningMethod,ImporterName)" +
+                " values('" + todaysDate + "','" + customTransactions[i].getTransactionDate() + "','" + customTransactions[i].getStockName() + "','" + customTransactions[i].getStockPrice() + "'";
+                if (typeRegex1.IsMatch(customTransactions[i].getTransactionType()) ||
+                   typeRegex2.IsMatch(customTransactions[i].getTransactionType()) ||
+                   typeRegex3.IsMatch(customTransactions[i].getTransactionType())) //Eladott
+                {
+                    insertQuery += ",'" + customTransactions[i].getOriginalQuantityForCustomEarning() + "','" + DBNull.Value + "','" + DBNull.Value + "','" + DBNull.Value + "','" + customTransactions[i].getProfit() + "','" + customTransactions[i].getEarningMethod() + "'";
+                }
+                else if (typeRegex4.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex5.IsMatch(customTransactions[i].getTransactionType()) ||
+                    typeRegex6.IsMatch(customTransactions[i].getTransactionType()))//Vásárolt
+                {
+                    double stockPrice = double.Parse(customTransactions[i].getStockPrice(), CultureInfo.InvariantCulture);
+                    insertQuery += ",'" + DBNull.Value + "','" + customTransactions[i].getOriginalQuantityForCustomEarning() + "','" + customTransactions[i].getQuantity() + "','" + stockPrice * customTransactions[i].getOriginalQuantityForCustomEarning() + "','" + DBNull.Value + "','" + DBNull.Value + "'";
+                }
+                insertQuery += ",'" + customTransactions[i].getImporter() + "')";
+                SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
+                insertcommand.CommandType = CommandType.Text;
+                insertcommand.ExecuteNonQuery();
+            }
+            SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
+            ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             SqlCommand sqlCommand = new SqlCommand("insertStockTransaction", sqlConn);//SQLQuery 7
@@ -568,7 +639,7 @@ namespace WpfApp1
                                     }
                                 }
                             }
-                            if ((soldStock != null) && (soldStock.getQuantity()>0))
+                            if ((soldStock != null) && (soldStock.getQuantity() > 0))
                             {
                                 for (int i = totalCount; i >= soldIndex + 1; i--)
                                 {
@@ -587,14 +658,14 @@ namespace WpfApp1
                                         }
                                     }
                                 }
-                                if ((boughtStock != null) && (boughtStock.getQuantity()>0))
+                                if ((boughtStock != null) && (boughtStock.getQuantity() > 0))
                                 {
                                     double profit = 0;
                                     if ((boughtStock.getQuantity() - soldStock.getQuantity()) == 0)
                                     {
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                         totalCount = boughtIndex--;
                                         boughtStock.setQuantity(0);
                                         soldStock.setQuantity(0);
@@ -603,7 +674,7 @@ namespace WpfApp1
                                     {
                                         //it's important to multiple it by the boughtStock,
                                         //because the soldStock quantity is higher than the bought
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * boughtStock.getQuantity();
                                         int leftQuantity = soldStock.getQuantity() - boughtStock.getQuantity();
                                         soldStock.setQuantity(leftQuantity);
                                         boughtStock.setQuantity(0);
@@ -635,20 +706,20 @@ namespace WpfApp1
                                                     if (soldStock.getQuantity() > boughtStock.getQuantity())
                                                     {
                                                         leftQuantity = soldStock.getQuantity() - boughtStock.getQuantity();
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * boughtStock.getQuantity();
                                                         totalCount = boughtIndex--;
                                                     }
                                                     else if (boughtStock.getQuantity() > soldStock.getQuantity())
                                                     {
                                                         leftQuantity = 0;
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                                         int leftBoughtQuantity = boughtStock.getQuantity() - soldStock.getQuantity();
                                                         boughtStock.setQuantity(leftBoughtQuantity);
                                                     }
                                                     else if (boughtStock.getQuantity() == soldStock.getQuantity())
                                                     {
                                                         leftQuantity = 0;
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                                         boughtStock.setQuantity(0);
                                                         totalCount = boughtIndex--;
                                                     }
@@ -665,15 +736,15 @@ namespace WpfApp1
                                             }
                                         }
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                     }
                                     else if ((boughtStock.getQuantity() - soldStock.getQuantity()) > 0)
                                     {
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                         int leftBoughtStock = boughtStock.getQuantity() - soldStock.getQuantity();
                                         company.Find(i => i == boughtStock).setQuantity(leftBoughtStock);
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                         soldStock.setQuantity(0);
                                         boughtStock.setQuantity(leftBoughtStock);
                                     }
@@ -779,7 +850,7 @@ namespace WpfApp1
                             }
                             if ((soldStock != null) && (soldStock.getQuantity() > 0))
                             {
-                                for (int i = soldIndex + 1; i<=totalCount; i++)
+                                for (int i = soldIndex + 1; i <= totalCount; i++)
                                 {
                                     Regex quantityRegex1 = new Regex(@"Vásárolt");
                                     Regex quantityRegex2 = new Regex(@"Bought");
@@ -801,9 +872,9 @@ namespace WpfApp1
                                     double profit = 0;
                                     if ((boughtStock.getQuantity() == soldStock.getQuantity()))
                                     {
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                         boughtStock.setQuantity(0);
                                         soldStock.setQuantity(0);
                                     }
@@ -811,7 +882,7 @@ namespace WpfApp1
                                     {
                                         //it's important to multiple it by the boughtStock,
                                         //because the soldStock quantity is higher than the bought
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * boughtStock.getQuantity();
                                         int leftQuantity = soldStock.getQuantity() - boughtStock.getQuantity();
                                         soldStock.setQuantity(leftQuantity);
                                         boughtStock.setQuantity(0);
@@ -820,7 +891,7 @@ namespace WpfApp1
                                             /*this if means that, we "run" out of bought quantity, and the next Stock would be the SoldStock, but we still have quantity to sell*/
                                             if (boughtIndex - 1 != soldIndex)
                                             {
-                                                for (int i = soldIndex; i < boughtIndex+1; i++)
+                                                for (int i = soldIndex; i < boughtIndex + 1; i++)
                                                 {
                                                     Regex quantityRegex1 = new Regex(@"Vásárolt");
                                                     Regex quantityRegex2 = new Regex(@"Bought");
@@ -846,20 +917,20 @@ namespace WpfApp1
                                                     if (soldStock.getQuantity() > boughtStock.getQuantity())
                                                     {
                                                         leftQuantity = soldStock.getQuantity() - boughtStock.getQuantity();
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * boughtStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * boughtStock.getQuantity();
                                                         boughtStock.setQuantity(0);
                                                     }
                                                     else if (boughtStock.getQuantity() > soldStock.getQuantity())
                                                     {
                                                         leftQuantity = 0;
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                                         int leftBoughtQuantity = boughtStock.getQuantity() - soldStock.getQuantity();
                                                         boughtStock.setQuantity(leftBoughtQuantity);
                                                     }
                                                     else if (boughtStock.getQuantity() == soldStock.getQuantity())
                                                     {
                                                         leftQuantity = 0;
-                                                        profit += (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                                        profit += (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                                         boughtStock.setQuantity(0);
                                                     }
                                                     soldStock.setQuantity(leftQuantity);
@@ -875,16 +946,16 @@ namespace WpfApp1
                                             }
                                         }
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                     }
                                     else if ((boughtStock.getQuantity() > soldStock.getQuantity()))
                                     {
-                                        profit = (soldStock.getStockPrice() - boughtStock.getStockPrice()) * soldStock.getQuantity();
+                                        profit = (double.Parse(soldStock.getStockPrice()) - double.Parse(boughtStock.getStockPrice())) * soldStock.getQuantity();
                                         int leftBoughtStock = boughtStock.getQuantity() - soldStock.getQuantity();
                                         company.Find(i => i == boughtStock).setQuantity(leftBoughtStock);
                                         soldStock.setQuantity(0);
                                         int index = transactionMap[soldStock];
-                                        allCompany[index].setProfit(profit);
+                                        allCompany[index].setProfit(profit.ToString());
                                     }
                                 }
                                 else
@@ -929,8 +1000,14 @@ namespace WpfApp1
         }
         ~ExportTransactions()
         {
-            //excel.Application.Quit();
-            //excel.Quit();
+            try
+            {
+                mConn.Close();
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
     }
 }
