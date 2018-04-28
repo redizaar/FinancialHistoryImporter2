@@ -129,7 +129,7 @@ namespace WpfApp1
                 mainWindow.MainFrame.Content = new StockDataGrid(mainWindow);
                 mainWindow.portfolioMenuTop.Visibility = System.Windows.Visibility.Visible;
                 mainWindow.stockChartDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
-                mainWindow.stockChart.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+                mainWindow.stockDatagrid.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
             }
             else if (commandName=="Exit")
             {

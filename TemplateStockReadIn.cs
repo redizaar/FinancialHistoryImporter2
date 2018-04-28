@@ -171,7 +171,7 @@ namespace WpfApp1
 
                             }
                         }
-                        Stock stock = new Stock(companyName, transactionPrice, quantity, transactionDate, transactionType);
+                        Stock stock = new Stock(companyName, transactionPrice.ToString(), quantity, transactionDate, transactionType);
                         importedStocks.Add(stock);
                     }
                     else
@@ -203,7 +203,6 @@ namespace WpfApp1
                             double dayHighest = 0;
                             double dayLowest = 0;
                             getDayHighAndDayLowPrice(cToCSV.Value, transactionDate, ref dayHighest, ref dayLowest);
-                            Console.WriteLine(transactionDate+" -->  Higest: " + dayHighest + " Lowest: " + dayLowest);
                             int blank_column_counter = 0;
                             //we go through the columns
                             int column = 1;
@@ -870,7 +869,7 @@ namespace WpfApp1
 
                             }
                         }
-                        Stock stock = new Stock(companyName, transactionPrice, quantity, transactionDate, transactionType);
+                        Stock stock = new Stock(companyName, transactionPrice.ToString(), quantity, transactionDate, transactionType);
                         importedStocks.Add(stock);
                     }
                     else

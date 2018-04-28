@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -138,6 +139,17 @@ namespace WpfApp1
                     {
                         transaction.setWriteDate(DateTime.Now.ToString("yyyy/MM/dd"));
                     }
+                    if (transaction.getProfit() != null)
+                    {
+                        double profit = double.Parse(transaction.getProfit());
+                        var f = new NumberFormatInfo { NumberGroupSeparator = "," };
+                        var s = profit.ToString("n", f);
+                        transaction.setProfit(s);
+                    }
+                    else
+                    {
+                        transaction.setProfit("-");
+                    }
                 }
             }
         }
@@ -157,11 +169,23 @@ namespace WpfApp1
             if (value != null)
             {
                 string profitString = value.ToString();
-                double profit = double.Parse(profitString);
-                if (profit > 0)
-                    return Brushes.LightGreen;
-                else
-                    return Brushes.LightSalmon;
+                if (profitString != "-")
+                {
+                    decimal profit = 0;
+                    var allowedStyles = (NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands);
+
+                    if (Decimal.TryParse(profitString, allowedStyles, CultureInfo.GetCultureInfo("DE-de"), out profit))
+                    {
+                    }
+                    else if (Decimal.TryParse(profitString, allowedStyles, CultureInfo.GetCultureInfo("EN-us"), out profit))
+                    {
+                    }
+                    if (profit > 0)
+                        return Brushes.LightGreen;
+                    else
+                        return Brushes.LightSalmon;
+                }
+                return DependencyProperty.UnsetValue;
             }
             else
             {

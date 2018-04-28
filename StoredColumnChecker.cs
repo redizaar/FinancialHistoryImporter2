@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,6 +21,7 @@ namespace WpfApp1
         private Workbook workbook;
         private Worksheet analyseWorksheet;
         public System.Data.DataTable dtb;
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         private MainWindow mainWindow;
         public StoredColumnChecker() { }
         public void addDistinctBanksToCB()
@@ -29,6 +31,26 @@ namespace WpfApp1
                 if (item != "Add new Bank")
                     SpecifiedImportBank.getInstance(null, mainWindow).bankChoices.Remove(item);
             }
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "select distinct BankName from [StoredColumnsBank]";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable datatable = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(datatable);
+            if(datatable.Rows.Count>0)
+            {
+                foreach (DataRow row in dtb.Rows)
+                {
+                    SpecifiedImportBank.getInstance(null, mainWindow).bankChoices.Add(row["BankName"].ToString());
+                }
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             string getEveryRow = "Select distinct BankName From [StoredColumns]";
@@ -42,16 +64,32 @@ namespace WpfApp1
                    SpecifiedImportBank.getInstance(null,mainWindow).bankChoices.Add(row["BankName"].ToString());
                 }
             }
+            */
         }
         public void getDataTableFromSql(MainWindow mainWindow)
         {
+            mConn.Open();
             this.mainWindow = mainWindow;
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "select * from [StoredColumnsBank]";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable datatable = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(datatable);
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
             string getEveryRow = "Select * From [StoredColumns]";
             SqlDataAdapter sda = new SqlDataAdapter(getEveryRow, sqlConn);
             System.Data.DataTable datatable = new System.Data.DataTable();
             sda.Fill(datatable);
+            */
             dtb = datatable;
             SpecifiedImportBank.getInstance(null, mainWindow).setDataTableFromSql(datatable);
         }
@@ -80,6 +118,13 @@ namespace WpfApp1
         }
         public DataRow findMostMatchingRow()
         {
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
+                        "'CommentColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
             if (dtb.Rows.Count > 0)
             {
                 DataRow mostMatches = null;

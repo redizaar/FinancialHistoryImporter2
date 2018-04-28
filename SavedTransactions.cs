@@ -3,32 +3,77 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
-using _Excel = Microsoft.Office.Interop.Excel;
 using System.Globalization;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using System.Data.SQLite;
+using System.Data;
 
 namespace WpfApp1
 {
     public class SavedTransactions
     {
-        _Application excel = new _Excel.Application();
-        Workbook ReadWorkbook;
-        Worksheet ReadWorksheet;
         public static List<Transaction> savedTransactionsBank;
         public static List<Stock> savedTransactionsStock;
         private static SavedTransactions instance;
         private SqlConnection sqlConn;
+        SQLiteConnection mConn;
         private SavedTransactions()
         {
             savedTransactionsBank = new List<Transaction>();
             savedTransactionsStock = new List<Stock>();
-            //ReadWorkbook = excel.Workbooks.Open(@"C:\Users\Tocki\Desktop\Kimutatas.xlsx");
             sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         }
         public void readOutSavedBankTransactions()
         {
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [importedBankTransactions] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'ExportDate' TEXT, 'TransactionDate' TEXT, " +
+                        "'AccountBalance' INTEGER, 'Difference' INTEGER, 'Income' INTEGER, 'Spending' INTEGER, " +
+                        "'Comment' TEXT, 'AccountNumber' TEXT, 'BankName' TEXT  );", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string getAllTransactionsQuery = "select * from [importedBankTransactions]";
+            SQLiteCommand command = new SQLiteCommand(getAllTransactionsQuery, mConn);
+            DataTable dtb = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count != 0)
+            {
+                string writeoutDate = "";
+                string tempTransactionDate = "";
+                string transactionDate = "";
+                int accountBalance;
+                int transactionPrice;
+                string accountNumber = "";
+                string description = "";
+                string bankName = "";
+                foreach (DataRow row in dtb.Rows)
+                {
+                    writeoutDate = row["ExportDate"].ToString();
+                    tempTransactionDate = row["TransactionDate"].ToString();
+                    string[] splittedDate = tempTransactionDate.Split(' ');
+                    if (splittedDate.Length == 1)
+                    {
+                        transactionDate = tempTransactionDate;
+                    }
+                    else
+                    {
+                        transactionDate = splittedDate[0] + splittedDate[1] + splittedDate[2];
+                    }
+                    accountBalance = int.Parse(row["AccountBalance"].ToString());
+                    transactionPrice = int.Parse(row["Difference"].ToString());
+                    accountNumber = row["AccountNumber"].ToString();
+                    description = row["Comment"].ToString();
+                    bankName = row["BankName"].ToString();
+                    Transaction transaction = new Transaction(writeoutDate, transactionDate, accountBalance, transactionPrice, accountNumber, description);
+                    transaction.setBankname(bankName);
+                    savedTransactionsBank.Add(transaction);
+                }
+            }
+            /*
             sqlConn.Open();
             string query = "Select * From [importedBankTransactions]";
             SqlDataAdapter sda = new SqlDataAdapter(query, sqlConn);
@@ -124,10 +169,73 @@ namespace WpfApp1
                 i++;
             }
             */
-            sqlConn.Close();
+            //sqlConn.Close();
         }
         public void readOutStockSavedTransactions()
         {
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [importedStockTransactions] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'ExportDate' TEXT, 'TransactionDate' TEXT, " +
+                        "'StockName' TEXT, 'StockPrice' TEXT, 'SoldQuantity' INTEGER, 'BoughtQuantity' INTEGER, " +
+                        "'CurrentQuantity' INTEGER, 'Spending' TEXT, 'Profit' TEXT," +
+                        " 'EarningMethod' TEXT, 'ImporterName' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string getAllTransactionsQuery = "select * from [importedStockTransactions]";
+            SQLiteCommand command = new SQLiteCommand(getAllTransactionsQuery, mConn);
+            DataTable dtb = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count != 0)
+            {
+                string writeoutDate = "";
+                string stockName = "";
+                string transactionDate = "";
+                string stockPrice = "";
+                int originalQuantity = 0;
+                string transactionType = "";
+                string importer = "";
+                int currentQuantity=0;
+                string originalAndCurrentQuantity = "";
+                string profit = "";
+                string earningMethod = "";
+                foreach (DataRow row in dtb.Rows)
+                {
+                    writeoutDate = row["ExportDate"].ToString();
+                    transactionDate = row["TransactionDate"].ToString();
+                    stockName = row["StockName"].ToString();
+                    stockPrice = row["StockPrice"].ToString();
+                    if (int.Parse(row["SoldQuantity"].ToString()) != 0)
+                    {
+                        transactionType = "Sell";
+                        originalQuantity = int.Parse(row["SoldQuantity"].ToString());
+                        originalAndCurrentQuantity = originalQuantity.ToString();
+                        profit = row["Profit"].ToString();
+                        earningMethod = row["EarningMethod"].ToString();
+                    }
+                    else if (int.Parse(row["BoughtQuantity"].ToString()) != 0)
+                    {
+                        transactionType = "Buy";
+                        originalQuantity = int.Parse(row["BoughtQuantity"].ToString());
+                        currentQuantity = int.Parse(row["CurrentQuantity"].ToString());
+                        originalAndCurrentQuantity = originalQuantity.ToString() + " (" + currentQuantity + ")";
+                    }
+                    importer = row["ImporterName"].ToString();
+                    Stock stock = new Stock(writeoutDate, transactionDate, stockName, stockPrice, originalQuantity, transactionType, importer);
+                    if (stock.getTransactionType() == "Sell")
+                    {
+                        stock.setProfit(profit);
+                        stock.setEarningMethod(earningMethod);
+                    }
+                    else
+                    {
+                        stock.setCurrentQuantity(currentQuantity);
+                    }
+                    stock.setOriginalAndSellQuantity(originalAndCurrentQuantity);
+                    savedTransactionsStock.Add(stock);
+                }
+            }
+            /*
             sqlConn.Open();
             string query = "Select * From [importedStockTransactions]";
             SqlDataAdapter sda = new SqlDataAdapter(query, sqlConn);
@@ -250,7 +358,7 @@ namespace WpfApp1
             excel.Workbooks.Close();
             excel.Quit();
             */
-            sqlConn.Close();
+            //sqlConn.Close();
         }
         public static List<Transaction> getSavedTransactionsBank()
         {
@@ -294,8 +402,6 @@ namespace WpfApp1
         }
         ~SavedTransactions()
         {
-            excel.Application.Quit();
-            excel.Quit();
         }
     }
 }
