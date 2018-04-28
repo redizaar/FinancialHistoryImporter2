@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -37,6 +38,64 @@ namespace WpfApp1
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [UserInfo] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'Username' TEXT, 'Password' TEXT, 'AccountNumber' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string usernameInUseQuery = "select * from [UserInfo] where Username= '" + usernameTextbox.Text.ToString() + "'";
+            SQLiteCommand command = new SQLiteCommand(usernameInUseQuery, mConn);
+            DataTable dtb = new DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count == 1)
+            {
+                string decryptedPassword = decryptString(dtb.Rows[0][2].ToString());
+                if (decryptedPassword == passwordTextbox.Password.ToString())
+                {
+                    failedLogins = 0;
+                    User currentUser = new User();
+                    currentUser.setUsername(usernameTextbox.Text.ToString());
+                    currentUser.setAccountNumber(dtb.Rows[0][2].ToString());
+                    mainWindow.currentUserLabel.Content = currentUser.getUsername(); //notification label
+                    mainWindow.setCurrentUser(currentUser);
+                    this.Visibility = Visibility.Hidden;
+                    ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+                    mainWindow.MainFrame.Content = ImportPageBank.getInstance(mainWindow);
+                    mainWindow.importMenuTop.Visibility = Visibility.Visible;
+                    mainWindow.importDock.Background = new SolidColorBrush(Color.FromRgb(198, 61, 15));
+                    mainWindow.bankImport.Background = new SolidColorBrush(Color.FromRgb(255, 140, 105));
+                }
+                else
+                {
+                    failedLogins++;
+                    if (failedLogins >= 3)
+                    {
+                        timer1 = new DispatcherTimer();
+                        tik = 30;
+                        timer1.Interval = new TimeSpan(0, 0, 0, 1);
+                        timer1.Tick += new EventHandler(timer1_Tick);
+                        timer1.Start();
+                    }
+                    MessageBox.Show("Wrong username or password!");
+                }
+            }
+            else
+            {
+                failedLogins++;
+                if (failedLogins >= 3)
+                {
+                    timer1 = new DispatcherTimer();
+                    tik = 30;
+                    timer1.Interval = new TimeSpan(0, 0, 0, 1);
+                    timer1.Tick += new EventHandler(timer1_Tick);
+                    timer1.Start();
+                }
+                MessageBox.Show("Wrong username or password!");
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             string loginQuery = "Select * From [UserDatas] where username = '" + usernameTextbox.Text.ToString()+"'";
             SqlDataAdapter sda = new SqlDataAdapter(loginQuery,sqlConn);
@@ -87,6 +146,7 @@ namespace WpfApp1
                     timer1.Start();
                 }
             }
+            */
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -99,6 +159,7 @@ namespace WpfApp1
             {
                 loginButton.IsEnabled = true;
                 loginButton.Content = "Login";
+                failedLogins = 0;
             }
         }
         public string decryptString(string inputString)
