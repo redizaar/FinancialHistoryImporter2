@@ -14,6 +14,7 @@ namespace WpfApp1
 {
     public partial class MainWindow : Window
     {
+        public static string dbPath= AppDomain.CurrentDomain.BaseDirectory + "FHI_database.db";
         private bool newImport = false;
         public User currentUser;
         private string accountNumber = " ";
