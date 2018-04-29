@@ -26,6 +26,7 @@ namespace WpfApp1
     public partial class Register_Page : Page
     {
         private MainWindow mainWindow;
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         public Register_Page(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
@@ -125,7 +126,6 @@ namespace WpfApp1
 
         private bool checkUsername()
         {
-            SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
             mConn.Open();
             using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [UserInfo] " +
                         "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'Username' TEXT, 'Password' TEXT, 'AccountNumber' TEXT);", mConn))
@@ -137,6 +137,7 @@ namespace WpfApp1
             DataTable DT = new DataTable();
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
             adapter.Fill(DT);
+            mConn.Close();
             if (DT.Rows.Count == 0)
                 return true;
             else

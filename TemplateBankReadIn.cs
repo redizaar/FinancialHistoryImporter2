@@ -33,7 +33,6 @@ namespace WpfApp1
 
         public TemplateBankReadIn(ImportReadIn importReadin, Workbook workbook, Worksheet worksheet, MainWindow mainWindow, bool userSpecified)
         {
-            mConn.Open();
             worksheet = workbook.Worksheets[1];
             this.bankHanlder = importReadin;
             this.mainWindow = mainWindow;
@@ -623,6 +622,7 @@ namespace WpfApp1
             System.Data.DataTable dtb = new System.Data.DataTable();
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
             adapter.Fill(dtb);
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
@@ -749,6 +749,7 @@ namespace WpfApp1
             System.Data.DataTable dtb = new System.Data.DataTable();
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
             adapter.Fill(dtb);
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
@@ -791,7 +792,7 @@ namespace WpfApp1
                     for (int j = 1; j < int.Parse(splittedPriceColumns[i]); j++)
                         c1++;
                     string[] splittedStoredPriceColumns = priceColumnString.Split(',');
-                    for (int j = 0; j < splittedPriceColumns.Length; j++)
+                    for (int j = 0; j < splittedStoredPriceColumns.Length; j++)
                     {
                         if (splittedStoredPriceColumns[j] == c1.ToString())
                         {
@@ -923,6 +924,7 @@ namespace WpfApp1
             SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
             insercommand.CommandType = CommandType.Text;
             insercommand.ExecuteNonQuery();
+            mConn.Close();
         }
         private void writeNewRecordToSql(string input, int startingRow, string accountNumberPos, int dateColumn, string priceColumns, int balanceColumn, string commentColumns)
         {
@@ -981,6 +983,7 @@ namespace WpfApp1
             SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
             insercommand.CommandType = CommandType.Text;
             insercommand.ExecuteNonQuery();
+            mConn.Close();
         }
         /**
         * 1. az új utolsó balance cella értéke ami már nem volt null
@@ -1058,6 +1061,7 @@ namespace WpfApp1
 
         private string isMultiplePriceColumn(int row, int maxColumn)
         {
+            Console.WriteLine(row+" és "+maxColumn);
             Regex priceRegex1 = new Regex(@"Összeg");
             Regex priceRegex2 = new Regex(@"összeg");
             Regex priceRegex3 = new Regex(@"Terhelés$");
@@ -1077,20 +1081,40 @@ namespace WpfApp1
                             }
                             else if (priceRegex3.IsMatch(inputData))
                             {
+                                if (TransactionSheet.Cells[i, j + 2].Value != null)
+                                {
+                                    string inputData2 = TransactionSheet.Cells[i, j + 2].Value.ToString();
+                                    if (priceRegex4.IsMatch(inputData2))
+                                    {
+                                        int column2 = j + 2;
+                                        return j + "," + column2;
+                                    }
+                                }
+                                if (TransactionSheet.Cells[i, j - 2].Value != null)
+                                {
+                                    string inputData2 = TransactionSheet.Cells[i, j - 2].Value.ToString();
+                                    if (priceRegex4.IsMatch(inputData2))
+                                    {
+                                        int column2 = j - 2;
+                                        return column2 + "," + j;
+                                    }
+                                }
                                 if (TransactionSheet.Cells[i, j + 1].Value != null)
                                 {
                                     string inputData2 = TransactionSheet.Cells[i, j + 1].Value.ToString();
                                     if (priceRegex4.IsMatch(inputData2))
                                     {
-                                        return inputData + "," + inputData2;
+                                        int column2 = j + 1;
+                                        return j + "," + column2;
                                     }
                                 }
-                                else if (TransactionSheet.Cells[i, j - 1].Value != null)
+                                if (TransactionSheet.Cells[i, j - 1].Value != null)
                                 {
                                     string inputData2 = TransactionSheet.Cells[i, j - 1].Value.ToString();
                                     if (priceRegex4.IsMatch(inputData2))
                                     {
-                                        return inputData2 + "," + inputData2;
+                                        int column2 = j - 1;
+                                        return column2 + "," + j;
                                     }
                                 }
                             }
@@ -1676,10 +1700,6 @@ namespace WpfApp1
         public bool getCalculatedBalance()
         {
             return calculatedBalance;
-        }
-        ~TemplateBankReadIn()
-        {
-            mConn.Close();
         }
     }
 }

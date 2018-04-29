@@ -12,6 +12,7 @@ using System.Data;
 using System.IO;
 using System.Net;
 using System.Globalization;
+using System.Data.SQLite;
 
 namespace WpfApp1
 {
@@ -23,6 +24,7 @@ namespace WpfApp1
         private Worksheet stockWorksheet;
         private _Application excel = new _Excel.Application();
         private string temporaryExcel="";
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         private Dictionary<string, string> companyToCSV;
         private Dictionary<string, string> companyToTicker;
         private List<Stock> importedStocks;
@@ -900,6 +902,49 @@ namespace WpfApp1
         private void addImportFileDataToDB(int startingRow, string nameColumnString, string priceColumnString,
             string quantityColumnString, string dateColumnString, string transactionTypeColumnString)
         {
+
+            mConn.Open();
+            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsStock] " +
+                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
+                        "'StockName' TEXT, 'PriceColumn' TEXT, 'QuantityColumn' TEXT, 'DateColumn' TEXT, " +
+                        "'TypeColumn' TEXT);", mConn))
+            {
+                mCmd.ExecuteNonQuery();
+            }
+            string storedQuery = "";
+            storedQuery = "Select * From [StoredColumnsStock] where TransStartRow = '" + startingRow + "'" +
+            " AND StockName = '" + nameColumnString + "'" +
+            " AND PriceColumn = '" + priceColumnString + "'" +
+            " AND QuantityColumn = '" + quantityColumnString + "'" +
+            " AND DateColumn = '" + dateColumnString + "'" +
+            " AND TypeColumn = '" + transactionTypeColumnString + "'";
+            SQLiteCommand command = new SQLiteCommand(storedQuery, mConn);
+            System.Data.DataTable dtb = new System.Data.DataTable();
+            SQLiteDataAdapter adapter = new SQLiteDataAdapter(command);
+            adapter.Fill(dtb);
+            if (dtb.Rows.Count == 0)
+            {
+                string insertQuery = "insert into [StoredColumnsStock](BankName, TransStartRow, StockName,PriceColumn,QuantityColumn,DateColumn,TypeColumn) " +
+                        "values(";
+                if (SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString() == "Add new Type")
+                {
+                    string newBankName = SpecifiedImportStock.getInstance(null, mainWindow).newBankTextbox.Text.ToString();
+                    insertQuery += "'" + newBankName + "'";
+                }
+                else
+                {
+                    string bankName = SpecifiedImportStock.getInstance(null, mainWindow).storedTypesCB.SelectedItem.ToString();
+                    insertQuery += "'" + bankName + "'";
+                }
+                insertQuery += ",'" + startingRow + "','" + nameColumnString +
+                    "','" + priceColumnString + "','" + quantityColumnString +
+                    "','" + dateColumnString + "','" + transactionTypeColumnString + "')";
+                SQLiteCommand insercommand = new SQLiteCommand(insertQuery, mConn);
+                insercommand.CommandType = CommandType.Text;
+                insercommand.ExecuteNonQuery();
+                mConn.Close();
+            }
+            /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
 
@@ -935,6 +980,7 @@ namespace WpfApp1
                 sqlCommand.Parameters.AddWithValue("@typeColumn", transactionTypeColumnString);
                 sqlCommand.ExecuteNonQuery();
             }
+            */
         }
 
         public static int ExcelColumnNameToNumber(string columnName)

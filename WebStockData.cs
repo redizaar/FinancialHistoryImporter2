@@ -142,6 +142,7 @@ namespace WpfApp1
                     }
                 }
             }
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();

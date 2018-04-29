@@ -14,16 +14,15 @@ namespace WpfApp1
     public class SavedTransactions
     {
         public static List<Transaction> savedTransactionsBank;
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         public static List<Stock> savedTransactionsStock;
         private static SavedTransactions instance;
         private SqlConnection sqlConn;
-        SQLiteConnection mConn;
         private SavedTransactions()
         {
             savedTransactionsBank = new List<Transaction>();
             savedTransactionsStock = new List<Stock>();
-            sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
-            mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
+            //sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
         }
         public void readOutSavedBankTransactions()
         {
@@ -235,6 +234,7 @@ namespace WpfApp1
                     savedTransactionsStock.Add(stock);
                 }
             }
+            mConn.Close();
             /*
             sqlConn.Open();
             string query = "Select * From [importedStockTransactions]";

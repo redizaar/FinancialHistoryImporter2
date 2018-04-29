@@ -26,6 +26,7 @@ namespace WpfApp1
         public StoredColumnChecker() { }
         public void addDistinctBanksToCB()
         {
+            mConn.Open();
             foreach(var item in SpecifiedImportBank.getInstance(null,mainWindow).bankChoices.ToList())
             {
                 if (item != "Add new Bank")
@@ -50,6 +51,7 @@ namespace WpfApp1
                     SpecifiedImportBank.getInstance(null, mainWindow).bankChoices.Add(row["BankName"].ToString());
                 }
             }
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();
@@ -92,6 +94,7 @@ namespace WpfApp1
             */
             dtb = datatable;
             SpecifiedImportBank.getInstance(null, mainWindow).setDataTableFromSql(datatable);
+            mConn.Close();
         }
         public void setAnalyseWorksheet(string filePath)
         {
@@ -118,13 +121,6 @@ namespace WpfApp1
         }
         public DataRow findMostMatchingRow()
         {
-            using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [StoredColumnsBank] " +
-                        "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'BankName' TEXT, 'TransStartRow' INTEGER, " +
-                        "'AccountNumberPos' TEXT, 'DateColumn' TEXT, 'PriceColumn' TEXT, 'BalanceColumn' TEXT, " +
-                        "'CommentColumn' TEXT);", mConn))
-            {
-                mCmd.ExecuteNonQuery();
-            }
             if (dtb.Rows.Count > 0)
             {
                 DataRow mostMatches = null;
@@ -329,7 +325,6 @@ namespace WpfApp1
                         {
                             if (analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value != null)
                             {
-                                Console.WriteLine(priceColumns[0]);
                                 string pricecellValue = analyseWorksheet.Cells[transactionsRow, priceColumns[0]].Value.ToString();
                                 int temp;
                                 if (int.TryParse(pricecellValue, out temp))
@@ -374,12 +369,16 @@ namespace WpfApp1
                 SpecifiedImportBank.getInstance(null, mainWindow).accountNumberChoice = accountNumberComboBox;
                 SpecifiedImportBank.getInstance(null, mainWindow).accountNumberTextBox.Text = mostMatchingRow["AccountNumberPos"].ToString();
                 SpecifiedImportBank.getInstance(null, mainWindow).dateColumnTextBox.Text = mostMatchingRow["DateColumn"].ToString();
-                SpecifiedImportBank.getInstance(null, mainWindow).priceColumnChoice = priceComboBox;
-                if (priceComboBox == "One column")
+                string[] splittedPriceColumns = mostMatchingRow["PriceColumn"].ToString().Split(',');
+                if(splittedPriceColumns.Length==1)
+                {
+                    SpecifiedImportBank.getInstance(null, mainWindow).priceColumnChoice = "One column";
                     SpecifiedImportBank.getInstance(null, mainWindow).priceColumnTextBox_1.Text = mostMatchingRow["PriceColumn"].ToString();
+
+                }
                 else
                 {
-                    string[] splittedPriceColumns = mostMatchingRow["PriceColumn"].ToString().Split(',');
+                    SpecifiedImportBank.getInstance(null, mainWindow).priceColumnChoice = "Income,Spending";
                     SpecifiedImportBank.getInstance(null, mainWindow).priceColumnTextBox_1.Text = splittedPriceColumns[0];
                     SpecifiedImportBank.getInstance(null, mainWindow).priceColumnTextBox_1.Text = splittedPriceColumns[1];
                 }

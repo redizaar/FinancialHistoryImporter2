@@ -23,39 +23,19 @@ namespace WpfApp1
         {
             this.mainWindow = mainWindow;
             string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
-            for (int i = 0; i < transactions.Count; i++)
-            {
-                string [] spaceSplitted=transactions[i].getTransactionDate().Split(' ');
-                string dateString="";
-                for (int j = 0; j < spaceSplitted.Length; j++)
-                    dateString += spaceSplitted[j];
-            }
             MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
             //BUT FIRST - check if the transaction is already exported or not
-
             List<Transaction> neededTransactions = newTransactions(transactions);
             SavedTransactions.addToSavedTransactionsBank(neededTransactions);//adding the freshyl imported transactions to the saved
             if (neededTransactions != null)
             {
-                mConn.Open();
-                for (int i = 0; i < neededTransactions.Count; i++)
+                ThreadStart threadStart = delegate
                 {
-                    string insertQuery = "insert into [importedBankTransactions]" +
-                    "(ExportDate,TransactionDate,AccountBalance,Difference,Income,Spending,Comment,AccountNumber,BankName)" +
-                    " values('" + todaysDate + "','" + neededTransactions[i].getTransactionDate() + "','" + neededTransactions[i].getBalance_rn() + "','" + neededTransactions[i].getTransactionPrice() + "'";
-                    if (neededTransactions[i].getTransactionPrice() > 0)
-                    {
-                        insertQuery += ",'" + neededTransactions[i].getTransactionPrice() + "','" + DBNull.Value + "'";
-                    }
-                    else
-                    {
-                        insertQuery += ",'" + DBNull.Value + "','" + neededTransactions[i].getTransactionPrice() + "'";
-                    }
-                    insertQuery += ",'" + neededTransactions[i].getTransactionDescription() + "','" + neededTransactions[i].getAccountNumber() + "','" + neededTransactions[i].getBankname() + "')";
-                    SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
-                    insertcommand.CommandType = CommandType.Text;
-                    insertcommand.ExecuteNonQuery();
-                }
+                    writeTransactionsToDB(neededTransactions);
+                };
+                Thread sqlThread = new Thread(threadStart);
+                sqlThread.IsBackground = true;
+                sqlThread.Start();
                 ImportPageBank.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
             }
             /*
@@ -141,6 +121,30 @@ namespace WpfApp1
                 return;
             }
             */
+        }
+        private void writeTransactionsToDB(List<Transaction> transactions)
+        {
+            mConn.Open();
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                string insertQuery = "insert into [importedBankTransactions]" +
+                "(ExportDate,TransactionDate,AccountBalance,Difference,Income,Spending,Comment,AccountNumber,BankName)" +
+                " values('" + todaysDate + "','" + transactions[i].getTransactionDate() + "','" + transactions[i].getBalance_rn() + "','" + transactions[i].getTransactionPrice() + "'";
+                if (transactions[i].getTransactionPrice() > 0)
+                {
+                    insertQuery += ",'" + transactions[i].getTransactionPrice() + "','" + DBNull.Value + "'";
+                }
+                else
+                {
+                    insertQuery += ",'" + DBNull.Value + "','" + transactions[i].getTransactionPrice() + "'";
+                }
+                insertQuery += ",'" + transactions[i].getTransactionDescription() + "','" + transactions[i].getAccountNumber() + "','" + transactions[i].getBankname() + "')";
+                SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
+                insertcommand.CommandType = CommandType.Text;
+                insertcommand.ExecuteNonQuery();
+            }
+            mConn.Close();
         }
         private List<Transaction> newTransactions(List<Transaction> importedTransactions) //check if the transaction is already exported or not
         {
@@ -305,52 +309,13 @@ namespace WpfApp1
                     transactions[i].setEarningMethod(earningMethod);
                 }
                 MessageBox.Show("Exporting data from: " + currentFileName, "", MessageBoxButton.OK);
-
-                string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
-                Regex typeRegex1 = new Regex(@"Eladott");
-                Regex typeRegex2 = new Regex(@"Sold");
-                Regex typeRegex3 = new Regex(@"Sell");
-                Regex typeRegex4 = new Regex(@"Vásárolt");
-                Regex typeRegex5 = new Regex(@"Bought");
-                Regex typeRegex6 = new Regex(@"Buy");
-                mConn.Open();
-                for (int i = 0; i < transactions.Count; i++)
+                ThreadStart threadStart = delegate
                 {
-                    string insertQuery = "insert into [importedStockTransactions]" +
-                    "(ExportDate,TransactionDate,StockName," +
-                    "StockPrice,SoldQuantity,BoughtQuantity" +
-                    ",CurrentQuantity,Spending,Profit" +
-                    ",EarningMethod,ImporterName)" +
-                    " values('" + todaysDate + "','" + transactions[i].getTransactionDate() + "','" +
-                    transactions[i].getStockName() + "','" + transactions[i].getStockPrice() + "'";
-                    if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
-                       typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
-                       typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
-                    {
-                        insertQuery += ",'" + quantities[i] + "','" +
-                            DBNull.Value + "','" +
-                            DBNull.Value + "','" +
-                            DBNull.Value + "','" + 
-                            transactions[i].getProfit() +
-                            "','" + transactions[i].getEarningMethod() + "'";
-                    }
-                    else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
-                        typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
-                        typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
-                    {
-                        double stockPrice = double.Parse(transactions[i].getStockPrice(), CultureInfo.InvariantCulture);
-                        insertQuery += ",'" + DBNull.Value +
-                            "','" + quantities[i] +
-                            "','" + transactions[i].getQuantity() +
-                            "','" + stockPrice * quantities[i] +
-                            "','" + DBNull.Value +
-                            "','" + DBNull.Value + "'";
-                    }
-                    insertQuery += ",'" + transactions[i].getImporter() + "')";
-                    SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
-                    insertcommand.CommandType = CommandType.Text;
-                    insertcommand.ExecuteNonQuery();
-                }
+                    writeStocksToDB(transactions,quantities);
+                };
+                Thread sqlThread = new Thread(threadStart);
+                sqlThread.IsBackground = true;
+                sqlThread.Start();
                 SavedTransactions.addToSavedTransactionsStock(transactions);//adding the freshyl imported transactions to the saved 
                 ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
                 /*
@@ -442,6 +407,55 @@ namespace WpfApp1
                 */
             }
         }
+        private void writeStocksToDB(List<Stock> transactions,List<int> quantities)
+        {
+            mConn.Open();
+            string todaysDate = DateTime.Now.ToString("yyyy-MM-dd");
+            Regex typeRegex1 = new Regex(@"Eladott");
+            Regex typeRegex2 = new Regex(@"Sold");
+            Regex typeRegex3 = new Regex(@"Sell");
+            Regex typeRegex4 = new Regex(@"Vásárolt");
+            Regex typeRegex5 = new Regex(@"Bought");
+            Regex typeRegex6 = new Regex(@"Buy");
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                string insertQuery = "insert into [importedStockTransactions]" +
+                "(ExportDate,TransactionDate,StockName," +
+                "StockPrice,SoldQuantity,BoughtQuantity" +
+                ",CurrentQuantity,Spending,Profit" +
+                ",EarningMethod,ImporterName)" +
+                " values('" + todaysDate + "','" + transactions[i].getTransactionDate() + "','" +
+                transactions[i].getStockName() + "','" + transactions[i].getStockPrice() + "'";
+                if (typeRegex1.IsMatch(transactions[i].getTransactionType()) ||
+                   typeRegex2.IsMatch(transactions[i].getTransactionType()) ||
+                   typeRegex3.IsMatch(transactions[i].getTransactionType())) //Eladott
+                {
+                    insertQuery += ",'" + quantities[i] + "','" +
+                        DBNull.Value + "','" +
+                        DBNull.Value + "','" +
+                        DBNull.Value + "','" +
+                        transactions[i].getProfit() +
+                        "','" + transactions[i].getEarningMethod() + "'";
+                }
+                else if (typeRegex4.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex5.IsMatch(transactions[i].getTransactionType()) ||
+                    typeRegex6.IsMatch(transactions[i].getTransactionType()))//Vásárolt
+                {
+                    double stockPrice = double.Parse(transactions[i].getStockPrice(), CultureInfo.InvariantCulture);
+                    insertQuery += ",'" + DBNull.Value +
+                        "','" + quantities[i] +
+                        "','" + transactions[i].getQuantity() +
+                        "','" + stockPrice * quantities[i] +
+                        "','" + DBNull.Value +
+                        "','" + DBNull.Value + "'";
+                }
+                insertQuery += ",'" + transactions[i].getImporter() + "')";
+                SQLiteCommand insertcommand = new SQLiteCommand(insertQuery, mConn);
+                insertcommand.CommandType = CommandType.Text;
+                insertcommand.ExecuteNonQuery();
+            }
+            mConn.Close();
+        }
         public ExportTransactions(List<Stock> customTransactions, MainWindow mainWindow, string currentFileName,string customEarning)
         {
             for (int i = 0; i < customTransactions.Count; i++)
@@ -483,6 +497,7 @@ namespace WpfApp1
             }
             SavedTransactions.addToSavedTransactionsStock(customTransactions);//adding the freshyl imported transactions to the saved 
             ImportPageStock.getInstance(mainWindow).setUserStatistics(mainWindow.getCurrentUser());
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ImportFileData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             sqlConn.Open();

@@ -28,6 +28,7 @@ namespace WpfApp1
     {
         MainWindow mainWindow;
         private DispatcherTimer timer1;
+        private SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
         private static int tik;
         private int failedLogins=0;
         public Login_Page(MainWindow mainWindow)
@@ -37,7 +38,7 @@ namespace WpfApp1
             /*
             SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
             mConn.Open();
-            string dropTable = "Drop Table [importedStockTransactions]";
+            string dropTable = "Drop Table [importedBankTransactions]";
             SQLiteCommand command = new SQLiteCommand(dropTable, mConn);
             command.ExecuteNonQuery();
             */
@@ -45,7 +46,6 @@ namespace WpfApp1
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            SQLiteConnection mConn = new SQLiteConnection("Data Source=" + MainWindow.dbPath, true);
             mConn.Open();
             using (SQLiteCommand mCmd = new SQLiteCommand("CREATE TABLE IF NOT EXISTS [UserInfo] " +
                         "(id INTEGER PRIMARY KEY AUTOINCREMENT, 'Username' TEXT, 'Password' TEXT, 'AccountNumber' TEXT);", mConn))
@@ -102,6 +102,7 @@ namespace WpfApp1
                 }
                 MessageBox.Show("Wrong username or password!");
             }
+            mConn.Close();
             /*
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=LoginDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
             string loginQuery = "Select * From [UserDatas] where username = '" + usernameTextbox.Text.ToString()+"'";

@@ -96,6 +96,7 @@ namespace WpfApp1
                 sqlThread.Start();
                 sqlThread.Join();
             }
+            mConn.Close();
             /*
             string selectedItemQuery = "Select * From [Stock_WebData] Where Name='"+symbol+"'";
             SqlConnection sqlConn = new SqlConnection("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StockData;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
